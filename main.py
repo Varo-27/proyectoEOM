@@ -1,5 +1,4 @@
-from Tags import scrapTag
-
+from Places import scrapPlace
 
 if __name__ == "__main__":
-    scrapTag.searchTags()
+    scrapPlace.searchPlaces()
