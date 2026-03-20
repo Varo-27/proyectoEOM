@@ -17,9 +17,9 @@ def buscarAutores():
     soup = BeautifulSoup(resp.text, features="xml")
 
 
-
-    for url in soup.find_all("url"):
-        loc:str = url.find("loc").text
-        autor(loc)
+    autor("https://elordenmundial.com/author/valerii-pekar/")
+    # for url in soup.find_all("url"):
+    #     loc:str = url.find("loc").text
+    #     autor(loc)
 
 
