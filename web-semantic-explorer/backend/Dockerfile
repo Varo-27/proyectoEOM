@@ -27,11 +27,11 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     uv sync --frozen --no-install-workspace --package app
 
-COPY ./backend/scripts /app/backend/scripts
+COPY ./web-semantic-explorer/backend/scripts /app/web-semantic-explorer/backend/scripts
 
-COPY ./backend/pyproject.toml ./backend/alembic.ini /app/backend/
+COPY ./web-semantic-explorer/backend/pyproject.toml ./web-semantic-explorer/backend/alembic.ini* /app/web-semantic-explorer/backend/
 
-COPY ./backend/app /app/backend/app
+COPY ./web-semantic-explorer/backend/app /app/web-semantic-explorer/backend/app
 
 # Sync the project
 # Ref: https://docs.astral.sh/uv/guides/integration/docker/#intermediate-layers
@@ -40,6 +40,6 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     uv sync --frozen --package app
 
-WORKDIR /app/backend/
+WORKDIR /app/web-semantic-explorer/backend/
 
-CMD ["fastapi", "run", "--workers", "4", "app/main.py"]
+CMD ["bash", "-c", "bash ./scripts/prestart.sh && fastapi run --workers 4 app/main.py"]

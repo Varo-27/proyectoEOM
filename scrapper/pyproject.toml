@@ -1,8 +1,7 @@
 [project]
-name = "proyectoeom"
+name = "scrapper"
 version = "0.1.0"
-description = "Add your description here"
-readme = "README.md"
+description = "Scrapper dependencies"
 requires-python = ">=3.12"
 dependencies = [
     "beautifulsoup4>=4.14.3",

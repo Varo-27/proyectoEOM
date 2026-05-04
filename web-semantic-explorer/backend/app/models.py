@@ -65,12 +65,6 @@ class UsersPublic(SQLModel):
     data: list[UserPublic]
     count: int
 
-
-# Shared properties
-    data: list[ItemPublic]
-    count: int
-
-
 # Generic message
 class Message(SQLModel):
     message: str

@@ -3,13 +3,13 @@ FROM node:20-bullseye-slim AS build-stage
 
 WORKDIR /app
 
-COPY package.json pnpm-workspace.yaml pnpm-lock.yaml /app/
-COPY frontend/package.json /app/frontend/
+COPY web-semantic-explorer/package.json web-semantic-explorer/pnpm-workspace.yaml* web-semantic-explorer/pnpm-lock.yaml* /app/
+COPY web-semantic-explorer/frontend/package.json /app/frontend/
 
 RUN corepack enable && corepack prepare pnpm@10.32.1 --activate
 RUN pnpm install --frozen-lockfile
 
-COPY ./frontend /app/frontend
+COPY ./web-semantic-explorer/frontend /app/frontend
 ARG VITE_API_URL
 
 WORKDIR /app/frontend
@@ -21,5 +21,5 @@ FROM nginx:1
 
 COPY --from=build-stage /app/frontend/dist/ /usr/share/nginx/html
 
-COPY ./frontend/nginx.conf /etc/nginx/conf.d/default.conf
-COPY ./frontend/nginx-backend-not-found.conf /etc/nginx/extra-conf.d/backend-not-found.conf
+COPY ./web-semantic-explorer/frontend/nginx.conf /etc/nginx/conf.d/default.conf
+COPY ./web-semantic-explorer/frontend/nginx-backend-not-found.conf /etc/nginx/extra-conf.d/backend-not-found.conf

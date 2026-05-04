@@ -9,7 +9,7 @@ from Categories.scrapCategory import searchCategories
 from Articles.scrapArticle import searchArticles
 from Embeddings.process_articles import process_all_articles
 from Topics import generate_topics
-from sqlmodel import Session
+from sqlmodel import Session 
 from database import engine, check_db_connection
 
 def run_scrapers():
