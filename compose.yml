@@ -25,10 +25,13 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    volumes:
+      - hf-cache:/app/huggingface_cache
     env_file:
       - web-semantic-explorer/.env
     environment:
       - POSTGRES_SERVER=db
+      - HF_HOME=/app/huggingface_cache
     ports:
       - "8000:8000"
 
@@ -47,3 +50,5 @@ services:
 volumes:
   app-db-data:
     name: web-semantic-explorer_app-db-data
+  hf-cache:
+    name: web-semantic-explorer_hf-cache
