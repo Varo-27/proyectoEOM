@@ -20,13 +20,17 @@ class EmbeddingService:
             )
             print("Modelo cargado correctamente.")
 
-    @lru_cache(maxsize=1024)
     def embed_text(self, text: str) -> list[float]:
-        if self.model is None:
-            raise RuntimeError("El modelo no ha sido inicializado. Llama a load_model() en el ciclo de vida.")
-        # Generar embedding y normalizar para usar distancia de coseno en pgvector
-        vector = self.model.encode(text, normalize_embeddings=True)
-        return vector.tolist()
+        return _get_cached_embedding(text)
 
 # Instancia global para inyectar o usar en el backend
 embedding_client = EmbeddingService()
+
+# Función plana fuera de la clase para evitar cachear la instancia de la clase 'self'
+@lru_cache(maxsize=1024)
+def _get_cached_embedding(text: str) -> list[float]:
+    if embedding_client.model is None:
+        raise RuntimeError("El modelo no ha sido inicializado. Llama a load_model() en el ciclo de vida.")
+    # Generar embedding y normalizar para usar distancia de coseno en pgvector
+    vector = embedding_client.model.encode(text, normalize_embeddings=True)
+    return vector.tolist()

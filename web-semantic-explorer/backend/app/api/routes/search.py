@@ -44,7 +44,7 @@ def search_articles(
         select(Article, Embedding.vector.cosine_distance(query_vector).label("distance"))
         .join(Embedding, Article.id == Embedding.entity_id)
         .where(Embedding.entity_type == "article")
-        .order_by("distance")
+        .order_by(Embedding.vector.cosine_distance(query_vector))
         .limit(limit)
     )
     
