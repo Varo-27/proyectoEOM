@@ -1,43 +1,10 @@
-from typing import List
-import numpy as np
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
-from sqlmodel import select
+from fastapi import APIRouter
 
 from app.api.deps import SessionDep
-from app.models.article import Article
-from app.models.embedding import Embedding
-from app.api.routes.search import ArticleSearchResult 
+from app.schemas.graph import ExpandRequest, ExpandResponse
+from app.services import graph_service
 
 router = APIRouter(prefix="/graph", tags=["graph"])
-
-class ExpandRequest(BaseModel):
-    source_article_id: int
-    existing_node_ids: List[int]
-
-class GraphEdge(BaseModel):
-    id: str
-    source: str
-    target: str
-    similarity: float | None = None
-
-class GraphNode(BaseModel):
-    id: str
-    data: ArticleSearchResult
-
-class ExpandResponse(BaseModel):
-    new_nodes: List[GraphNode]
-    new_edges: List[GraphEdge]
-
-def calc_cosine_distance_np(v1: np.ndarray, v2: np.ndarray) -> float:
-    """Calcula la distancia del coseno usando numpy (código C ultra rápido)."""
-    # Manejar arrays 1D
-    norm_v1 = np.linalg.norm(v1)
-    norm_v2 = np.linalg.norm(v2)
-    if norm_v1 == 0 or norm_v2 == 0:
-        return 1.0
-    similarity = np.dot(v1, v2) / (norm_v1 * norm_v2)
-    return 1.0 - float(similarity)
 
 @router.post("/expand", response_model=ExpandResponse)
 def expand_graph(
@@ -50,91 +17,9 @@ def expand_graph(
     Expande el grafo a partir de un artículo. Retorna N nodos nuevos que no existan en existing_node_ids
     y calcula las aristas cruzadas entre los nuevos y los existentes según afinidad.
     """
-    # 1. Obtener el embedding original del nodo fuente
-    source_embed_row = session.exec(
-        select(Embedding.vector)
-        .where(Embedding.entity_id == request.source_article_id)
-        .where(Embedding.entity_type == "article")
-    ).first()
-    
-    if not source_embed_row:
-        raise HTTPException(status_code=404, detail="El artículo origen no existe o no tiene embeddings.")
-
-    # Convertimos explícitamente a list para no tener problemas de casting en DB (Punto 3 extra)
-    source_vector = source_embed_row.tolist() if hasattr(source_embed_row, 'tolist') else source_embed_row
-
-    # 2. Extraer Top 5 similares EXCLUYENDO los ya existentes (y el propio fuente por seguridad)
-    exclude_ids = request.existing_node_ids + [request.source_article_id]
-    
-    statement = (
-        select(Article, Embedding.vector.cosine_distance(source_vector).label("distance"), Embedding.vector)
-        .join(Embedding, Article.id == Embedding.entity_id)
-        .where(Embedding.entity_type == "article")
-        .where(Article.id.notin_(exclude_ids))
-        .order_by(Embedding.vector.cosine_distance(source_vector))
-        .limit(limit)
+    return graph_service.expand_graph(
+        session=session,
+        request=request,
+        limit=limit,
+        threshold=threshold
     )
-    
-    new_results = session.exec(statement).all()
-
-    new_nodes = []
-    new_edges = []
-    new_vectors = {}
-
-    # Construir Nodos Nuevos y Aristas Directas (Padre -> Hijo)
-    for article, distance, vector in new_results:
-        vector = vector.tolist() if hasattr(vector, 'tolist') else vector
-        similarity = 1 - float(distance)
-        str_id = str(article.id)
-        
-        node_data = ArticleSearchResult(
-            id=article.id,
-            title=article.title,
-            url=article.url,
-            excerpt=article.excerpt,
-            image_url=article.image_url,
-            date=article.date,
-            paywalled=article.paywalled,
-            similarity=similarity
-        )
-        
-        new_nodes.append(GraphNode(id=str_id, data=node_data))
-        new_vectors[str_id] = vector
-        
-        # Arista Padre -> Nuevo Nodo
-        new_edges.append(GraphEdge(
-            id=f"edge-{request.source_article_id}-{str_id}",
-            source=str(request.source_article_id),
-            target=str_id,
-            similarity=similarity
-        ))
-
-    # 3. Interconexión (Cruce de aristas). Calculamos afinidad de Nuevos vs Existentes
-    if request.existing_node_ids:
-        existing_vecs = session.exec(
-            select(Embedding.entity_id, Embedding.vector)
-            .where(Embedding.entity_type == "article")
-            .where(Embedding.entity_id.in_(request.existing_node_ids))
-        ).all()
-
-        max_distance = 1 - threshold
-
-        for existing_id, e_vector_raw in existing_vecs:
-            e_str_id = str(existing_id)
-            # Casteo explícito a numpy
-            e_vector_np = np.array(e_vector_raw)
-            for new_id, n_vector_raw in new_vectors.items():
-                n_vector_np = np.array(n_vector_raw)
-                
-                dist = calc_cosine_distance_np(n_vector_np, e_vector_np)
-                
-                if dist <= max_distance:
-                    sim = 1 - dist
-                    new_edges.append(GraphEdge(
-                        id=f"edge-{e_str_id}-{new_id}-cross",
-                        source=e_str_id,
-                        target=new_id,
-                        similarity=sim
-                    ))
-
-    return ExpandResponse(new_nodes=new_nodes, new_edges=new_edges)

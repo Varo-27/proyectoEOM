@@ -34,6 +34,17 @@ services:
       - HF_HOME=/app/huggingface_cache
     ports:
       - "8000:8000"
+    command:
+      - bash
+      - "-c"
+      - "bash ./scripts/prestart.sh && fastapi run --reload app/main.py"
+    develop:
+      watch:
+        - path: ./web-semantic-explorer/backend/app
+          action: sync
+          target: /app/web-semantic-explorer/backend/app
+        - path: ./web-semantic-explorer/backend/pyproject.toml
+          action: rebuild
 
   frontend:
     build:
