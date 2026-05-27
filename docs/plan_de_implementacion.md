@@ -22,8 +22,9 @@ Este documento contiene el plan estructurado en fases para el desarrollo de la i
 
 ---
 
-## 📍 Fase 1: El Motor Semántico (API Backend)
+## 📍 Fase 1: El Motor Semántico (API Backend) ✅
 *Objetivo: Exponer los datos del scrapper y la lógica vectorial mediante endpoints limpios para el frontend, incluyendo la lógica de grafos.*
+*Estado: Implementado.*
 
 *   **Fase 1a: Modelos y Cliente Embedding**
     *   Migrar/Compartir los modelos de `SQLModel` / `SQLAlchemy` (Article, Embedding, Topic, Author, etc.) desde el scrapper al directorio de backend (`web-semantic-explorer/backend/app/models.py`).
@@ -71,9 +72,57 @@ Este documento contiene el plan estructurado en fases para el desarrollo de la i
 
 ---
 
-## 📍 Fase 4: Experiencia de Usuario, Historial e Hibridación
-*Objetivo: Herramientas UX comunes alrededor del concepto central.*
+## 📍 Fase 4: Filtros Duros en Búsqueda y Grafo
+*Objetivo: Añadir filtros estrictos a la búsqueda semántica y expansión del grafo.*
 
-*   **Panel Lateral (Sidebar):** Al clicar en un nodo (además de expandirlo), abrir panel que liste: Título, Categorías, Autores, Fecha, Lugares, y un enlace original al artículo real (EOM).
-*   **Favoritos / Guardados:** Sistema simple integrado en UI (local storage para modo de invitado o tabla simple DB relacionada con usuario que provee la plantilla FastAPI web-semantic-explorer) para guardar referencias "Leer más tarde".
-*   **Opciones Híbridas:** Implementar selectores extra al buscar/expandir (ej. "Filtrar por año" o "Filtrar categoría"), cruzando consultas tradicionales SQL junto a los queries de distancia de `pgvector`.
+*   **Fase 4a: Contratos y DTOs de Filtros (Backend)**
+    * Añadir `SearchFilters` y `GraphFilters` con campos opcionales: `year`, `year_range`, `region`, `category`, `author`, `place`.
+    * Asegurar que los filtros sean "duros": si un filtro existe, la consulta debe respetarlo al 100%.
+*   **Fase 4b: Búsqueda Semántica con Filtros (Backend)**
+    * `/api/search` acepta filtros y combina SQL tradicional con `pgvector`.
+    * Reglas de desempate: distancia vectorial primero, luego fecha.
+*   **Fase 4c: Expansión del Grafo con Filtros (Backend)**
+    * `/api/graph/expand` acepta los mismos filtros y los aplica a la extracción y a las aristas cruzadas.
+*   **Fase 4d: UI de Filtros (Frontend)**
+    * Panel de filtros persistente en el buscador y en el sidebar del grafo.
+    * Estado de filtros en Zustand y serialización en la URL.
+
+## 📍 Fase 5: Memoria de Usuario y Señales Sociales
+*Objetivo: Dotar a la app de memoria por usuario y señales de valor.*
+
+*   **Fase 5a: Favoritos**
+    * Modelo `Favorite` por usuario-articulo.
+    * Endpoints: `POST /api/favorites`, `DELETE /api/favorites/{id}`, `GET /api/favorites`.
+*   **Fase 5b: Valoraciones (1-5)**
+    * Modelo `Rating` con restriccion unica por usuario-articulo.
+    * Endpoints: `POST /api/ratings`, `GET /api/ratings` (promedio + mi voto).
+*   **Fase 5c: Comentarios, Reportes y Moderacion Basica**
+    * Modelo `Comment` con estado (`active`, `flagged`, `hidden`).
+    * Modelo `Report` con motivo, usuario y referencia al comentario.
+    * Endpoints: crear comentario, reportar, listar por articulo, moderar (solo admin).
+*   **Fase 5d: Notas Privadas por Usuario**
+    * Modelo `Note` (usuario-articulo, texto libre, timestamps).
+    * Endpoint simple CRUD privado.
+*   **Fase 5e: Seguimiento de Temas, Autores o Lugares**
+    * Modelo `Follow` con tipo (`topic`, `author`, `place`).
+    * Endpoint para seguir/dejar de seguir y feed basico.
+
+## 📍 Fase 6: Mapa de Calor con Filtros Temporales
+*Objetivo: Mejorar la vista geoespacial con dimensiones de tiempo.*
+
+*   **Fase 6a: Backend**
+    * `/api/stats/heatmap` acepta `year` o `year_range`.
+    * Agregacion por pais y rango temporal.
+*   **Fase 6b: Frontend**
+    * Slider de tiempo y presets (ultimo ano, ultimos 5 anos).
+    * Sincronizacion con filtros globales.
+
+## 📍 Fase 7 (Opcional): Historial de Navegacion
+*Objetivo: Guardar las rutas del usuario sin complicar la arquitectura.*
+
+*   **Fase 7a: Historial Ligero**
+    * Registrar solo acciones clave (busqueda, nodo abierto, articulo visitado).
+    * Loteo y limpieza automatica (ej. max 500 entradas).
+*   **Fase 7b: UI de Historial**
+    * Lista cronologica con filtros basicos.
+    * Boton "Reabrir grafo" y "Repetir busqueda".

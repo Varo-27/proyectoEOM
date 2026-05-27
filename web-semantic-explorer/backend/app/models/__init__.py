@@ -1,4 +1,5 @@
 from .article import Article
+from .engagement import Comment, CommentReport, Favorite, Follow, Note, Rating
 from .embedding import Embedding
 from .relations import (
     ArticleAuthor,
