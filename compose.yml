@@ -49,14 +49,25 @@ services:
   frontend:
     build:
       context: .
-      dockerfile: web-semantic-explorer/frontend/Dockerfile
+      dockerfile: web-semantic-explorer/frontend/Dockerfile.dev
       args:
         - VITE_API_URL=http://localhost:8000
     restart: always
     depends_on:
       - backend
+    # Mantenemos el puerto 8080 público como pediste, conectado al 5173 de Vite interno
     ports:
-      - "8080:80"
+      - "8080:5173"
+    develop:
+      watch:
+        - path: ./web-semantic-explorer/frontend/src
+          action: sync
+          target: /app/frontend/src
+        - path: ./web-semantic-explorer/frontend/public
+          action: sync
+          target: /app/frontend/public
+        - path: ./web-semantic-explorer/frontend/package.json
+          action: rebuild
 
 volumes:
   app-db-data:

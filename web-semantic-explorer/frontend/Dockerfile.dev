@@ -1,0 +1,23 @@
+# Dockerfile.dev para desarrollo interactivo con Vite
+
+FROM node:20-bullseye-slim
+
+WORKDIR /app
+
+COPY web-semantic-explorer/package.json web-semantic-explorer/pnpm-workspace.yaml* web-semantic-explorer/pnpm-lock.yaml* /app/
+COPY web-semantic-explorer/frontend/package.json /app/frontend/
+
+RUN corepack enable && corepack prepare pnpm@10.32.1 --activate
+RUN pnpm install --frozen-lockfile
+
+COPY ./web-semantic-explorer/frontend /app/frontend
+ARG VITE_API_URL
+ENV VITE_API_URL=$VITE_API_URL
+
+WORKDIR /app/frontend
+
+# Exponer el puerto de Vite
+EXPOSE 5173
+
+# Lanzar vite asegurando que acepte conexiones externas (indispensable en Docker)
+CMD ["pnpm", "run", "dev", "--host"]

@@ -13,13 +13,19 @@ COPY ./web-semantic-explorer/frontend /app/frontend
 ARG VITE_API_URL
 
 WORKDIR /app/frontend
+
+# -- Development Stage --
+FROM build-stage AS development
+CMD ["pnpm", "run", "dev", "--host", "0.0.0.0", "--port", "5173"]
+
+# -- Builder Stage --
+FROM build-stage AS production-builder
 RUN pnpm run build
 
+# -- Production Stage --
+FROM nginx:1 AS production
 
-# Stage 1, based on Nginx, to have only the compiled app, ready for production with Nginx
-FROM nginx:1
-
-COPY --from=build-stage /app/frontend/dist/ /usr/share/nginx/html
+COPY --from=production-builder /app/frontend/dist/ /usr/share/nginx/html
 
 COPY ./web-semantic-explorer/frontend/nginx.conf /etc/nginx/conf.d/default.conf
 COPY ./web-semantic-explorer/frontend/nginx-backend-not-found.conf /etc/nginx/extra-conf.d/backend-not-found.conf
