@@ -5,6 +5,8 @@ import {
 } from "@xyflow/react"
 import { create } from "zustand"
 
+import { emptyFilters } from "@/lib/filters"
+
 import type { AppNode, GraphState } from "./graph/types"
 
 export type { AppNode, AppNodeData, GraphState } from "./graph/types"
@@ -17,6 +19,7 @@ export const useGraphStore = create<GraphState>((set, get) => ({
   selectedNode: null,
   modalOpen: false,
   expandSimilar: null,
+  filters: emptyFilters(),
 
   onNodesChange: (changes) => {
     set({
@@ -44,6 +47,13 @@ export const useGraphStore = create<GraphState>((set, get) => ({
   setSelectedNode: (selectedNode) => set({ selectedNode }),
   setModalOpen: (modalOpen) => set({ modalOpen }),
   setExpandSimilar: (expandSimilar) => set({ expandSimilar }),
+
+  setFilters: (filters) => set({ filters }),
+  updateFilters: (partial) =>
+    set((state) => ({
+      filters: { ...state.filters, ...partial },
+    })),
+  clearFilters: () => set({ filters: emptyFilters() }),
 
   clearGraph: () =>
     set({

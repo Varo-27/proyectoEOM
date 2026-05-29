@@ -1,5 +1,7 @@
 import type { Connection, Edge, EdgeChange, Node, NodeChange } from "@xyflow/react"
 
+import type { ArticleMetadataFilters } from "@/lib/filters"
+
 /** Payload de datos compartido por nodos de artículo y búsqueda en React Flow. */
 export type AppNodeData = {
   title: string
@@ -24,6 +26,7 @@ export interface GraphState {
   selectedNode: AppNode | null
   modalOpen: boolean
   expandSimilar: ((nodeId: string) => void) | null
+  filters: ArticleMetadataFilters
 
   onNodesChange: (changes: NodeChange[]) => void
   onEdgesChange: (changes: EdgeChange[]) => void
@@ -35,5 +38,8 @@ export interface GraphState {
   setSelectedNode: (node: AppNode | null) => void
   setModalOpen: (open: boolean) => void
   setExpandSimilar: (handler: ((nodeId: string) => void) | null) => void
+  setFilters: (filters: ArticleMetadataFilters) => void
+  updateFilters: (partial: Partial<ArticleMetadataFilters>) => void
+  clearFilters: () => void
   clearGraph: () => void
 }
