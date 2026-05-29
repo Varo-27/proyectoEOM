@@ -1,11 +1,12 @@
 import { useQuery } from "@tanstack/react-query"
 import { Loader2 } from "lucide-react"
 
-import { Dialog, DialogContent } from "@/components/ui/dialog"
 import {
-  fetchArticleDetailMock,
+  articleDetailQueryKey,
+  fetchArticleDetail,
   type ArticleDetail,
-} from "@/mocks/articleDetail.mock"
+} from "@/api/articles"
+import { Dialog, DialogContent } from "@/components/ui/dialog"
 import type { AppNode } from "@/store/useGraphStore"
 
 import { ArticleModalContent } from "./ArticleModalContent"
@@ -21,10 +22,12 @@ export function ArticleNodeModal({
   open,
   onOpenChange,
 }: ArticleNodeModalProps) {
-  const { data: detail, isLoading } = useQuery<ArticleDetail>({
-    queryKey: ["article-detail-mock", node?.id],
-    queryFn: () => fetchArticleDetailMock(node as AppNode),
-    enabled: open && node != null,
+  const articleId = node ? Number(node.id) : null
+
+  const { data: detail, isLoading, isError } = useQuery<ArticleDetail>({
+    queryKey: articleDetailQueryKey(articleId ?? "none"),
+    queryFn: () => fetchArticleDetail(articleId as number),
+    enabled: open && articleId != null && !Number.isNaN(articleId),
   })
 
   return (
@@ -40,7 +43,13 @@ export function ArticleNodeModal({
           </div>
         )}
 
-        {!isLoading && node && (
+        {isError && !isLoading && node && (
+          <div className="px-6 py-16 text-center text-sm text-muted-foreground">
+            No se pudo cargar el detalle del artículo.
+          </div>
+        )}
+
+        {!isLoading && !isError && node && (
           <ArticleModalContent node={node} detail={detail} />
         )}
       </DialogContent>

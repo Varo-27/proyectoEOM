@@ -1,6 +1,15 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { Handle, type NodeProps, Position } from "@xyflow/react"
-import { Sparkles } from "lucide-react"
+import { Heart, Sparkles } from "lucide-react"
 
+import {
+  articleDetailQueryKey,
+  fetchArticleDetail,
+  toggleArticleFavorite,
+  type ArticleDetail,
+} from "@/api/articles"
+import useCustomToast from "@/hooks/useCustomToast"
+import { isLoggedIn } from "@/hooks/useAuth"
 import { cn } from "@/lib/utils"
 import type { AppNode } from "@/store/useGraphStore"
 import { useGraphStore } from "@/store/useGraphStore"
@@ -9,6 +18,35 @@ export function ArticleNode({ id, data }: NodeProps<AppNode>) {
   const activeNodeId = useGraphStore((state) => state.activeNodeId)
   const expandSimilar = useGraphStore((state) => state.expandSimilar)
   const isActive = activeNodeId === id
+  const queryClient = useQueryClient()
+  const { showSuccessToast, showErrorToast } = useCustomToast()
+  const articleId = Number(id)
+  const detailKey = articleDetailQueryKey(articleId)
+  const loggedIn = isLoggedIn()
+
+  const { data: detail } = useQuery<ArticleDetail>({
+    queryKey: detailKey,
+    queryFn: () => fetchArticleDetail(articleId),
+    enabled: loggedIn && !Number.isNaN(articleId),
+    staleTime: 60_000,
+  })
+
+  const favoriteMutation = useMutation({
+    mutationFn: () => toggleArticleFavorite(articleId),
+    onSuccess: (response) => {
+      queryClient.setQueryData<ArticleDetail>(detailKey, (current) =>
+        current
+          ? { ...current, is_favorited: response.is_favorited }
+          : current,
+      )
+      showSuccessToast(
+        response.is_favorited ? "Añadido a favoritos" : "Quitado de favoritos",
+      )
+    },
+    onError: () => showErrorToast("No se pudo actualizar el favorito"),
+  })
+
+  const isFavorited = detail?.is_favorited ?? false
 
   return (
     <div
@@ -30,11 +68,39 @@ export function ArticleNode({ id, data }: NodeProps<AppNode>) {
           <span className="truncate text-[10px] font-mono font-bold uppercase tracking-widest text-primary">
             {data.category_name || "Artículo"}
           </span>
-          {data.author_name && (
-            <span className="max-w-[48%] truncate text-right text-[9px] font-mono uppercase tracking-widest text-muted-foreground">
-              {data.author_name}
-            </span>
-          )}
+          <div className="flex items-center gap-1.5 shrink-0">
+            {loggedIn && (
+              <button
+                type="button"
+                aria-label={
+                  isFavorited ? "Quitar de favoritos" : "Añadir a favoritos"
+                }
+                aria-pressed={isFavorited}
+                disabled={favoriteMutation.isPending}
+                className={cn(
+                  "nodrag nopan inline-flex items-center justify-center border border-foreground/30 p-1 transition-colors hover:border-foreground",
+                  isFavorited && "bg-primary text-primary-foreground",
+                )}
+                onClick={(event) => {
+                  event.stopPropagation()
+                  favoriteMutation.mutate()
+                }}
+                onMouseDown={(event) => event.stopPropagation()}
+              >
+                <Heart
+                  className={cn(
+                    "h-3.5 w-3.5",
+                    isFavorited && "fill-current",
+                  )}
+                />
+              </button>
+            )}
+            {data.author_name && (
+              <span className="max-w-[120px] truncate text-right text-[9px] font-mono uppercase tracking-widest text-muted-foreground">
+                {data.author_name}
+              </span>
+            )}
+          </div>
         </div>
 
         {data.imageUrl && (

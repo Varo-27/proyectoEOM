@@ -5,25 +5,36 @@ import {
   Heart,
   MapPin,
   MessageSquare,
+  Pencil,
   Tag,
+  Trash2,
 } from "lucide-react"
 import { useState } from "react"
 
+import {
+  articleDetailQueryKey,
+  createArticleComment,
+  deleteComment,
+  toggleArticleFavorite,
+  updateComment,
+  upsertArticleRating,
+  type ArticleDetail,
+} from "@/api/articles"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { Textarea } from "@/components/ui/textarea"
 import useCustomToast from "@/hooks/useCustomToast"
+import { isLoggedIn } from "@/hooks/useAuth"
 import { cn } from "@/lib/utils"
-import {
-  type ArticleDetail,
-  toggleFavoriteMock,
-} from "@/mocks/articleDetail.mock"
 import type { AppNode } from "@/store/useGraphStore"
 
 import { formatArticleDate } from "./articleModalUtils"
+import { InteractiveStarRating } from "./InteractiveStarRating"
 import { StarRating } from "./StarRating"
 
 type ArticleModalContentProps = {
@@ -31,26 +42,83 @@ type ArticleModalContentProps = {
   detail: ArticleDetail | undefined
 }
 
+function patchDetail(
+  current: ArticleDetail | undefined,
+  patch: Partial<ArticleDetail>,
+): ArticleDetail | undefined {
+  return current ? { ...current, ...patch } : current
+}
+
 export function ArticleModalContent({ node, detail }: ArticleModalContentProps) {
-  const [commentsOpen, setCommentsOpen] = useState(false)
+  const [commentsOpen, setCommentsOpen] = useState(true)
+  const [commentDraft, setCommentDraft] = useState("")
+  const [editingCommentId, setEditingCommentId] = useState<number | null>(null)
+  const [editDraft, setEditDraft] = useState("")
   const queryClient = useQueryClient()
-  const { showSuccessToast } = useCustomToast()
+  const { showSuccessToast, showErrorToast } = useCustomToast()
   const articleId = Number(node.id)
+  const detailKey = articleDetailQueryKey(articleId)
+  const loggedIn = isLoggedIn()
 
   const favoriteMutation = useMutation({
-    mutationFn: () => toggleFavoriteMock(articleId),
+    mutationFn: () => toggleArticleFavorite(articleId),
     onSuccess: (response) => {
-      queryClient.setQueryData<ArticleDetail>(
-        ["article-detail-mock", node.id],
-        (current) =>
-          current ? { ...current, is_favorited: response.is_favorited } : current,
+      queryClient.setQueryData<ArticleDetail>(detailKey, (current) =>
+        patchDetail(current, { is_favorited: response.is_favorited }),
       )
       showSuccessToast(
         response.is_favorited
-          ? "Artículo guardado en favoritos (mock)"
-          : "Artículo eliminado de favoritos (mock)",
+          ? "Artículo guardado en favoritos"
+          : "Artículo eliminado de favoritos",
       )
     },
+    onError: () => showErrorToast("No se pudo actualizar el favorito"),
+  })
+
+  const ratingMutation = useMutation({
+    mutationFn: (value: number) => upsertArticleRating(articleId, value),
+    onSuccess: (summary) => {
+      queryClient.setQueryData<ArticleDetail>(detailKey, (current) =>
+        patchDetail(current, {
+          user_rating: summary.user_rating,
+          average_rating: summary.average_rating,
+          ratings_count: summary.ratings_count,
+        }),
+      )
+      showSuccessToast("Valoración guardada")
+    },
+    onError: () => showErrorToast("No se pudo guardar la valoración"),
+  })
+
+  const commentMutation = useMutation({
+    mutationFn: (content: string) => createArticleComment(articleId, content),
+    onSuccess: async () => {
+      setCommentDraft("")
+      await queryClient.invalidateQueries({ queryKey: detailKey })
+      showSuccessToast("Comentario publicado")
+    },
+    onError: () => showErrorToast("No se pudo publicar el comentario"),
+  })
+
+  const updateCommentMutation = useMutation({
+    mutationFn: ({ id, content }: { id: number; content: string }) =>
+      updateComment(id, content),
+    onSuccess: async () => {
+      setEditingCommentId(null)
+      setEditDraft("")
+      await queryClient.invalidateQueries({ queryKey: detailKey })
+      showSuccessToast("Comentario actualizado")
+    },
+    onError: () => showErrorToast("No se pudo editar el comentario"),
+  })
+
+  const deleteCommentMutation = useMutation({
+    mutationFn: (commentId: number) => deleteComment(commentId),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: detailKey })
+      showSuccessToast("Comentario eliminado")
+    },
+    onError: () => showErrorToast("No se pudo eliminar el comentario"),
   })
 
   const displayTitle = detail?.title ?? node.data.title ?? "Sin título"
@@ -78,7 +146,6 @@ export function ArticleModalContent({ node, detail }: ArticleModalContentProps) 
         <DialogHeader className="space-y-3 text-left">
           <p className="text-[10px] uppercase font-mono tracking-widest text-primary font-bold">
             Artículo
-            <span className="ml-2 text-muted-foreground">· datos mock</span>
           </p>
           <DialogTitle className="font-serif text-2xl font-bold leading-tight text-pretty">
             <span className="eom-title-highlight">{displayTitle}</span>
@@ -141,41 +208,63 @@ export function ArticleModalContent({ node, detail }: ArticleModalContentProps) 
           </section>
         )}
 
-        <div className="flex flex-wrap items-center justify-between gap-4 border-t-2 border-foreground pt-4">
-          <div className="space-y-1">
-            <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
-              Valoración media
-            </p>
-            <div className="flex items-center gap-2">
-              {detail?.average_rating != null ? (
-                <>
-                  <StarRating value={detail.average_rating} />
-                  <span className="font-mono text-sm font-bold">
-                    {detail.average_rating.toFixed(1)} / 5
+        <div className="flex flex-wrap items-start justify-between gap-4 border-t-2 border-foreground pt-4">
+          <div className="space-y-3 min-w-[200px]">
+            <div className="space-y-1">
+              <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                Valoración media
+              </p>
+              <div className="flex items-center gap-2">
+                {detail?.average_rating != null ? (
+                  <>
+                    <StarRating value={detail.average_rating} />
+                    <span className="font-mono text-sm font-bold">
+                      {detail.average_rating.toFixed(1)} / 5
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      ({detail.ratings_count})
+                    </span>
+                  </>
+                ) : (
+                  <span className="text-sm text-muted-foreground">
+                    Sin valoraciones
                   </span>
-                  <span className="text-xs text-muted-foreground">
-                    ({detail.ratings_count})
-                  </span>
-                </>
-              ) : (
-                <span className="text-sm text-muted-foreground">
-                  Sin valoraciones
-                </span>
-              )}
+                )}
+              </div>
             </div>
+
+            {loggedIn && (
+              <div className="space-y-1">
+                <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                  Tu valoración
+                </p>
+                <InteractiveStarRating
+                  value={detail?.user_rating ?? null}
+                  disabled={ratingMutation.isPending}
+                  onChange={(value) => ratingMutation.mutate(value)}
+                />
+              </div>
+            )}
           </div>
 
           <button
             type="button"
-            disabled={favoriteMutation.isPending}
+            disabled={!loggedIn || favoriteMutation.isPending}
             aria-busy={favoriteMutation.isPending || undefined}
             aria-pressed={detail?.is_favorited ?? false}
-            onClick={() => favoriteMutation.mutate()}
+            onClick={() => {
+              if (!loggedIn) {
+                showErrorToast("Inicia sesión para guardar favoritos")
+                return
+              }
+              favoriteMutation.mutate()
+            }}
             className={cn(
               "inline-flex items-center gap-2 border-2 border-foreground px-4 py-2 text-[10px] uppercase tracking-widest transition-colors",
               detail?.is_favorited
                 ? "bg-primary text-primary-foreground"
                 : "bg-background hover:bg-muted",
+              !loggedIn && "opacity-60",
             )}
           >
             <Heart
@@ -213,28 +302,141 @@ export function ArticleModalContent({ node, detail }: ArticleModalContentProps) 
           </button>
 
           {commentsOpen && (
-            <div className="max-h-56 space-y-3 overflow-y-auto border-t-2 border-foreground px-4 py-3">
-              {!detail?.comments.length && (
-                <p className="text-sm text-muted-foreground">
-                  Aún no hay comentarios en este artículo.
-                </p>
-              )}
-              {detail?.comments.map((comment) => (
-                <article
-                  key={comment.id}
-                  className="border-l-2 border-primary/30 pl-3"
+            <div className="space-y-3 border-t-2 border-foreground px-4 py-3">
+              {loggedIn && (
+                <form
+                  className="space-y-2"
+                  onSubmit={(event) => {
+                    event.preventDefault()
+                    const trimmed = commentDraft.trim()
+                    if (!trimmed) return
+                    commentMutation.mutate(trimmed)
+                  }}
                 >
-                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
-                    {comment.author_name}
+                  <Textarea
+                    value={commentDraft}
+                    onChange={(event) => setCommentDraft(event.target.value)}
+                    placeholder="Escribe un comentario…"
+                    rows={3}
+                    className="rounded-none border-2 border-foreground text-sm"
+                  />
+                  <Button
+                    type="submit"
+                    size="sm"
+                    disabled={
+                      commentMutation.isPending || !commentDraft.trim()
+                    }
+                    className="rounded-none border-2 border-foreground uppercase tracking-widest text-[10px]"
+                  >
+                    Publicar
+                  </Button>
+                </form>
+              )}
+
+              <div className="max-h-56 space-y-3 overflow-y-auto">
+                {!detail?.comments.length && (
+                  <p className="text-sm text-muted-foreground">
+                    Aún no hay comentarios en este artículo.
                   </p>
-                  <p className="mt-1 text-sm leading-relaxed">
-                    {comment.content}
-                  </p>
-                  <p className="mt-1 text-[10px] text-muted-foreground">
-                    {formatArticleDate(comment.created_at)}
-                  </p>
-                </article>
-              ))}
+                )}
+                {detail?.comments.map((comment) => (
+                  <article
+                    key={comment.id}
+                    className="border-l-2 border-primary/30 pl-3"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                        {comment.author_name}
+                        {comment.is_own && (
+                          <span className="ml-2 text-primary">(tú)</span>
+                        )}
+                      </p>
+                      {comment.is_own && loggedIn && editingCommentId !== comment.id && (
+                        <div className="flex gap-1">
+                          <button
+                            type="button"
+                            aria-label="Editar comentario"
+                            className="p-1 text-muted-foreground hover:text-foreground"
+                            onClick={() => {
+                              setEditingCommentId(comment.id)
+                              setEditDraft(comment.content)
+                            }}
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            aria-label="Eliminar comentario"
+                            className="p-1 text-muted-foreground hover:text-destructive"
+                            disabled={deleteCommentMutation.isPending}
+                            onClick={() =>
+                              deleteCommentMutation.mutate(comment.id)
+                            }
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    {editingCommentId === comment.id ? (
+                      <form
+                        className="mt-2 space-y-2"
+                        onSubmit={(event) => {
+                          event.preventDefault()
+                          const trimmed = editDraft.trim()
+                          if (!trimmed) return
+                          updateCommentMutation.mutate({
+                            id: comment.id,
+                            content: trimmed,
+                          })
+                        }}
+                      >
+                        <Textarea
+                          value={editDraft}
+                          onChange={(event) =>
+                            setEditDraft(event.target.value)
+                          }
+                          rows={2}
+                          className="rounded-none border-2 border-foreground text-sm"
+                        />
+                        <div className="flex gap-2">
+                          <Button
+                            type="submit"
+                            size="sm"
+                            disabled={updateCommentMutation.isPending}
+                            className="rounded-none text-[10px] uppercase"
+                          >
+                            Guardar
+                          </Button>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            className="rounded-none text-[10px] uppercase"
+                            onClick={() => {
+                              setEditingCommentId(null)
+                              setEditDraft("")
+                            }}
+                          >
+                            Cancelar
+                          </Button>
+                        </div>
+                      </form>
+                    ) : (
+                      <p className="mt-1 text-sm leading-relaxed">
+                        {comment.content}
+                      </p>
+                    )}
+
+                    {editingCommentId !== comment.id && (
+                      <p className="mt-1 text-[10px] text-muted-foreground">
+                        {formatArticleDate(comment.created_at)}
+                      </p>
+                    )}
+                  </article>
+                ))}
+              </div>
             </div>
           )}
         </div>
