@@ -41,7 +41,7 @@ def expand_graph(
         .where(Embedding.entity_type == "article")
     ).first()
     
-    if not source_embed_row:
+    if source_embed_row is None:
         raise HTTPException(status_code=404, detail="El artículo origen no existe o no tiene embeddings.")
 
     # Convertimos explícitamente a list para no tener problemas de casting en DB (Punto 3 extra)
