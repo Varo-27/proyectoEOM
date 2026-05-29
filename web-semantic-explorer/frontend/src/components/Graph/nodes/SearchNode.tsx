@@ -11,20 +11,23 @@ export function SearchNode({ data }: NodeProps<AppNode>) {
 
   return (
     <div
-      className="graph-node-enter group relative w-70"
+      className="graph-node-enter group relative w-max max-w-[min(90vw,40rem)]"
       style={{
         animationDelay: data.appearDelay ? `${data.appearDelay}ms` : undefined,
       }}
     >
-      <div className="relative flex items-center gap-3 px-6 py-4 bg-foreground text-background rounded-full border-2 border-primary">
-        <div className="shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-          <Search className="w-4 h-4 text-primary" />
+      <div className="relative flex w-max max-w-full items-center gap-4 rounded-full border-2 border-primary bg-foreground px-8 py-5 text-background">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/20">
+          <Search className="h-6 w-6 text-primary" />
         </div>
-        <div className="flex flex-col flex-1 min-w-0">
-          <span className="text-[10px] uppercase font-mono tracking-widest text-primary/80">
+        <div className="flex shrink-0 flex-col gap-0.5">
+          <span className="whitespace-nowrap font-mono text-md uppercase tracking-widest text-primary/80">
             Semilla de búsqueda
           </span>
-          <span className="font-serif text-base font-bold truncate">
+          <span
+            className="max-w-lg truncate font-serif text-2xl font-bold leading-tight"
+            title={queryLabel}
+          >
             {queryLabel}
           </span>
         </div>

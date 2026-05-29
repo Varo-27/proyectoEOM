@@ -1,7 +1,6 @@
-import { Search, X } from "lucide-react"
+import { Search } from "lucide-react"
 import { useEffect, useState } from "react"
 
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
@@ -9,16 +8,12 @@ type SearchBarProps = {
   onSearch: (query: string) => void
   isLoading?: boolean
   initialQuery?: string
-  placeFilter?: string
-  onClearPlace?: () => void
 }
 
 export function SearchBar({
   onSearch,
   isLoading,
   initialQuery = "",
-  placeFilter,
-  onClearPlace,
 }: SearchBarProps) {
   const [query, setQuery] = useState(initialQuery)
 
@@ -35,26 +30,6 @@ export function SearchBar({
 
   return (
     <div className="absolute top-6 left-1/2 z-10 w-full max-w-xl -translate-x-1/2 px-4">
-      {placeFilter && (
-        <div className="mb-2 flex justify-center">
-          <Badge
-            variant="outline"
-            className="gap-2 rounded-none border-foreground px-3 py-1 text-[10px] uppercase tracking-widest"
-          >
-            Lugar: {placeFilter}
-            {onClearPlace && (
-              <button
-                type="button"
-                onClick={onClearPlace}
-                className="inline-flex items-center hover:text-foreground"
-                aria-label="Quitar filtro de lugar"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            )}
-          </Badge>
-        </div>
-      )}
       <form
         onSubmit={handleSubmit}
         className="relative flex w-full items-center overflow-hidden border-2 border-foreground bg-background shadow-[4px_4px_0_0_var(--color-foreground)]"
