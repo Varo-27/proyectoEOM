@@ -62,6 +62,20 @@ export const ArticleSearchResultSchema = {
         similarity: {
             type: 'number',
             title: 'Similarity'
+        },
+        authors: {
+            anyOf: [
+                {
+                    items: {
+                        type: 'string'
+                    },
+                    type: 'array'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Authors'
         }
     },
     type: 'object',

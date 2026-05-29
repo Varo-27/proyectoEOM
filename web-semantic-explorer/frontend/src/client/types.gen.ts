@@ -9,6 +9,7 @@ export type ArticleSearchResult = {
     date: (string | null);
     paywalled: boolean;
     similarity: number;
+    authors?: (Array<(string)> | null);
 };
 
 export type Body_login_login_access_token = {

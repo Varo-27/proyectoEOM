@@ -3,13 +3,22 @@ import {
     BackgroundVariant,
     Controls,
     MiniMap,
+    type NodeTypes,
     ReactFlow,
 } from "@xyflow/react"
 import "@xyflow/react/dist/style.css"
 
 import { SearchService } from "@/client"
 import { useGraphStore } from "@/store/useGraphStore"
+import { ArticleNode } from "./nodes/ArticleNode"
+import { SearchNode } from "./nodes/SearchNode"
 import { SearchBar } from "./SearchBar"
+
+// Corrección: tipar explícitamente el objeto nodeTypes
+const nodeTypes: NodeTypes = {
+    article: ArticleNode,
+    searchCenter: SearchNode,
+}
 
 export default function GraphExplorer() {
     const {
@@ -24,61 +33,55 @@ export default function GraphExplorer() {
         setLoading,
     } = useGraphStore()
 
-    const handleSearch = async (query: string) => {
+    const _handleSearch = async (query: string) => {
         setLoading(true)
-
         try {
             const response = await SearchService.searchArticles({
                 q: query,
                 limit: 5,
             })
 
-            // The search root node
-            const centralNode = {
+            const _centralNode = {
                 id: "search-root",
+                type: "searchCenter", // Asegúrate de que el tipo coincida con la clave en nodeTypes
                 position: {
-                    x: window.innerWidth / 2,
-                    y: window.innerHeight / 2,
+                    x: window.innerWidth / 2 - 140,
+                    y: window.innerHeight / 2 - 40,
                 },
-                data: {
-                    title: `Búsqueda: ${query}`,
-                    excerpt: "Resultados base extraídos semánticamente",
-                },
-                type: "default",
+                data: { title: `Búsqueda: ${query}` },
             }
 
-            // We'll place the new results simply in a radial layout for now
-            const radius = 250
-            const newNodes = response.results.map((article, i) => {
+            const _newNodes = response.results.map((article, i) => {
                 const angle = (i / response.results.length) * 2 * Math.PI
                 return {
                     id: String(article.id),
+                    type: "article",
                     position: {
-                        x: window.innerWidth / 2 + radius * Math.cos(angle),
-                        y: window.innerHeight / 2 + radius * Math.sin(angle),
+                        x: window.innerWidth / 2 + 350 * Math.cos(angle) - 160,
+                        y: window.innerHeight / 2 + 350 * Math.sin(angle) - 60,
                     },
                     data: {
                         title: article.title || "Sin título",
                         excerpt: article.excerpt || undefined,
                         url: article.url,
                         imageUrl: article.image_url || undefined,
-                        label: article.title || "Sin título",
+                        author_name: article.authors?.length
+                            ? article.authors.join(", ")
+                            : undefined,
                     },
-                    type: "default",
                 }
             })
 
-            // Connect root to the results
-            const newEdges = response.results.map((article) => ({
-                id: `edge-root-${article.id}`,
-                source: "search-root",
-                target: String(article.id),
-            }))
-
-            setNodes([centralNode, ...newNodes])
-            setEdges(newEdges)
+            setNodes([_centralNode, ..._newNodes])
+            setEdges(
+                response.results.map((article) => ({
+                    id: `edge-root-${article.id}`,
+                    source: "search-root",
+                    target: String(article.id),
+                })),
+            )
         } catch (error) {
-            console.error("Error during search:", error)
+            console.error("Error:", error)
         } finally {
             setLoading(false)
         }
@@ -86,11 +89,11 @@ export default function GraphExplorer() {
 
     return (
         <div className="relative w-full h-full bg-muted/20">
-            <SearchBar onSearch={handleSearch} isLoading={isLoading} />
-
+            <SearchBar onSearch={_handleSearch} isLoading={isLoading} />
             <ReactFlow
                 nodes={nodes}
                 edges={edges}
+                nodeTypes={nodeTypes}
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
                 onConnect={onConnect}

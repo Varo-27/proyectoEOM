@@ -6,6 +6,8 @@ from sqlmodel import select
 from app.api.deps import SessionDep
 from app.models.article import Article
 from app.models.embedding import Embedding
+from app.models.relations import ArticleAuthor
+from app.models.taxonomy import Author
 from app.schemas.graph import ExpandRequest, ExpandResponse, GraphNode, GraphEdge
 from app.schemas.search import ArticleSearchResult
 
@@ -63,6 +65,19 @@ def expand_graph(
     new_edges = []
     new_vectors = {}
 
+    new_article_ids = [article.id for article, _distance, _vector in new_results]
+    authors_map: dict[int, list[str]] = {}
+
+    if new_article_ids:
+        author_rows = session.exec(
+            select(ArticleAuthor.article_id, Author.name)
+            .join(Author, Author.id == ArticleAuthor.author_id)
+            .where(ArticleAuthor.article_id.in_(new_article_ids))
+        ).all()
+
+        for article_id, author_name in author_rows:
+            authors_map.setdefault(article_id, []).append(author_name)
+
     # Construir Nodos Nuevos y Aristas Directas (Padre -> Hijo)
     for article, distance, vector in new_results:
         vector = vector.tolist() if hasattr(vector, 'tolist') else vector
@@ -77,7 +92,8 @@ def expand_graph(
             image_url=article.image_url,
             date=article.date,
             paywalled=article.paywalled,
-            similarity=similarity
+            similarity=similarity,
+            authors=authors_map.get(article.id, [])
         )
         
         new_nodes.append(GraphNode(id=str_id, data=node_data))

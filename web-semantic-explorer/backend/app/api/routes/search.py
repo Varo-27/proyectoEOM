@@ -8,6 +8,8 @@ from app.api.deps import SessionDep
 from app.core.embeddings import embedding_client
 from app.models.article import Article
 from app.models.embedding import Embedding
+from app.models.relations import ArticleAuthor
+from app.models.taxonomy import Author
 from app.schemas.search import ArticleSearchResult, SearchResponse
 
 router = APIRouter(prefix="/search", tags=["search"])
@@ -37,6 +39,18 @@ def search_articles(
     
     # 3. Mapear y preparar respuesta JSON (La distancia va de 0 a 2, la convertimos a similitud)
     response_items = []
+    article_ids = [article.id for article, _distance in resultados_db]
+    authors_map: dict[int, list[str]] = {}
+
+    if article_ids:
+        author_rows = session.exec(
+            select(ArticleAuthor.article_id, Author.name)
+            .join(Author, Author.id == ArticleAuthor.author_id)
+            .where(ArticleAuthor.article_id.in_(article_ids))
+        ).all()
+
+        for article_id, author_name in author_rows:
+            authors_map.setdefault(article_id, []).append(author_name)
     for article, distance in resultados_db:
         # Transforma distancia coseno a un coeficiente de similitud (aprox 1.0 = idénticos)
         # La distancia_coseno en pgvector es (1 - similitud_coseno), por tanto similitud = 1 - distancia
@@ -51,7 +65,8 @@ def search_articles(
                 image_url=article.image_url,
                 date=article.date,
                 paywalled=article.paywalled,
-                similarity=similarity
+                similarity=similarity,
+                authors=authors_map.get(article.id, [])
             )
         )
         

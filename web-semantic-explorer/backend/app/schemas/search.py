@@ -11,6 +11,7 @@ class ArticleSearchResult(BaseModel):
     date: datetime | None
     paywalled: bool
     similarity: float
+    authors: list[str] | None = None
 
 class SearchResponse(BaseModel):
     query: str
