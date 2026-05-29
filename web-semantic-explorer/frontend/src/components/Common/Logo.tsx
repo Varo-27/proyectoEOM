@@ -11,25 +11,28 @@ interface LogoProps {
   variant?: "full" | "icon" | "responsive"
   className?: string
   asLink?: boolean
+  alt?: string
 }
 
 export function Logo({
   variant = "full",
   className,
   asLink = true,
+  alt = "FastAPI",
 }: LogoProps) {
   const { resolvedTheme } = useTheme()
   const isDark = resolvedTheme === "dark"
 
   const fullLogo = isDark ? logoLight : logo
   const iconLogo = isDark ? iconLight : icon
+  const imageAlt = asLink ? "" : alt
 
   const content =
     variant === "responsive" ? (
       <>
         <img
           src={fullLogo}
-          alt="FastAPI"
+          alt={imageAlt}
           className={cn(
             "h-6 w-auto group-data-[collapsible=icon]:hidden",
             className,
@@ -37,7 +40,8 @@ export function Logo({
         />
         <img
           src={iconLogo}
-          alt="FastAPI"
+          alt=""
+          aria-hidden="true"
           className={cn(
             "size-5 hidden group-data-[collapsible=icon]:block",
             className,
@@ -47,7 +51,7 @@ export function Logo({
     ) : (
       <img
         src={variant === "full" ? fullLogo : iconLogo}
-        alt="FastAPI"
+        alt={imageAlt}
         className={cn(variant === "full" ? "h-6 w-auto" : "size-5", className)}
       />
     )
@@ -56,5 +60,9 @@ export function Logo({
     return content
   }
 
-  return <Link to="/">{content}</Link>
+  return (
+    <Link to="/" aria-label={alt}>
+      {content}
+    </Link>
+  )
 }

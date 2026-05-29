@@ -19,9 +19,9 @@ const ErrorComponent = () => {
       <p className="text-lg text-muted-foreground mb-4 text-center z-10">
         Something went wrong. Please try again.
       </p>
-      <Link to="/">
-        <Button>Go Home</Button>
-      </Link>
+      <Button asChild>
+        <Link to="/">Go Home</Link>
+      </Button>
     </div>
   )
 }
