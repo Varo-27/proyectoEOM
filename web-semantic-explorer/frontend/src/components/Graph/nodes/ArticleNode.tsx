@@ -1,6 +1,7 @@
 import { Handle, type NodeProps, Position } from "@xyflow/react"
 import { Sparkles } from "lucide-react"
 
+import { cn } from "@/lib/utils"
 import type { AppNode } from "@/store/useGraphStore"
 import { useGraphStore } from "@/store/useGraphStore"
 
@@ -11,7 +12,10 @@ export function ArticleNode({ id, data }: NodeProps<AppNode>) {
 
   return (
     <div
-      className={`graph-node-enter graph-node-card group relative w-[300px] bg-background border-2 border-foreground shadow-[4px_4px_0_0_var(--color-foreground)] transition-all duration-300 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_0_var(--color-primary)] ${isActive ? "graph-node-active" : ""}`}
+      className={cn(
+        "graph-node-enter graph-node-card group relative w-[300px] border-2 border-foreground bg-background shadow-[4px_4px_0_0_var(--color-foreground)] transition-all duration-300 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_0_var(--color-primary)]",
+        isActive && "graph-node-active",
+      )}
       style={{
         animationDelay: data.appearDelay ? `${data.appearDelay}ms` : undefined,
       }}
@@ -38,14 +42,14 @@ export function ArticleNode({ id, data }: NodeProps<AppNode>) {
             <img
               src={data.imageUrl}
               alt={data.title}
-              className="h-full w-full object-cover filter grayscale transition-all duration-500 group-hover:grayscale-0"
+              className="h-full w-full object-cover"
             />
           </div>
         )}
 
         <div className="flex flex-col gap-2 p-3">
-          <h3 className="font-serif text-lg font-bold leading-snug text-foreground decoration-primary decoration-2 underline-offset-4 group-hover:underline">
-            {data.title}
+          <h3 className="font-serif text-lg font-bold leading-snug text-pretty text-foreground">
+            <span className="eom-title-highlight">{data.title}</span>
           </h3>
           {data.excerpt && (
             <p className="line-clamp-2 pl-2 text-xs leading-relaxed text-muted-foreground before:absolute relative before:left-0 before:top-0.5 before:bottom-0.5 before:w-0.5 before:bg-primary/25">

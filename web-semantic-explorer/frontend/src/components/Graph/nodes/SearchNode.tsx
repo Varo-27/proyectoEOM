@@ -2,10 +2,16 @@ import { Handle, type NodeProps, Position } from "@xyflow/react"
 import { Search } from "lucide-react"
 import type { AppNode } from "@/store/useGraphStore"
 
+const SEARCH_TITLE_PREFIX = "Búsqueda: "
+
 export function SearchNode({ data }: NodeProps<AppNode>) {
+  const queryLabel = data.title.startsWith(SEARCH_TITLE_PREFIX)
+    ? data.title.slice(SEARCH_TITLE_PREFIX.length)
+    : data.title
+
   return (
     <div
-      className="graph-node-enter relative group w-70"
+      className="graph-node-enter group relative w-70"
       style={{
         animationDelay: data.appearDelay ? `${data.appearDelay}ms` : undefined,
       }}
@@ -19,7 +25,7 @@ export function SearchNode({ data }: NodeProps<AppNode>) {
             Semilla de búsqueda
           </span>
           <span className="font-serif text-base font-bold truncate">
-            {data.title.replace("Búsqueda: ", "")}
+            {queryLabel}
           </span>
         </div>
       </div>
