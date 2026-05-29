@@ -1,0 +1,287 @@
+"""Mapeo de lugares EOM (español / slug) a ISO 3166-1 alpha-3."""
+
+from __future__ import annotations
+
+import re
+import unicodedata
+
+from app.place_geo_regions import NON_MAP_PLACES, REGION_TO_ISO
+
+# slug o nombre normalizado → ISO_A3 (país o territorio)
+PLACE_TO_ISO: dict[str, str] = {
+    # Principales
+    "espana": "ESP",
+    "estados-unidos": "USA",
+    "eeuu": "USA",
+    "reino-unido": "GBR",
+    "francia": "FRA",
+    "alemania": "DEU",
+    "italia": "ITA",
+    "ucrania": "UKR",
+    "rusia": "RUS",
+    "china": "CHN",
+    "japon": "JPN",
+    "india": "IND",
+    "brasil": "BRA",
+    "mexico": "MEX",
+    "argentina": "ARG",
+    "chile": "CHL",
+    "colombia": "COL",
+    "peru": "PER",
+    "venezuela": "VEN",
+    "canada": "CAN",
+    "australia": "AUS",
+    "turquia": "TUR",
+    "iran": "IRN",
+    "irak": "IRQ",
+    "israel": "ISR",
+    "palestina": "PSE",
+    "arabia-saudi": "SAU",
+    "egipto": "EGY",
+    "sudafrica": "ZAF",
+    "nigeria": "NGA",
+    "polonia": "POL",
+    "suecia": "SWE",
+    "noruega": "NOR",
+    "finlandia": "FIN",
+    "dinamarca": "DNK",
+    "belgica": "BEL",
+    "holanda": "NLD",
+    "paises-bajos": "NLD",
+    "portugal": "PRT",
+    "grecia": "GRC",
+    "austria": "AUT",
+    "suiza": "CHE",
+    "corea-del-sur": "KOR",
+    "corea-del-norte": "PRK",
+    "taiwan": "TWN",
+    "pakistan": "PAK",
+    "afganistan": "AFG",
+    "indonesia": "IDN",
+    "filipinas": "PHL",
+    "vietnam": "VNM",
+    "tailandia": "THA",
+    "nueva-zelanda": "NZL",
+    "irlanda": "IRL",
+    "chequia": "CZE",
+    "republica-checa": "CZE",
+    "hungria": "HUN",
+    "rumania": "ROU",
+    "bulgaria": "BGR",
+    "serbia": "SRB",
+    "croacia": "HRV",
+    "lituania": "LTU",
+    "letonia": "LVA",
+    "estonia": "EST",
+    "belarus": "BLR",
+    "bielorrusia": "BLR",
+    "kazajistan": "KAZ",
+    "kazajstan": "KAZ",
+    "kazajstán": "KAZ",
+    "kazakhstan": "KAZ",
+    "uzbekistan": "UZB",
+    "georgia": "GEO",
+    "armenia": "ARM",
+    "azerbaiyan": "AZE",
+    "libia": "LBY",
+    "argelia": "DZA",
+    "marruecos": "MAR",
+    "tunez": "TUN",
+    "etiopia": "ETH",
+    "kenia": "KEN",
+    "cuba": "CUB",
+    "nicaragua": "NIC",
+    "guatemala": "GTM",
+    "honduras": "HND",
+    "el-salvador": "SLV",
+    "panama": "PAN",
+    "ecuador": "ECU",
+    "bolivia": "BOL",
+    "paraguay": "PRY",
+    "uruguay": "URY",
+    "siria": "SYR",
+    "libano": "LBN",
+    "jordania": "JOR",
+    "yemen": "YEM",
+    "oman": "OMN",
+    "emiratos-arabes-unidos": "ARE",
+    "qatar": "QAT",
+    "catar": "QAT",
+    "kuwait": "KWT",
+    # Lista ampliada (variantes españolas EOM)
+    "bosnia-y-herzegovina": "BIH",
+    "bosnia-herzegovina": "BIH",
+    "kosovo": "XKX",
+    "sudan": "SDN",
+    "ciudad-del-vaticano": "VAT",
+    "vaticano": "VAT",
+    "albania": "ALB",
+    "montenegro": "MNE",
+    "myanmar": "MMR",
+    "birmania": "MMR",
+    "republica-democratica-del-congo": "COD",
+    "rd-congo": "COD",
+    "moldavia": "MDA",
+    "ruanda": "RWA",
+    "haiti": "HTI",
+    "macedonia": "MKD",
+    "macedonia-del-norte": "MKD",
+    "republica-dominicana": "DOM",
+    "costa-rica": "CRI",
+    "eslovenia": "SVN",
+    "malasia": "MYS",
+    "guyana": "GUY",
+    "mali": "MLI",
+    "turkmenistan": "TKM",
+    "banglades": "BGD",
+    "camerun": "CMR",
+    "niger": "NER",
+    "eslovaquia": "SVK",
+    "chad": "TCD",
+    "hong-kong": "HKG",
+    "barein": "BHR",
+    "bahréin": "BHR",
+    "sudan-del-sur": "SSD",
+    "burkina-faso": "BFA",
+    "tayikistan": "TJK",
+    "camboya": "KHM",
+    "guinea-ecuatorial": "GNQ",
+    "republica-arabe-saharaui-democratica": "ESH",
+    "sahara-occidental": "ESH",
+    "sahara-occ": "ESH",
+    "kirguistan": "KGZ",
+    "groenlandia": "GRL",
+    "somalia": "SOM",
+    "somaliland": "SOM",
+    "somalilandia": "SOM",
+    "mozambique": "MOZ",
+    "luxemburgo": "LUX",
+    "chipre": "CYP",
+    "puerto-rico": "PRI",
+    "senegal": "SEN",
+    "uganda": "UGA",
+    "jamaica": "JAM",
+    "guinea-bissau": "GNB",
+    "belice": "BLZ",
+    "gabon": "GAB",
+    "mauritania": "MRT",
+    "ghana": "GHA",
+    "costa-de-marfil": "CIV",
+    "cote-divoire": "CIV",
+    "surinam": "SUR",
+    "zambia": "ZMB",
+    "islandia": "ISL",
+    "burundi": "BDI",
+    "malta": "MLT",
+    "laos": "LAO",
+    "nepal": "NPL",
+    "cabo-verde": "CPV",
+    "angola": "AGO",
+    "botsuana": "BWA",
+    "botswana": "BWA",
+    "fiyi": "FJI",
+    "fiji": "FJI",
+    "andorra": "AND",
+    "eritrea": "ERI",
+    "liberia": "LBR",
+    "trinidad-y-tobago": "TTO",
+    "singapur": "SGP",
+    "barbados": "BRB",
+    "yibuti": "DJI",
+    "brunei": "BRN",
+    "kiribati": "KIR",
+    "sri-lanka": "LKA",
+    "republica-del-congo": "COG",
+    "congo": "COG",
+    "namibia": "NAM",
+    "republica-centroafricana": "CAF",
+    "nauru": "NRU",
+    "comoras": "COM",
+    "islas-marshall": "MHL",
+    "togo": "TGO",
+    "mongolia": "MNG",
+    "tuvalu": "TUV",
+    "sierra-leona": "SLE",
+    "seychelles": "SYC",
+    "benin": "BEN",
+    "gambia": "GMB",
+    "liechtenstein": "LIE",
+    "nueva-caledonia": "NCL",
+    "tanzania": "TZA",
+    "guinea": "GIN",
+    "vanuatu": "VUT",
+    "dominica": "DMA",
+    "bermudas": "BMU",
+    "bahamas": "BHS",
+    "samoa": "WSM",
+    "tonga": "TON",
+    "guayana-francesa": "GUF",
+    "granada": "GRD",
+    "micronesia": "FSM",
+    "san-marino": "SMR",
+    "gibraltar": "GIB",
+    "timor-oriental": "TLS",
+    "timor-leste": "TLS",
+    "maldivas": "MDV",
+    "islas-palaos": "PLW",
+    "palaos": "PLW",
+    "santa-elena": "SHN",
+    "islas-solomon": "SLB",
+    "islas-salomón": "SLB",
+    "salomon": "SLB",
+    "malaui": "MWI",
+    "madagascar": "MDG",
+    "antigua-y-barbuda": "ATG",
+    "antigua-barbuda": "ATG",
+    "palestino": "PSE",
+    "emiratos-arabes": "ARE",
+    "emiratos-arabes-unidos": "ARE",
+    "antartida": "ATA",
+    "antártida": "ATA",
+    "zimbabue": "ZWE",
+    "zimbabwe": "ZWE",
+    "butan": "BTN",
+    "bhutan": "BTN",
+}
+
+
+def _normalize_key(value: str) -> str:
+    normalized = unicodedata.normalize("NFKD", value)
+    ascii_only = normalized.encode("ascii", "ignore").decode("ascii")
+    ascii_only = ascii_only.lower().strip()
+    ascii_only = re.sub(r"[^a-z0-9]+", "-", ascii_only)
+    return ascii_only.strip("-")
+
+
+def resolve_country_code(name: str, slug: str | None = None) -> str | None:
+    for key in _candidate_keys(name, slug):
+        iso = PLACE_TO_ISO.get(key)
+        if iso:
+            return iso
+    return None
+
+
+def resolve_region_country_codes(name: str, slug: str | None = None) -> list[str]:
+    for key in _candidate_keys(name, slug):
+        if key in NON_MAP_PLACES:
+            return []
+        region = REGION_TO_ISO.get(key)
+        if region:
+            return sorted(region)
+    return []
+
+
+def resolve_map_country_codes(name: str, slug: str | None = None) -> list[str]:
+    """Códigos ISO para colorear el mapa (país único o expansión regional)."""
+    country = resolve_country_code(name, slug)
+    if country:
+        return [country]
+    return resolve_region_country_codes(name, slug)
+
+
+def _candidate_keys(name: str, slug: str | None = None) -> list[str]:
+    keys: list[str] = []
+    if slug:
+        keys.append(_normalize_key(slug))
+    keys.append(_normalize_key(name))
+    return keys
