@@ -4,7 +4,12 @@ import type { AppNode } from "@/store/useGraphStore"
 
 export function SearchNode({ data }: NodeProps<AppNode>) {
   return (
-    <div className="relative group w-[280px]">
+    <div
+      className="graph-node-enter relative group w-70"
+      style={{
+        animationDelay: data.appearDelay ? `${data.appearDelay}ms` : undefined,
+      }}
+    >
       <div className="relative flex items-center gap-3 px-6 py-4 bg-foreground text-background rounded-full border-2 border-primary">
         <div className="shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
           <Search className="w-4 h-4 text-primary" />
