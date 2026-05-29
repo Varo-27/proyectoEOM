@@ -1,10 +1,12 @@
 from typing import List
 from pydantic import BaseModel
+from app.schemas.filters import ArticleMetadataFilters
 from app.schemas.search import ArticleSearchResult
 
 class ExpandRequest(BaseModel):
     source_article_id: int
     existing_node_ids: List[int]
+    filters: ArticleMetadataFilters | None = None
 
 class GraphEdge(BaseModel):
     id: str

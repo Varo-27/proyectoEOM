@@ -3,12 +3,15 @@ from app.core.embeddings import embedding_client
 from app.models.article import Article
 from app.models.embedding import Embedding
 from app.schemas.search import ArticleSearchResult, SearchResponse
+from app.schemas.filters import ArticleMetadataFilters
+from app.services.filter_service import apply_metadata_filters
 
 def search_articles(
     *,
     session: Session,
     query: str,
-    limit: int = 5
+    limit: int = 5,
+    filters: ArticleMetadataFilters | None = None,
 ) -> SearchResponse:
     # 1. Convertir la frase del usuario a vector
     query_vector = embedding_client.embed_text(query)
@@ -18,6 +21,10 @@ def search_articles(
         select(Article, Embedding.vector.cosine_distance(query_vector).label("distance"))
         .join(Embedding, Article.id == Embedding.entity_id)
         .where(Embedding.entity_type == "article")
+    )
+    statement = apply_metadata_filters(statement, session, filters)
+    statement = (
+        statement
         .order_by(Embedding.vector.cosine_distance(query_vector))
         .limit(limit)
     )

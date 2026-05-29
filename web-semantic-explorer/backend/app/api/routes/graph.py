@@ -10,6 +10,7 @@ from app.models.relations import ArticleAuthor
 from app.models.taxonomy import Author
 from app.schemas.graph import ExpandRequest, ExpandResponse, GraphNode, GraphEdge
 from app.schemas.search import ArticleSearchResult
+from app.services.filter_service import apply_metadata_filters
 
 router = APIRouter(prefix="/graph", tags=["graph"])
 
@@ -55,6 +56,10 @@ def expand_graph(
         .join(Embedding, Article.id == Embedding.entity_id)
         .where(Embedding.entity_type == "article")
         .where(Article.id.notin_(exclude_ids))
+    )
+    statement = apply_metadata_filters(statement, session, request.filters)
+    statement = (
+        statement
         .order_by(Embedding.vector.cosine_distance(source_vector))
         .limit(limit)
     )

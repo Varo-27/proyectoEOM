@@ -2,6 +2,8 @@ from typing import List
 from datetime import datetime
 from pydantic import BaseModel
 
+from app.schemas.filters import ArticleMetadataFilters
+
 class ArticleSearchResult(BaseModel):
     id: int
     title: str | None
@@ -16,3 +18,10 @@ class ArticleSearchResult(BaseModel):
 class SearchResponse(BaseModel):
     query: str
     results: List[ArticleSearchResult]
+
+
+__all__ = [
+    "ArticleMetadataFilters",
+    "ArticleSearchResult",
+    "SearchResponse",
+]

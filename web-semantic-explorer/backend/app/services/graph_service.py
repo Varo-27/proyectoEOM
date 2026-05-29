@@ -7,6 +7,7 @@ from app.models.article import Article
 from app.models.embedding import Embedding
 from app.schemas.graph import ExpandRequest, ExpandResponse, GraphNode, GraphEdge
 from app.schemas.search import ArticleSearchResult
+from app.services.filter_service import apply_metadata_filters
 
 def calc_cosine_distance_np(v1: np.ndarray, v2: np.ndarray) -> float:
     """Calcula la distancia del coseno usando numpy (código C ultra rápido)."""
@@ -45,6 +46,10 @@ def expand_graph(
         .join(Embedding, Article.id == Embedding.entity_id)
         .where(Embedding.entity_type == "article")
         .where(Article.id.notin_(exclude_ids))
+    )
+    statement = apply_metadata_filters(statement, session, request.filters)
+    statement = (
+        statement
         .order_by(Embedding.vector.cosine_distance(source_vector))
         .limit(limit)
     )

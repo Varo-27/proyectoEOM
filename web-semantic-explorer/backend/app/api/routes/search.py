@@ -1,6 +1,3 @@
-from typing import List
-from datetime import datetime
-
 from fastapi import APIRouter, Query
 from sqlmodel import select
 
@@ -10,7 +7,9 @@ from app.models.article import Article
 from app.models.embedding import Embedding
 from app.models.relations import ArticleAuthor
 from app.models.taxonomy import Author
+from app.schemas.filters import ArticleMetadataFilters
 from app.schemas.search import ArticleSearchResult, SearchResponse
+from app.services.filter_service import apply_metadata_filters
 
 router = APIRouter(prefix="/search", tags=["search"])
 
@@ -18,11 +17,24 @@ router = APIRouter(prefix="/search", tags=["search"])
 def search_articles(
     session: SessionDep,
     q: str = Query(..., description="Texto libre a buscar en los artículos"),
-    limit: int = Query(5, description="Número máximo de artículos a devolver")
+    limit: int = Query(5, description="Número máximo de artículos a devolver"),
+    place: str | None = Query(None, description="Filtra por nombre o slug de Place"),
+    category: str | None = Query(None, description="Filtra por nombre de Category"),
+    author: str | None = Query(None, description="Filtra por nombre de Author"),
+    year_start: int | None = Query(None, description="Año mínimo de publicación (inclusive)"),
+    year_end: int | None = Query(None, description="Año máximo de publicación (inclusive)"),
 ):
     """
     Busca artículos semánticamente similares a la frase proporcionada mediante búsqueda vectorial (pgvector).
     """
+    filters = ArticleMetadataFilters(
+        place=place,
+        category=category,
+        author=author,
+        year_start=year_start,
+        year_end=year_end,
+    )
+
     # 1. Convertir la frase del usuario a vector usando el Singleton en memoria (caché automático si se repite)
     query_vector = embedding_client.embed_text(q)
     
@@ -31,6 +43,10 @@ def search_articles(
         select(Article, Embedding.vector.cosine_distance(query_vector).label("distance"))
         .join(Embedding, Article.id == Embedding.entity_id)
         .where(Embedding.entity_type == "article")
+    )
+    statement = apply_metadata_filters(statement, session, filters)
+    statement = (
+        statement
         .order_by(Embedding.vector.cosine_distance(query_vector))
         .limit(limit)
     )
