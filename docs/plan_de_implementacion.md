@@ -94,13 +94,14 @@ Este documento contiene el plan estructurado en fases para el desarrollo de la i
 ## 📍 Fase 5: Memoria de Usuario y Señales Sociales
 *Objetivo: Dotar a la aplicación de personalización y métricas de valor. (Nota: los modelos base en `SQLModel` como `Favorite`, `Rating`, `Comment` ya están implementados).*
 
-*   **Fase 5a: API de Interacción (Backend)**
-    *   Implementar URls para Favoritos (`POST/DELETE /api/favorites`).
-    *   Implementar URLs para Valoraciones (`POST /api/ratings`, `GET /api/ratings/average`).
-    *   Implementar CRUD básico para Comentarios.
-*   **Fase 5b: Integración de Acciones Sociales en Grafo/Panel (Frontend)**
-    *   Botón de favorito (estrella/corazón) en los Nodos y Panel de Detalles.
-    *   Sistema de reviews (5 estrellas) y seccion de comentarios dentro del artículo que se carga en el sidebar.
+*   **Fase 5a: API de Interacción (Backend)** ✅
+    *   `GET /api/v1/articles/{id}` — detalle con taxonomía, comentarios, rating y favorito del usuario.
+    *   Favoritos: `POST/DELETE /api/v1/favorites/{article_id}` y toggle en `/articles/{id}/favorite`.
+    *   Valoraciones: `POST /api/v1/ratings?article_id=…`, `GET /api/v1/ratings/average`, `POST /articles/{id}/rating`.
+    *   Comentarios: listado/creación por artículo; `PATCH/DELETE /api/v1/comments/{id}`.
+*   **Fase 5b: Integración de Acciones Sociales en Grafo/Panel (Frontend)** ✅
+    *   Cliente `@/api/articles` + modal y nodo con favorito real (sin mock).
+    *   Valoración interactiva (5 estrellas) y CRUD de comentarios propios en el panel.
 *   **Fase 5c: Seguimiento y Notas Privadas (Próximos pasos)**
     *   Modelos de Base de Datos y Endpoints para "Notas Privadas por Usuario" (anotación en markdown por artículo).
     *   Sistema básico de seguimiento (Follow) a temas puntuales.
