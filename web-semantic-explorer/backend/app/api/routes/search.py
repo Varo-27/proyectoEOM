@@ -11,6 +11,8 @@ from app.models.embedding import Embedding
 from app.schemas.search import ArticleSearchResult, SearchResponse
 
 router = APIRouter(prefix="/search", tags=["search"])
+
+@router.get("", response_model=SearchResponse)
 def search_articles(
     session: SessionDep,
     q: str = Query(..., description="Texto libre a buscar en los artículos"),
