@@ -1,15 +1,14 @@
 import type { FeatureCollection } from "geojson"
 import { useEffect, useMemo, useState } from "react"
-
+import {
+  buildChoroplethScene,
+  CHOROPLETH_OCEAN_RECT,
+} from "@/lib/choroplethScene"
 import {
   getCountryFill,
   HEATMAP_SEA_FILL,
   loadWorldCountriesGeoJson,
 } from "@/lib/heatmapColors"
-import {
-  buildChoroplethScene,
-  CHOROPLETH_OCEAN_RECT,
-} from "@/lib/choroplethScene"
 import { DEFAULT_PROJECTION_ID } from "@/lib/mapProjections"
 
 import { useChoroplethZoom } from "./hooks/useChoroplethZoom"
@@ -114,21 +113,47 @@ export function WorldChoropleth({
               hoveredRegionCodes,
             )
 
+            const isInteractive = Boolean(country.isoCode)
+
+            if (!isInteractive) {
+              return (
+                <path
+                  key={country.key}
+                  d={country.path}
+                  fill={fill}
+                  stroke="var(--map-stroke)"
+                  strokeWidth={0.45 / transform.k}
+                  aria-hidden
+                />
+              )
+            }
+
             return (
-              <path
+              <g
                 key={country.key}
-                d={country.path}
-                fill={fill}
-                stroke="var(--map-stroke)"
-                strokeWidth={0.45 / transform.k}
-                style={{ cursor: country.isoCode ? "pointer" : "default" }}
+                role="button"
+                tabIndex={0}
+                aria-label={country.name}
+                style={{ cursor: "pointer" }}
                 onMouseEnter={() =>
                   onHoverCountry(country.isoCode ?? null, country.name)
                 }
                 onMouseLeave={() => onHoverCountry(null)}
                 onClick={() => onSelectCountry(country.isoCode, country.name)}
-                aria-label={country.name}
-              />
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault()
+                    onSelectCountry(country.isoCode, country.name)
+                  }
+                }}
+              >
+                <path
+                  d={country.path}
+                  fill={fill}
+                  stroke="var(--map-stroke)"
+                  strokeWidth={0.45 / transform.k}
+                />
+              </g>
             )
           })}
         </g>

@@ -32,10 +32,7 @@ export function useHeatmapData() {
 
   const entries = data?.entries ?? []
 
-  const countryCounts = useMemo(
-    () => buildCountryCounts(entries),
-    [entries],
-  )
+  const countryCounts = useMemo(() => buildCountryCounts(entries), [entries])
   const maxCount = useMemo(() => getMaxCount(countryCounts), [countryCounts])
 
   const placeGroups = useMemo<HeatmapPlaceGroups>(() => {

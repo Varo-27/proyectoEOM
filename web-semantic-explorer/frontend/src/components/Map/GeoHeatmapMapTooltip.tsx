@@ -16,11 +16,7 @@ export function GeoHeatmapMapTooltip({
   hoveredDirect,
   hoveredRegions,
 }: GeoHeatmapMapTooltipProps) {
-  const {
-    hoveredCode,
-    hoveredName,
-    hoveredRegionEntry,
-  } = hoverState
+  const { hoveredCode, hoveredName, hoveredRegionEntry } = hoverState
 
   const visible =
     hoveredDirect ||

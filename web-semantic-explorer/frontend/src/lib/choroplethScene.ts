@@ -2,10 +2,7 @@ import { geoPath } from "d3-geo"
 import type { FeatureCollection } from "geojson"
 
 import { getGeoIsoCode } from "@/lib/heatmapColors"
-import {
-  getProjectionOption,
-  type MapProjectionId,
-} from "@/lib/mapProjections"
+import { getProjectionOption, type MapProjectionId } from "@/lib/mapProjections"
 
 export type RenderCountry = {
   key: string

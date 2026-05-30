@@ -82,8 +82,7 @@ export function buildCountryCounts(
   for (const entry of entries) {
     if (isRegionEntry(entry)) continue
 
-    const code =
-      entry.map_country_codes?.[0] ?? entry.country_code ?? undefined
+    const code = entry.map_country_codes?.[0] ?? entry.country_code ?? undefined
     if (!code) continue
 
     counts.set(code, (counts.get(code) ?? 0) + entry.article_count)

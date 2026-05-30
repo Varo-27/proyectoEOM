@@ -1,12 +1,12 @@
 import { select } from "d3-selection"
-import { zoom, zoomIdentity, type ZoomTransform } from "d3-zoom"
+import { type ZoomTransform, zoom, zoomIdentity } from "d3-zoom"
 import { useCallback, useEffect, useRef, useState } from "react"
 
 import type { MapProjectionId } from "@/lib/mapProjections"
 
 export function useChoroplethZoom(
   countriesLoaded: boolean,
-  projectionId: MapProjectionId,
+  _projectionId: MapProjectionId,
 ) {
   const svgRef = useRef<SVGSVGElement>(null)
   const [transform, setTransform] = useState<ZoomTransform>(zoomIdentity)
@@ -34,7 +34,7 @@ export function useChoroplethZoom(
     if (!svgEl) return
     select(svgEl).call(zoom<SVGSVGElement, unknown>().transform, zoomIdentity)
     setTransform(zoomIdentity)
-  }, [projectionId])
+  }, [])
 
   const resetView = useCallback(() => {
     const svgEl = svgRef.current

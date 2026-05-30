@@ -21,8 +21,9 @@ import { useMapHoverState } from "./hooks/useMapHoverState"
 import { WorldChoropleth } from "./WorldChoropleth"
 
 export function GeoHeatmap() {
-  const [projectionId, setProjectionId] =
-    useState<MapProjectionId>(DEFAULT_PROJECTION_ID)
+  const [projectionId, setProjectionId] = useState<MapProjectionId>(
+    DEFAULT_PROJECTION_ID,
+  )
 
   const {
     data,
