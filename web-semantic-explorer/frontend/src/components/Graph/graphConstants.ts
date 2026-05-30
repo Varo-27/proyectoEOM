@@ -22,17 +22,17 @@ export const GRAPH_LAYOUT_TREE = {
   nodeWidth: 300,
   nodeHeight: 220,
   horizontalGap: 140,
-  verticalGap: 220,
-  offsetY: 140,
+  verticalGap: 300,
+  offsetY: 180,
 } as const
 
 /** Distribución radial inicial de resultados antes del layout en árbol. */
 export const GRAPH_SEARCH_RADIAL = {
-  radius: 560,
-  spread: Math.PI / 1.3,
+  radius: 780,
+  spread: Math.PI / 1.1,
   baseAngle: Math.PI / 2,
-  centerOffsetX: 140,
-  centerOffsetY: 40,
+  centerOffsetX: 160,
+  centerOffsetY: 60,
   articleOffsetX: 160,
   articleOffsetY: 60,
 } as const
@@ -40,6 +40,9 @@ export const GRAPH_SEARCH_RADIAL = {
 export const EXPAND_SIMILAR_LIMIT = 5
 export const EXPAND_SIMILAR_THRESHOLD = 0.85
 export const SEARCH_ARTICLES_LIMIT = 5
+
+/** Pausa entre artículos al revelar resultados de búsqueda (ms). */
+export const SEARCH_REVEAL_STAGGER_MS = 150
 
 export const DEFAULT_ARTICLE_TITLE = "Sin título"
 

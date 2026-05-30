@@ -61,13 +61,7 @@ function FilterNodeComponent({ id, data }: NodeProps<AppNode>) {
   const isYearField = filterKey === "year_start" || filterKey === "year_end"
 
   return (
-    <div
-      className="graph-node graph-node--filter"
-      data-enter-animate={data.appearDelay ? true : undefined}
-      style={{
-        animationDelay: data.appearDelay ? `${data.appearDelay}ms` : undefined,
-      }}
-    >
+    <div className="graph-node graph-node--filter">
       <Handle type="target" position={Position.Top} className="rf-handle" />
       <div className="graph-node__surface">
         <div className="graph-node__filter-header">

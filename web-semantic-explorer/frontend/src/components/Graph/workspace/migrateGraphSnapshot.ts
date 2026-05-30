@@ -48,9 +48,21 @@ export function migrateGraphSnapshot(
 
   return {
     ...snapshot,
-    nodes: ensureDefaultInput(nodes),
+    nodes: stripAppearDelay(ensureDefaultInput(nodes)),
     edges,
   }
+}
+
+/** Evita re-animar artículos al rehidratar el workspace. */
+function stripAppearDelay(nodes: AppNode[]): AppNode[] {
+  return nodes.map((node) => {
+    if (node.data.appearDelay == null) {
+      return node
+    }
+
+    const { appearDelay: _removed, ...data } = node.data
+    return { ...node, data }
+  })
 }
 
 function remapEdgeId(edgeId: string, nodeIdMap: Map<string, string>): string {

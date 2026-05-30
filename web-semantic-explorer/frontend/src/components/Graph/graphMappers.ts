@@ -111,11 +111,18 @@ export function createSearchResultNodesAround(
   results: ArticleSearchResult[],
   center: { x: number; y: number },
 ): AppNode[] {
-  const { radius, spread, baseAngle, articleOffsetX, articleOffsetY } =
-    GRAPH_SEARCH_RADIAL
+  const {
+    radius,
+    spread,
+    baseAngle,
+    centerOffsetX,
+    centerOffsetY,
+    articleOffsetX,
+    articleOffsetY,
+  } = GRAPH_SEARCH_RADIAL
   const total = results.length
-  const centerX = center.x + 140
-  const centerY = center.y + 40
+  const centerX = center.x + centerOffsetX
+  const centerY = center.y + centerOffsetY
 
   return results.map((article, index) => {
     const t = total > 1 ? index / (total - 1) : 0.5

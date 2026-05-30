@@ -15,6 +15,7 @@ import {
   EXPAND_SIMILAR_THRESHOLD,
   getStaggerDelay,
   SEARCH_ARTICLES_LIMIT,
+  SEARCH_REVEAL_STAGGER_MS,
 } from "./graphConstants"
 import {
   createSearchEdges,
@@ -23,8 +24,10 @@ import {
   graphNodeToAppNode,
   updateInputNodeQuery,
 } from "./graphMappers"
+import { applyTreeLayout } from "./graphLayout"
 import { GRAPH_NODE_TYPE } from "./graphNodeTypes"
 import { mergeGraphArticles } from "./mergeGraphArticles"
+import { revealGraphNodesStaggered } from "./revealGraphNodesStaggered"
 import {
   collectDownstreamArticleIds,
   removeEdgesTouchingNodes,
@@ -36,6 +39,7 @@ type GraphExplorerActionsDeps = {
   setActiveNodeId: (nodeId: string | null) => void
   setSelectedNode: (node: AppNode | null) => void
   setModalOpen: (open: boolean) => void
+  centerViewportOnNode: (nodeId: string) => void
 }
 
 export function useGraphExplorerActions({
@@ -44,6 +48,7 @@ export function useGraphExplorerActions({
   setActiveNodeId,
   setSelectedNode,
   setModalOpen,
+  centerViewportOnNode,
 }: GraphExplorerActionsDeps) {
   const expandSimilarFromNode = useCallback(
     async (node: AppNode) => {
@@ -80,10 +85,7 @@ export function useGraphExplorerActions({
         const newNodes = response.new_nodes.map((newNode, index) =>
           graphNodeToAppNode(
             newNode,
-            {
-              x: node.position.x + (index - 2) * 40,
-              y: node.position.y + 120 + index * 30,
-            },
+            { x: node.position.x, y: node.position.y },
             getStaggerDelay(index, 120, 80),
           ),
         )
@@ -101,8 +103,11 @@ export function useGraphExplorerActions({
           newEdges,
         )
 
-        setNodes(mergedNodes)
+        const layoutedNodes = applyTreeLayout(mergedNodes, mergedEdges)
+
+        setNodes(layoutedNodes)
         useGraphStore.getState().setEdges(mergedEdges)
+        centerViewportOnNode(node.id)
 
         if (newNodes.length === 0) {
           toast.message("Sin artículos nuevos", {
@@ -120,7 +125,7 @@ export function useGraphExplorerActions({
         setLoading(false)
       }
     },
-    [setLoading, setNodes],
+    [centerViewportOnNode, setLoading, setNodes],
   )
 
   const searchFromInputNode = useCallback(
@@ -173,21 +178,62 @@ export function useGraphExplorerActions({
           },
         )
 
-        const resultNodes = createSearchResultNodesAround(
+        const resultNodesRaw = createSearchResultNodesAround(
           response.results,
           inputNode.position,
         )
-        const newEdges = createSearchEdges(response.results, inputNodeId)
 
-        const { nodes: mergedNodes, edges: mergedEdges } = mergeGraphArticles(
-          keptNodes,
-          keptEdges,
-          resultNodes,
-          newEdges,
+        const newEdges = createSearchEdges(response.results, inputNodeId)
+        const mergedForLayout = [...keptNodes, ...resultNodesRaw]
+        const mergedEdgesForLayout = dedupeEdgesById([...keptEdges, ...newEdges])
+        const layoutedNodes = applyTreeLayout(
+          mergedForLayout,
+          mergedEdgesForLayout,
         )
 
-        setNodes(mergedNodes)
-        useGraphStore.getState().setEdges(dedupeEdgesById(mergedEdges))
+        const layoutedKeptNodes = keptNodes.map((node) => {
+          const layouted = layoutedNodes.find(
+            (candidate) => candidate.id === node.id,
+          )
+          return layouted ?? node
+        })
+
+        const layoutedResultNodes = resultNodesRaw.map((node) => {
+          const layouted = layoutedNodes.find(
+            (candidate) => candidate.id === node.id,
+          )
+          return {
+            ...(layouted ?? node),
+            data: {
+              ...(layouted ?? node).data,
+              appearDelay: 0,
+            },
+          }
+        })
+
+        await revealGraphNodesStaggered(
+          layoutedKeptNodes,
+          keptEdges,
+          layoutedResultNodes,
+          newEdges,
+          SEARCH_REVEAL_STAGGER_MS,
+          (nodes, edges) => {
+            setNodes(nodes)
+            useGraphStore.getState().setEdges(dedupeEdgesById(edges))
+          },
+        )
+
+        const { nodes: finalNodes } = useGraphStore.getState()
+        setNodes(
+          finalNodes.map((node) => {
+            if (node.data.appearDelay == null) {
+              return node
+            }
+            const { appearDelay: _removed, ...data } = node.data
+            return { ...node, data }
+          }),
+        )
+        centerViewportOnNode(inputNodeId)
       } catch (error) {
         console.error("Error en búsqueda desde input:", error)
         toast.error("No se pudo buscar", {
@@ -198,7 +244,14 @@ export function useGraphExplorerActions({
         setLoading(false)
       }
     },
-    [setActiveNodeId, setLoading, setModalOpen, setNodes, setSelectedNode],
+    [
+      centerViewportOnNode,
+      setActiveNodeId,
+      setLoading,
+      setModalOpen,
+      setNodes,
+      setSelectedNode,
+    ],
   )
 
   return { expandSimilarFromNode, searchFromInputNode }

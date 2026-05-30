@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { Handle, type NodeProps, Position } from "@xyflow/react"
 import { Heart, Sparkles } from "lucide-react"
 import { memo } from "react"
+import { useShallow } from "zustand/react/shallow"
 
 import {
   type ArticleDetail,
@@ -18,11 +19,16 @@ import { useGraphStore } from "@/store/useGraphStore"
 import { NodeDeleteButton } from "./NodeDeleteButton"
 
 function ArticleNodeComponent({ id, data }: NodeProps<AppNode>) {
-  const activeNodeId = useGraphStore((state) => state.activeNodeId)
-  const expandSimilar = useGraphStore((state) => state.expandSimilar)
-  const setSelectedNode = useGraphStore((state) => state.setSelectedNode)
-  const setModalOpen = useGraphStore((state) => state.setModalOpen)
-  const setActiveNodeId = useGraphStore((state) => state.setActiveNodeId)
+  const { activeNodeId, expandSimilar, setSelectedNode, setModalOpen, setActiveNodeId } =
+    useGraphStore(
+      useShallow((state) => ({
+        activeNodeId: state.activeNodeId,
+        expandSimilar: state.expandSimilar,
+        setSelectedNode: state.setSelectedNode,
+        setModalOpen: state.setModalOpen,
+        setActiveNodeId: state.setActiveNodeId,
+      })),
+    )
   const usesLinkedContext = data.hasLinkedDownstreamContext === true
   const isActive = activeNodeId === id
   const queryClient = useQueryClient()
@@ -52,6 +58,7 @@ function ArticleNodeComponent({ id, data }: NodeProps<AppNode>) {
   })
 
   const isFavorited = detail?.is_favorited ?? false
+  const shouldEnterAnimate = typeof data.appearDelay === "number"
 
   return (
     <div
@@ -59,10 +66,12 @@ function ArticleNodeComponent({ id, data }: NodeProps<AppNode>) {
         "graph-node graph-node--article",
         isActive && "graph-node-active",
       )}
-      data-enter-animate={data.appearDelay ? true : undefined}
-      style={{
-        animationDelay: data.appearDelay ? `${data.appearDelay}ms` : undefined,
-      }}
+      {...(shouldEnterAnimate ? { "data-enter-animate": true } : {})}
+      style={
+        shouldEnterAnimate
+          ? { animationDelay: `${data.appearDelay}ms` }
+          : undefined
+      }
     >
       <Handle type="target" position={Position.Top} className="rf-handle" />
       <div className="graph-node__surface">

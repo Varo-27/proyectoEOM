@@ -7,9 +7,10 @@ import { useTheme } from "@/components/theme-provider"
 import { cn } from "@/lib/utils"
 import { type AppNode, useGraphStore } from "@/store/useGraphStore"
 import { useWorkspaceStore } from "@/store/workspace/useWorkspaceStore"
+import type { WorkspaceViewport } from "@/store/workspace/types"
 import { ArticleNodeModal } from "./ArticleNodeModal"
-import { GraphFlowCanvas } from "./GraphFlowCanvas"
 import { GRAPH_NODE_TYPE } from "./graphNodeTypes"
+import { GraphFlowCanvas } from "./GraphFlowCanvas"
 import { ArticleNode } from "./nodes/ArticleNode"
 import { FilterNode } from "./nodes/FilterNode"
 import { InputNode } from "./nodes/InputNode"
@@ -20,6 +21,7 @@ import {
 } from "./palette/createPaletteNode"
 import { GraphNodePalette } from "./palette/GraphNodePalette"
 import { isPaletteDragEvent, readPaletteDragData } from "./palette/paletteDrag"
+import { scheduleCenterViewportOnNode } from "./centerViewportOnNode"
 import { useGraphExplorerActions } from "./useGraphExplorerActions"
 import { useWorkspaceAutosave } from "./workspace/useWorkspaceAutosave"
 import { WorkspaceBar } from "./workspace/WorkspaceBar"
@@ -31,12 +33,15 @@ const nodeTypes: NodeTypes = {
   searchCenter: SearchNode,
 }
 
+const VIEWPORT_SAVE_MS = 800
+
 export default function GraphExplorer() {
   const { resolvedTheme } = useTheme()
   const reactFlowRef = useRef<import("@xyflow/react").ReactFlowInstance<
     AppNode,
     Edge
   > | null>(null)
+  const viewportSaveTimerRef = useRef<number | null>(null)
   const [isCanvasDragOver, setIsCanvasDragOver] = useState(false)
 
   const hydrateForCurrentUser = useWorkspaceStore(
@@ -77,6 +82,10 @@ export default function GraphExplorer() {
     })),
   )
 
+  const centerViewportOnNode = useCallback((nodeId: string) => {
+    scheduleCenterViewportOnNode(reactFlowRef.current, nodeId)
+  }, [])
+
   const { expandSimilarFromNode, searchFromInputNode } =
     useGraphExplorerActions({
       setNodes,
@@ -84,6 +93,7 @@ export default function GraphExplorer() {
       setActiveNodeId,
       setSelectedNode,
       setModalOpen,
+      centerViewportOnNode,
     })
 
   useEffect(() => {
@@ -115,6 +125,9 @@ export default function GraphExplorer() {
 
   useEffect(() => {
     return () => {
+      if (viewportSaveTimerRef.current) {
+        window.clearTimeout(viewportSaveTimerRef.current)
+      }
       const viewport = reactFlowRef.current?.getViewport()
       captureActiveWorkspace(
         viewport ? { x: viewport.x, y: viewport.y, zoom: viewport.zoom } : null,
@@ -135,6 +148,19 @@ export default function GraphExplorer() {
     enabled: isWorkspaceHydrated,
   })
 
+  const scheduleViewportSave = useCallback(
+    (viewport: WorkspaceViewport | null) => {
+      if (viewportSaveTimerRef.current) {
+        window.clearTimeout(viewportSaveTimerRef.current)
+      }
+      viewportSaveTimerRef.current = window.setTimeout(() => {
+        captureActiveWorkspace(viewport)
+        viewportSaveTimerRef.current = null
+      }, VIEWPORT_SAVE_MS)
+    },
+    [captureActiveWorkspace],
+  )
+
   const handleFlowInit = useCallback(
     (instance: import("@xyflow/react").ReactFlowInstance<AppNode, Edge>) => {
       reactFlowRef.current = instance
@@ -143,10 +169,10 @@ export default function GraphExplorer() {
   )
 
   const handleMoveEnd = useCallback(
-    (viewport: { x: number; y: number; zoom: number } | null) => {
-      captureActiveWorkspace(viewport)
+    (viewport: WorkspaceViewport | null) => {
+      scheduleViewportSave(viewport)
     },
-    [captureActiveWorkspace],
+    [scheduleViewportSave],
   )
 
   const handleCanvasDragOver = useCallback((event: React.DragEvent) => {

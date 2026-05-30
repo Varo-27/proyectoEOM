@@ -32,13 +32,7 @@ function InputNodeComponent({ id, data }: NodeProps<AppNode>) {
   }
 
   return (
-    <div
-      className="graph-node graph-node--input"
-      data-enter-animate={data.appearDelay ? true : undefined}
-      style={{
-        animationDelay: data.appearDelay ? `${data.appearDelay}ms` : undefined,
-      }}
-    >
+    <div className="graph-node graph-node--input">
       <Handle type="target" position={Position.Top} className="rf-handle" />
       <div className="graph-node__surface">
         <div className="graph-node__header-row">

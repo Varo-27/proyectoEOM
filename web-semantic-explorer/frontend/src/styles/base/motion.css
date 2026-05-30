@@ -9,6 +9,10 @@
   }
 }
 
+.graph-node[data-enter-animate] {
+  animation: graph-node-enter 420ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .graph-node,
   .graph-node[data-enter-animate] {
