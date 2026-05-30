@@ -50,7 +50,7 @@ function GraphFlowCanvasComponent({
   const reactFlowRef = useRef<ReactFlowInstance<AppNode, Edge> | null>(null)
   const fitViewDoneRef = useRef(false)
   const isDraggingRef = useRef(false)
-  const skipStoreSyncRef = useRef(false)
+  const flowNodesRef = useRef<AppNode[]>([])
 
   const storeNodes = useGraphStore((state) => state.nodes)
   const edges = useGraphStore((state) => state.edges)
@@ -59,16 +59,14 @@ function GraphFlowCanvasComponent({
   const commitNodes = useGraphStore((state) => state.commitNodes)
 
   const [flowNodes, setFlowNodes] = useState(storeNodes)
+  flowNodesRef.current = flowNodes
 
   useEffect(() => {
-    if (skipStoreSyncRef.current) {
-      skipStoreSyncRef.current = false
+    if (isDraggingRef.current) {
       return
     }
-
-    if (!isDraggingRef.current) {
-      setFlowNodes(storeNodes)
-    }
+    flowNodesRef.current = storeNodes
+    setFlowNodes(storeNodes)
   }, [storeNodes])
 
   useEffect(() => {
@@ -78,7 +76,6 @@ function GraphFlowCanvasComponent({
 
     const active = useWorkspaceStore.getState().getActiveWorkspace()
     const saved = active?.graph.viewport
-
     fitViewDoneRef.current = true
 
     requestAnimationFrame(() => {
@@ -86,12 +83,10 @@ function GraphFlowCanvasComponent({
       if (!flow) {
         return
       }
-
       if (saved) {
         flow.setViewport(saved)
         return
       }
-
       flow.fitView(GRAPH_FIT_VIEW_OPTIONS)
     })
   }, [isWorkspaceHydrated, storeNodes.length])
@@ -106,22 +101,26 @@ function GraphFlowCanvasComponent({
 
   const handleNodesChange = useCallback(
     (changes: NodeChange[]) => {
+      const next = applyNodeChanges(changes, flowNodesRef.current) as AppNode[]
+      flowNodesRef.current = next
+      setFlowNodes(next)
+
       if (isActiveNodeDrag(changes)) {
         isDraggingRef.current = true
-        setFlowNodes((current) => applyNodeChanges(changes, current) as AppNode[])
         return
       }
 
       isDraggingRef.current = false
-      setFlowNodes((current) => {
-        const next = applyNodeChanges(changes, current) as AppNode[]
-        skipStoreSyncRef.current = true
+      queueMicrotask(() => {
         commitNodes(next, changes)
-        return next
       })
     },
     [commitNodes],
   )
+
+  const handleNodeDragStop = useCallback(() => {
+    isDraggingRef.current = false
+  }, [])
 
   const handleMoveEnd = useCallback(() => {
     const viewport = reactFlowRef.current?.getViewport()
@@ -153,6 +152,7 @@ function GraphFlowCanvasComponent({
       onEdgesDelete={onEdgesDelete}
       deleteKeyCode={["Backspace", "Delete"]}
       onInit={handleFlowInit}
+      onNodeDragStop={handleNodeDragStop}
       onMoveEnd={handleMoveEnd}
       onNodeClick={onNodeClick}
       colorMode={colorMode}

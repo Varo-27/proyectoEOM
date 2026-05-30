@@ -1,6 +1,5 @@
 import type { NodeChange } from "@xyflow/react"
 
-/** Cambios de posición mientras el usuario arrastra (no persistir en store global aún). */
 export function isActiveNodeDrag(changes: NodeChange[]): boolean {
   return (
     changes.length > 0 &&

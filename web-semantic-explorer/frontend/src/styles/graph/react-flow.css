@@ -53,11 +53,6 @@
 }
 
 @layer components {
-  /* Sin animación de entrada mientras se arrastra (evita jank en repintados) */
-  .react-flow__node.dragging .graph-node {
-    animation: none;
-  }
-
   /* Por encima de .graph-node__surface (z-10) y de la sombra (::before, z-0) */
   .graph-node .react-flow__handle.rf-handle {
     z-index: 20;

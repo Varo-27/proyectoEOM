@@ -49,6 +49,14 @@ export const useGraphStore = create<GraphState>((set, get) => ({
       return
     }
 
+    if (isPositionOnlyChange(changes)) {
+      set((state) => ({
+        nodes: nextNodes,
+        graphRevision: nextRevision(state),
+      }))
+      return
+    }
+
     set((state) => ({
       nodes: syncLinkedContextFlags(nextNodes, state.edges),
       graphRevision: nextRevision(state),

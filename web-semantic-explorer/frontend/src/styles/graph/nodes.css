@@ -14,9 +14,18 @@
     @apply relative text-card-foreground;
   }
 
-  /* Solo artículos nuevos (búsqueda/expansión con appearDelay); no al mover nodos */
-  .graph-node[data-enter-animate] {
-    animation: graph-node-enter 420ms var(--graph-node-ease) both;
+  .react-flow__node.dragging .graph-node::before,
+  .react-flow__node.dragging .graph-node__surface {
+    transition: none;
+  }
+
+  .react-flow__node.dragging .graph-node:hover .graph-node__surface {
+    transform: none;
+  }
+
+  .react-flow__node.dragging .graph-node[data-enter-animate] {
+    animation: none;
+    opacity: 1;
   }
 
   .graph-node::before {
