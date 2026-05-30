@@ -4,13 +4,14 @@
  * - `@/client` — servicios generados por openapi-ts (auth, search, graph…).
  * - `@/api/*` — clientes manuales y tipos de endpoints aún no en el OpenAPI.
  */
-export { StatsApi } from "./stats"
-export {
-  expandGraphWithFilters,
-  searchArticlesWithFilters,
-} from "./searchWithFilters"
-export { listAuthors } from "./taxonomy"
-export type { AuthorOption, AuthorsListResponse } from "./taxonomy"
+
+export type {
+  ArticleComment,
+  ArticleDetail,
+  CommentRecord,
+  FavoriteStatus,
+  RatingSummary,
+} from "./articles"
 export {
   articleDetailQueryKey,
   createArticleComment,
@@ -20,11 +21,11 @@ export {
   updateComment,
   upsertArticleRating,
 } from "./articles"
-export type {
-  ArticleComment,
-  ArticleDetail,
-  CommentRecord,
-  FavoriteStatus,
-  RatingSummary,
-} from "./articles"
+export {
+  expandGraphWithFilters,
+  searchArticlesWithFilters,
+} from "./searchWithFilters"
+export { StatsApi } from "./stats"
+export type { AuthorOption, AuthorsListResponse } from "./taxonomy"
+export { listAuthors } from "./taxonomy"
 export type { HeatmapEntry, HeatmapResponse } from "./types/heatmap"

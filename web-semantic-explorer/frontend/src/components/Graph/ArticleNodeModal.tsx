@@ -2,9 +2,9 @@ import { useQuery } from "@tanstack/react-query"
 import { Loader2 } from "lucide-react"
 
 import {
+  type ArticleDetail,
   articleDetailQueryKey,
   fetchArticleDetail,
-  type ArticleDetail,
 } from "@/api/articles"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import type { AppNode } from "@/store/useGraphStore"
@@ -24,7 +24,11 @@ export function ArticleNodeModal({
 }: ArticleNodeModalProps) {
   const articleId = node ? Number(node.id) : null
 
-  const { data: detail, isLoading, isError } = useQuery<ArticleDetail>({
+  const {
+    data: detail,
+    isLoading,
+    isError,
+  } = useQuery<ArticleDetail>({
     queryKey: articleDetailQueryKey(articleId ?? "none"),
     queryFn: () => fetchArticleDetail(articleId as number),
     enabled: open && articleId != null && !Number.isNaN(articleId),
@@ -32,19 +36,16 @@ export function ArticleNodeModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
-        showCloseButton
-        className="max-h-[min(90vh,820px)] overflow-y-auto border-2 border-foreground p-0 shadow-[6px_6px_0_0_var(--color-foreground)] sm:max-w-2xl"
-      >
+      <DialogContent showCloseButton className="graph-article-modal">
         {isLoading && (
-          <div className="flex items-center justify-center gap-2 px-6 py-16 text-sm text-muted-foreground">
+          <div className="graph-article-modal__loading">
             <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
             Cargando artículo…
           </div>
         )}
 
         {isError && !isLoading && node && (
-          <div className="px-6 py-16 text-center text-sm text-muted-foreground">
+          <div className="graph-article-modal__error">
             No se pudo cargar el detalle del artículo.
           </div>
         )}

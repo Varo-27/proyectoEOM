@@ -14,8 +14,8 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import {
-  FILTER_LABELS,
   type ArticleMetadataFilters,
+  FILTER_LABELS,
   formatFilterValue,
   hasActiveFilters,
 } from "@/lib/filters"
@@ -26,12 +26,6 @@ type SearchFiltersBarProps = {
   onClear: () => void
   onClearFilter?: (key: keyof ArticleMetadataFilters) => void
 }
-
-const fieldClass =
-  "h-9 w-full rounded-none border-foreground/40 bg-background text-sm focus-visible:ring-1"
-
-const labelClass =
-  "font-mono text-[10px] uppercase tracking-widest text-muted-foreground"
 
 export function SearchFiltersBar({
   filters,
@@ -77,8 +71,8 @@ export function SearchFiltersBar({
   ).filter(([, value]) => value !== undefined && value !== "")
 
   return (
-    <aside className="flex w-full shrink-0 flex-col gap-4 overflow-y-auto border-t-2 border-foreground bg-map-panel p-4 lg:w-80 lg:max-w-[min(20rem,40vw)] lg:border-t-0 lg:border-l-2">
-      <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-muted-foreground">
+    <aside className="map-panel">
+      <div className="map-panel__label flex items-center gap-2">
         <Filter className="h-3.5 w-3.5" />
         Filtros · metadatos
       </div>
@@ -90,7 +84,7 @@ export function SearchFiltersBar({
 
       <div className="space-y-3">
         <div className="space-y-1">
-          <label htmlFor={`${baseId}-place`} className={labelClass}>
+          <label htmlFor={`${baseId}-place`} className="map-panel__label">
             Lugar
           </label>
           <Input
@@ -98,11 +92,11 @@ export function SearchFiltersBar({
             value={filters.place ?? ""}
             onChange={(e) => updateField("place", e.target.value)}
             placeholder="País, ciudad…"
-            className={fieldClass}
+            className="map-panel__field"
           />
         </div>
         <div className="space-y-1">
-          <label htmlFor={`${baseId}-category`} className={labelClass}>
+          <label htmlFor={`${baseId}-category`} className="map-panel__label">
             Categoría
           </label>
           <Input
@@ -110,11 +104,11 @@ export function SearchFiltersBar({
             value={filters.category ?? ""}
             onChange={(e) => updateField("category", e.target.value)}
             placeholder="Tema editorial…"
-            className={fieldClass}
+            className="map-panel__field"
           />
         </div>
         <div className="space-y-1">
-          <label htmlFor={authorSelectId} className={labelClass}>
+          <label htmlFor={authorSelectId} className="map-panel__label">
             Autor
           </label>
           <Select
@@ -125,7 +119,7 @@ export function SearchFiltersBar({
           >
             <SelectTrigger
               id={authorSelectId}
-              className={`${fieldClass} w-full rounded-none border-2 border-foreground/40 shadow-none`}
+              className="map-panel__field w-full border-2 border-foreground/40 shadow-none"
             >
               <SelectValue placeholder="Todos los autores" />
             </SelectTrigger>
@@ -147,7 +141,10 @@ export function SearchFiltersBar({
         </div>
         <div className="grid grid-cols-2 gap-2">
           <div className="space-y-1">
-            <label htmlFor={`${baseId}-year-start`} className={labelClass}>
+            <label
+              htmlFor={`${baseId}-year-start`}
+              className="map-panel__label"
+            >
               Desde
             </label>
             <Input
@@ -157,11 +154,11 @@ export function SearchFiltersBar({
               value={filters.year_start ?? ""}
               onChange={(e) => updateField("year_start", e.target.value)}
               placeholder="Año"
-              className={fieldClass}
+              className="map-panel__field"
             />
           </div>
           <div className="space-y-1">
-            <label htmlFor={`${baseId}-year-end`} className={labelClass}>
+            <label htmlFor={`${baseId}-year-end`} className="map-panel__label">
               Hasta
             </label>
             <Input
@@ -171,7 +168,7 @@ export function SearchFiltersBar({
               value={filters.year_end ?? ""}
               onChange={(e) => updateField("year_end", e.target.value)}
               placeholder="Año"
-              className={fieldClass}
+              className="map-panel__field"
             />
           </div>
         </div>
@@ -179,7 +176,7 @@ export function SearchFiltersBar({
 
       {hasActiveFilters(filters) && (
         <div className="space-y-2 border-t border-foreground/20 pt-3">
-          <p className={labelClass}>Activos</p>
+          <p className="map-panel__label">Activos</p>
           <div className="flex flex-wrap gap-1.5">
             {activeFilterEntries.map(([key, value]) => (
               <Badge

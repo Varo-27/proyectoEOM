@@ -13,6 +13,7 @@ export function StarRating({ value, max = 5, size = "md" }: StarRatingProps) {
 
   return (
     <div
+      role="img"
       className="flex items-center gap-0.5"
       aria-label={`Valoración ${value} de ${max}`}
     >

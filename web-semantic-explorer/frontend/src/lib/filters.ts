@@ -114,7 +114,9 @@ export function searchParamsToFilters(
   return filters
 }
 
-function parseYearParam(value: string | number | undefined): number | undefined {
+function parseYearParam(
+  value: string | number | undefined,
+): number | undefined {
   if (value === undefined || value === "") {
     return undefined
   }

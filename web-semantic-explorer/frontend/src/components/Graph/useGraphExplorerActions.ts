@@ -1,5 +1,5 @@
-import type { Edge } from "@xyflow/react"
 import { useCallback } from "react"
+import { toast } from "sonner"
 
 import {
   expandGraphWithFilters,
@@ -8,26 +8,30 @@ import {
 import type { AppNode } from "@/store/useGraphStore"
 import { useGraphStore } from "@/store/useGraphStore"
 
+import { resolveExpandContext } from "./context/resolveExpandContext"
+import { resolveSearchContext } from "./context/resolveSearchContext"
 import {
   EXPAND_SIMILAR_LIMIT,
   EXPAND_SIMILAR_THRESHOLD,
   getStaggerDelay,
   SEARCH_ARTICLES_LIMIT,
 } from "./graphConstants"
-import { applyTreeLayout } from "./graphLayout"
 import {
   createSearchEdges,
-  createSearchResultNodes,
-  createSearchRootNode,
+  createSearchResultNodesAround,
   dedupeEdgesById,
   graphNodeToAppNode,
+  updateInputNodeQuery,
 } from "./graphMappers"
+import { GRAPH_NODE_TYPE } from "./graphNodeTypes"
+import { mergeGraphArticles } from "./mergeGraphArticles"
+import {
+  collectDownstreamArticleIds,
+  removeEdgesTouchingNodes,
+} from "./subgraph/collectDownstreamArticleIds"
 
 type GraphExplorerActionsDeps = {
-  nodes: AppNode[]
-  edges: Edge[]
   setNodes: (nodes: AppNode[]) => void
-  setEdges: (edges: Edge[]) => void
   setLoading: (loading: boolean) => void
   setActiveNodeId: (nodeId: string | null) => void
   setSelectedNode: (node: AppNode | null) => void
@@ -35,10 +39,7 @@ type GraphExplorerActionsDeps = {
 }
 
 export function useGraphExplorerActions({
-  nodes,
-  edges,
   setNodes,
-  setEdges,
   setLoading,
   setActiveNodeId,
   setSelectedNode,
@@ -51,11 +52,13 @@ export function useGraphExplorerActions({
         return
       }
 
+      const { nodes, edges } = useGraphStore.getState()
+      const context = resolveExpandContext(node, nodes, edges)
+      const filters = context.upstreamFilters
+
       const existingIds = nodes
         .map((currentNode) => Number(currentNode.id))
         .filter((id) => Number.isFinite(id))
-
-      const filters = useGraphStore.getState().filters
 
       setLoading(true)
 
@@ -65,6 +68,8 @@ export function useGraphExplorerActions({
             source_article_id: sourceId,
             existing_node_ids: existingIds,
             filters,
+            seed_queries: context.seedQueries,
+            context_article_ids: context.contextArticleIds,
           },
           {
             limit: EXPAND_SIMILAR_LIMIT,
@@ -76,8 +81,8 @@ export function useGraphExplorerActions({
           graphNodeToAppNode(
             newNode,
             {
-              x: node.position.x,
-              y: node.position.y + 80,
+              x: node.position.x + (index - 2) * 40,
+              y: node.position.y + 120 + index * 30,
             },
             getStaggerDelay(index, 120, 80),
           ),
@@ -89,24 +94,68 @@ export function useGraphExplorerActions({
           target: edge.target,
         }))
 
-        const mergedNodes = [...nodes, ...newNodes]
-        const mergedEdges = dedupeEdgesById([...edges, ...newEdges])
-        const layoutNodes = applyTreeLayout(mergedNodes, mergedEdges)
+        const { nodes: mergedNodes, edges: mergedEdges } = mergeGraphArticles(
+          nodes,
+          edges,
+          newNodes,
+          newEdges,
+        )
 
-        setNodes(layoutNodes)
-        setEdges(mergedEdges)
+        setNodes(mergedNodes)
+        useGraphStore.getState().setEdges(mergedEdges)
+
+        if (newNodes.length === 0) {
+          toast.message("Sin artículos nuevos", {
+            description:
+              "Prueba otra semilla, relaja filtros o conecta un input con más contexto.",
+          })
+        }
       } catch (error) {
         console.error("Error expanding graph:", error)
+        toast.error("No se pudo expandir", {
+          description:
+            error instanceof Error ? error.message : "Error desconocido",
+        })
       } finally {
         setLoading(false)
       }
     },
-    [edges, nodes, setEdges, setLoading, setNodes],
+    [setLoading, setNodes],
   )
 
-  const handleSearch = useCallback(
-    async (query: string) => {
-      const filters = useGraphStore.getState().filters
+  const searchFromInputNode = useCallback(
+    async (inputNodeId: string, query: string) => {
+      const state = useGraphStore.getState()
+      const currentNodes = state.nodes
+      const currentEdges = state.edges
+      const inputNode = currentNodes.find((node) => node.id === inputNodeId)
+
+      if (!inputNode || inputNode.type !== GRAPH_NODE_TYPE.input) {
+        return
+      }
+
+      const searchContext = resolveSearchContext(
+        inputNodeId,
+        currentNodes,
+        currentEdges,
+      )
+
+      const articleIdsToRemove = collectDownstreamArticleIds(
+        inputNodeId,
+        currentNodes,
+        currentEdges,
+      )
+
+      const keptNodes = currentNodes
+        .filter((node) => !articleIdsToRemove.has(node.id))
+        .map((node) =>
+          node.id === inputNodeId ? updateInputNodeQuery(node, query) : node,
+        )
+
+      const keptEdges = removeEdgesTouchingNodes(
+        currentEdges,
+        articleIdsToRemove,
+      )
 
       setLoading(true)
       setActiveNodeId(null)
@@ -117,32 +166,40 @@ export function useGraphExplorerActions({
         const response = await searchArticlesWithFilters(
           query,
           SEARCH_ARTICLES_LIMIT,
-          filters,
+          searchContext.filters,
+          {
+            seedQueries: searchContext.seedQueries,
+            contextArticleIds: searchContext.contextArticleIds,
+          },
         )
 
-        const centralNode = createSearchRootNode(query)
-        const resultNodes = createSearchResultNodes(response.results)
-        const newEdges = createSearchEdges(response.results)
-        const nextNodes = [centralNode, ...resultNodes]
-        const layoutNodes = applyTreeLayout(nextNodes, newEdges)
+        const resultNodes = createSearchResultNodesAround(
+          response.results,
+          inputNode.position,
+        )
+        const newEdges = createSearchEdges(response.results, inputNodeId)
 
-        setNodes(layoutNodes)
-        setEdges(newEdges)
+        const { nodes: mergedNodes, edges: mergedEdges } = mergeGraphArticles(
+          keptNodes,
+          keptEdges,
+          resultNodes,
+          newEdges,
+        )
+
+        setNodes(mergedNodes)
+        useGraphStore.getState().setEdges(dedupeEdgesById(mergedEdges))
       } catch (error) {
-        console.error("Error:", error)
+        console.error("Error en búsqueda desde input:", error)
+        toast.error("No se pudo buscar", {
+          description:
+            error instanceof Error ? error.message : "Error desconocido",
+        })
       } finally {
         setLoading(false)
       }
     },
-    [
-      setActiveNodeId,
-      setEdges,
-      setLoading,
-      setModalOpen,
-      setNodes,
-      setSelectedNode,
-    ],
+    [setActiveNodeId, setLoading, setModalOpen, setNodes, setSelectedNode],
   )
 
-  return { expandSimilarFromNode, handleSearch }
+  return { expandSimilarFromNode, searchFromInputNode }
 }

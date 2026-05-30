@@ -1,6 +1,10 @@
-import type { Connection, Edge, EdgeChange, Node, NodeChange } from "@xyflow/react"
-
-import type { ArticleMetadataFilters } from "@/lib/filters"
+import type {
+  Connection,
+  Edge,
+  EdgeChange,
+  Node,
+  NodeChange,
+} from "@xyflow/react"
 
 /** Payload de datos compartido por nodos de artículo y búsqueda en React Flow. */
 export type AppNodeData = {
@@ -13,6 +17,11 @@ export type AppNodeData = {
   imageUrl?: string
   /** Retraso de animación de entrada (ms), asignado al crear el nodo. */
   appearDelay?: number
+  /** Artículo con input/filtro conectado downstream (sync topología). */
+  hasLinkedDownstreamContext?: boolean
+  query?: string
+  filterKey?: string
+  filterValue?: string | number
   [key: string]: unknown
 }
 
@@ -21,25 +30,30 @@ export type AppNode = Node<AppNodeData>
 export interface GraphState {
   nodes: AppNode[]
   edges: Edge[]
+  /** Incrementa en cambios de topología o al soltar un nodo (no en cada frame de drag). */
+  graphRevision: number
   isLoading: boolean
   activeNodeId: string | null
   selectedNode: AppNode | null
   modalOpen: boolean
   expandSimilar: ((nodeId: string) => void) | null
-  filters: ArticleMetadataFilters
+  searchFromInput: ((inputNodeId: string, query: string) => void) | null
 
   onNodesChange: (changes: NodeChange[]) => void
   onEdgesChange: (changes: EdgeChange[]) => void
   onConnect: (connection: Connection) => void
   setNodes: (nodes: AppNode[]) => void
+  commitNodes: (nodes: AppNode[], changes?: NodeChange[]) => void
   setEdges: (edges: Edge[]) => void
   setLoading: (loading: boolean) => void
   setActiveNodeId: (nodeId: string | null) => void
   setSelectedNode: (node: AppNode | null) => void
   setModalOpen: (open: boolean) => void
   setExpandSimilar: (handler: ((nodeId: string) => void) | null) => void
-  setFilters: (filters: ArticleMetadataFilters) => void
-  updateFilters: (partial: Partial<ArticleMetadataFilters>) => void
-  clearFilters: () => void
+  setSearchFromInput: (
+    handler: ((inputNodeId: string, query: string) => void) | null,
+  ) => void
+  removeNode: (nodeId: string) => void
+  removeEdges: (edgeIds: string[]) => void
   clearGraph: () => void
 }

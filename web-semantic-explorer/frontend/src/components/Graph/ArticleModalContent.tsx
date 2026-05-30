@@ -9,16 +9,17 @@ import {
   Tag,
   Trash2,
 } from "lucide-react"
+import { Link as RouterLink } from "@tanstack/react-router"
 import { useState } from "react"
 
 import {
+  type ArticleDetail,
   articleDetailQueryKey,
   createArticleComment,
   deleteComment,
   toggleArticleFavorite,
   updateComment,
   upsertArticleRating,
-  type ArticleDetail,
 } from "@/api/articles"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -28,8 +29,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
-import useCustomToast from "@/hooks/useCustomToast"
 import { isLoggedIn } from "@/hooks/useAuth"
+import useCustomToast from "@/hooks/useCustomToast"
 import { cn } from "@/lib/utils"
 import type { AppNode } from "@/store/useGraphStore"
 
@@ -49,7 +50,10 @@ function patchDetail(
   return current ? { ...current, ...patch } : current
 }
 
-export function ArticleModalContent({ node, detail }: ArticleModalContentProps) {
+export function ArticleModalContent({
+  node,
+  detail,
+}: ArticleModalContentProps) {
   const [commentsOpen, setCommentsOpen] = useState(true)
   const [commentDraft, setCommentDraft] = useState("")
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null)
@@ -123,35 +127,28 @@ export function ArticleModalContent({ node, detail }: ArticleModalContentProps) 
 
   const displayTitle = detail?.title ?? node.data.title ?? "Sin título"
   const displayImage = detail?.image_url ?? node.data.imageUrl
-  const displayAuthors =
-    detail?.authors?.length
-      ? detail.authors.join(", ")
-      : node.data.author_name
+  const displayAuthors = detail?.authors?.length
+    ? detail.authors.join(", ")
+    : node.data.author_name
   const displayExcerpt = detail?.excerpt ?? node.data.excerpt
   const displayUrl = detail?.url ?? node.data.url
 
   return (
     <>
       {displayImage && (
-        <div className="h-48 w-full overflow-hidden border-b-2 border-foreground">
-          <img
-            src={displayImage}
-            alt={displayTitle}
-            className="h-full w-full object-cover"
-          />
+        <div className="graph-article-modal__hero">
+          <img src={displayImage} alt={displayTitle} />
         </div>
       )}
 
-      <div className="space-y-5 px-6 py-5">
+      <div className="graph-article-modal__body">
         <DialogHeader className="space-y-3 text-left">
-          <p className="text-[10px] uppercase font-mono tracking-widest text-primary font-bold">
-            Artículo
-          </p>
-          <DialogTitle className="font-serif text-2xl font-bold leading-tight text-pretty">
+          <p className="graph-article-modal__kicker">Artículo</p>
+          <DialogTitle className="graph-article-modal__title">
             <span className="eom-title-highlight">{displayTitle}</span>
           </DialogTitle>
           {displayAuthors && (
-            <DialogDescription className="text-[11px] uppercase tracking-widest text-muted-foreground">
+            <DialogDescription className="graph-article-modal__byline">
               Por {displayAuthors}
             </DialogDescription>
           )}
@@ -163,14 +160,12 @@ export function ArticleModalContent({ node, detail }: ArticleModalContentProps) 
         </DialogHeader>
 
         {displayExcerpt && (
-          <p className="text-sm leading-relaxed text-muted-foreground border-l-2 border-primary/40 pl-3">
-            {displayExcerpt}
-          </p>
+          <p className="graph-article-modal__excerpt">{displayExcerpt}</p>
         )}
 
         {detail && detail.categories.length > 0 && (
           <section className="space-y-2">
-            <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-muted-foreground">
+            <div className="graph-article-modal__section-label">
               <Tag className="h-3.5 w-3.5" />
               Categorías
             </div>
@@ -179,7 +174,7 @@ export function ArticleModalContent({ node, detail }: ArticleModalContentProps) 
                 <Badge
                   key={category}
                   variant="outline"
-                  className="rounded-none border-foreground text-[10px] uppercase tracking-wider"
+                  className="graph-article-modal__badge"
                 >
                   {category}
                 </Badge>
@@ -190,7 +185,7 @@ export function ArticleModalContent({ node, detail }: ArticleModalContentProps) 
 
         {detail && detail.places.length > 0 && (
           <section className="space-y-2">
-            <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-muted-foreground">
+            <div className="graph-article-modal__section-label">
               <MapPin className="h-3.5 w-3.5" />
               Lugares
             </div>
@@ -199,7 +194,7 @@ export function ArticleModalContent({ node, detail }: ArticleModalContentProps) 
                 <Badge
                   key={place}
                   variant="secondary"
-                  className="rounded-none text-[10px] uppercase tracking-wider"
+                  className="graph-article-modal__badge"
                 >
                   {place}
                 </Badge>
@@ -268,10 +263,7 @@ export function ArticleModalContent({ node, detail }: ArticleModalContentProps) 
             )}
           >
             <Heart
-              className={cn(
-                "h-4 w-4",
-                detail?.is_favorited && "fill-current",
-              )}
+              className={cn("h-4 w-4", detail?.is_favorited && "fill-current")}
             />
             {detail?.is_favorited ? "En favoritos" : "Favorito"}
           </button>
@@ -303,6 +295,18 @@ export function ArticleModalContent({ node, detail }: ArticleModalContentProps) 
 
           {commentsOpen && (
             <div className="space-y-3 border-t-2 border-foreground px-4 py-3">
+              {!loggedIn && (
+                <p className="rounded-none border border-dashed border-foreground/30 bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+                  <RouterLink
+                    to="/login"
+                    className="font-medium text-primary underline underline-offset-2"
+                  >
+                    Inicia sesión
+                  </RouterLink>{" "}
+                  para publicar comentarios o guardar favoritos.
+                </p>
+              )}
+
               {loggedIn && (
                 <form
                   className="space-y-2"
@@ -323,9 +327,7 @@ export function ArticleModalContent({ node, detail }: ArticleModalContentProps) 
                   <Button
                     type="submit"
                     size="sm"
-                    disabled={
-                      commentMutation.isPending || !commentDraft.trim()
-                    }
+                    disabled={commentMutation.isPending || !commentDraft.trim()}
                     className="rounded-none border-2 border-foreground uppercase tracking-widest text-[10px]"
                   >
                     Publicar
@@ -351,32 +353,34 @@ export function ArticleModalContent({ node, detail }: ArticleModalContentProps) 
                           <span className="ml-2 text-primary">(tú)</span>
                         )}
                       </p>
-                      {comment.is_own && loggedIn && editingCommentId !== comment.id && (
-                        <div className="flex gap-1">
-                          <button
-                            type="button"
-                            aria-label="Editar comentario"
-                            className="p-1 text-muted-foreground hover:text-foreground"
-                            onClick={() => {
-                              setEditingCommentId(comment.id)
-                              setEditDraft(comment.content)
-                            }}
-                          >
-                            <Pencil className="h-3.5 w-3.5" />
-                          </button>
-                          <button
-                            type="button"
-                            aria-label="Eliminar comentario"
-                            className="p-1 text-muted-foreground hover:text-destructive"
-                            disabled={deleteCommentMutation.isPending}
-                            onClick={() =>
-                              deleteCommentMutation.mutate(comment.id)
-                            }
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </button>
-                        </div>
-                      )}
+                      {comment.is_own &&
+                        loggedIn &&
+                        editingCommentId !== comment.id && (
+                          <div className="flex gap-1">
+                            <button
+                              type="button"
+                              aria-label="Editar comentario"
+                              className="p-1 text-muted-foreground hover:text-foreground"
+                              onClick={() => {
+                                setEditingCommentId(comment.id)
+                                setEditDraft(comment.content)
+                              }}
+                            >
+                              <Pencil className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              aria-label="Eliminar comentario"
+                              className="p-1 text-muted-foreground hover:text-destructive"
+                              disabled={deleteCommentMutation.isPending}
+                              onClick={() =>
+                                deleteCommentMutation.mutate(comment.id)
+                              }
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        )}
                     </div>
 
                     {editingCommentId === comment.id ? (
@@ -394,9 +398,7 @@ export function ArticleModalContent({ node, detail }: ArticleModalContentProps) 
                       >
                         <Textarea
                           value={editDraft}
-                          onChange={(event) =>
-                            setEditDraft(event.target.value)
-                          }
+                          onChange={(event) => setEditDraft(event.target.value)}
                           rows={2}
                           className="rounded-none border-2 border-foreground text-sm"
                         />

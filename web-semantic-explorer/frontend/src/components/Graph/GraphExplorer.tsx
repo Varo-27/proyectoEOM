@@ -1,59 +1,54 @@
-import {
-  Background,
-  BackgroundVariant,
-  Controls,
-  MiniMap,
-  type NodeTypes,
-  ReactFlow,
-  type NodeMouseHandler,
-} from "@xyflow/react"
+import { type Edge, type NodeMouseHandler, type NodeTypes } from "@xyflow/react"
 import "@xyflow/react/dist/style.css"
-import { useNavigate } from "@tanstack/react-router"
-import { useCallback, useEffect, useRef } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
+import { useShallow } from "zustand/react/shallow"
 
 import { useTheme } from "@/components/theme-provider"
-import {
-  filtersToSearchParams,
-  type GraphSearchParams,
-  searchParamsToFilters,
-} from "@/lib/filters"
+import { cn } from "@/lib/utils"
 import { type AppNode, useGraphStore } from "@/store/useGraphStore"
+import { useWorkspaceStore } from "@/store/workspace/useWorkspaceStore"
 import { ArticleNodeModal } from "./ArticleNodeModal"
-import {
-  GRAPH_BACKGROUND_GRID_COLOR,
-  GRAPH_BACKGROUND_PROPS,
-  GRAPH_FIT_VIEW_OPTIONS,
-  GRAPH_MAX_ZOOM,
-  GRAPH_MIN_ZOOM,
-  SEARCH_ROOT_ID,
-} from "./graphConstants"
-import { useGraphExplorerActions } from "./useGraphExplorerActions"
+import { GraphFlowCanvas } from "./GraphFlowCanvas"
+import { GRAPH_NODE_TYPE } from "./graphNodeTypes"
 import { ArticleNode } from "./nodes/ArticleNode"
+import { FilterNode } from "./nodes/FilterNode"
+import { InputNode } from "./nodes/InputNode"
 import { SearchNode } from "./nodes/SearchNode"
-import { SearchBar } from "./SearchBar"
-import { SearchFiltersBar } from "./SearchFiltersBar"
+import {
+  createFilterNodeAtPosition,
+  createInputNodeAtPosition,
+} from "./palette/createPaletteNode"
+import { GraphNodePalette } from "./palette/GraphNodePalette"
+import { isPaletteDragEvent, readPaletteDragData } from "./palette/paletteDrag"
+import { useGraphExplorerActions } from "./useGraphExplorerActions"
+import { useWorkspaceAutosave } from "./workspace/useWorkspaceAutosave"
+import { WorkspaceBar } from "./workspace/WorkspaceBar"
 
 const nodeTypes: NodeTypes = {
   article: ArticleNode,
+  input: InputNode,
+  filter: FilterNode,
   searchCenter: SearchNode,
 }
 
-type GraphExplorerProps = {
-  initialSearch?: GraphSearchParams
-}
-
-export default function GraphExplorer({ initialSearch = {} }: GraphExplorerProps) {
-  const navigate = useNavigate()
+export default function GraphExplorer() {
   const { resolvedTheme } = useTheme()
-  const seededSearchRef = useRef<string | null>(null)
+  const reactFlowRef = useRef<import("@xyflow/react").ReactFlowInstance<
+    AppNode,
+    Edge
+  > | null>(null)
+  const [isCanvasDragOver, setIsCanvasDragOver] = useState(false)
+
+  const hydrateForCurrentUser = useWorkspaceStore(
+    (state) => state.hydrateForCurrentUser,
+  )
+  const isWorkspaceHydrated = useWorkspaceStore((state) => state.isHydrated)
+  const captureActiveWorkspace = useWorkspaceStore(
+    (state) => state.captureActiveWorkspace,
+  )
+
   const {
-    nodes,
-    edges,
-    onNodesChange,
-    onEdgesChange,
-    onConnect,
     setNodes,
-    setEdges,
     isLoading,
     setLoading,
     activeNodeId,
@@ -63,87 +58,147 @@ export default function GraphExplorer({ initialSearch = {} }: GraphExplorerProps
     modalOpen,
     setModalOpen,
     setExpandSimilar,
-    clearGraph,
-    filters,
-    setFilters,
-    clearFilters,
-  } = useGraphStore()
-
-  const { expandSimilarFromNode, handleSearch } = useGraphExplorerActions({
-    nodes,
-    edges,
-    setNodes,
-    setEdges,
-    setLoading,
-    setActiveNodeId,
-    setSelectedNode,
-    setModalOpen,
-  })
-
-  const syncSearchToUrl = useCallback(
-    (nextFilters: typeof filters, q?: string) => {
-      navigate({
-        to: "/",
-        search: filtersToSearchParams(nextFilters, q),
-        replace: true,
-      })
-    },
-    [navigate],
+    setSearchFromInput,
+    removeEdges,
+  } = useGraphStore(
+    useShallow((state) => ({
+      setNodes: state.setNodes,
+      isLoading: state.isLoading,
+      setLoading: state.setLoading,
+      activeNodeId: state.activeNodeId,
+      setActiveNodeId: state.setActiveNodeId,
+      selectedNode: state.selectedNode,
+      setSelectedNode: state.setSelectedNode,
+      modalOpen: state.modalOpen,
+      setModalOpen: state.setModalOpen,
+      setExpandSimilar: state.setExpandSimilar,
+      setSearchFromInput: state.setSearchFromInput,
+      removeEdges: state.removeEdges,
+    })),
   )
 
+  const { expandSimilarFromNode, searchFromInputNode } =
+    useGraphExplorerActions({
+      setNodes,
+      setLoading,
+      setActiveNodeId,
+      setSelectedNode,
+      setModalOpen,
+    })
+
   useEffect(() => {
-    setFilters(searchParamsToFilters(initialSearch))
-  }, [initialSearch, setFilters])
+    hydrateForCurrentUser()
+  }, [hydrateForCurrentUser])
 
   useEffect(() => {
     setExpandSimilar((nodeId: string) => {
-      const node = useGraphStore
-        .getState()
-        .nodes.find((n) => n.id === nodeId)
+      const node = useGraphStore.getState().nodes.find((n) => n.id === nodeId)
       if (node) {
         void expandSimilarFromNode(node)
       }
     })
 
-    return () => setExpandSimilar(null)
-  }, [expandSimilarFromNode, setExpandSimilar])
+    setSearchFromInput((inputNodeId, query) => {
+      void searchFromInputNode(inputNodeId, query)
+    })
 
-  useEffect(() => () => clearGraph(), [clearGraph])
-
-  const initialQuery = initialSearch.q
+    return () => {
+      setExpandSimilar(null)
+      setSearchFromInput(null)
+    }
+  }, [
+    expandSimilarFromNode,
+    searchFromInputNode,
+    setExpandSimilar,
+    setSearchFromInput,
+  ])
 
   useEffect(() => {
-    if (!initialQuery || seededSearchRef.current === initialQuery) {
+    return () => {
+      const viewport = reactFlowRef.current?.getViewport()
+      captureActiveWorkspace(
+        viewport ? { x: viewport.x, y: viewport.y, zoom: viewport.zoom } : null,
+      )
+    }
+  }, [captureActiveWorkspace])
+
+  const getViewport = useCallback(() => {
+    const viewport = reactFlowRef.current?.getViewport()
+    if (!viewport) {
+      return null
+    }
+    return { x: viewport.x, y: viewport.y, zoom: viewport.zoom }
+  }, [])
+
+  useWorkspaceAutosave({
+    getViewport,
+    enabled: isWorkspaceHydrated,
+  })
+
+  const handleFlowInit = useCallback(
+    (instance: import("@xyflow/react").ReactFlowInstance<AppNode, Edge>) => {
+      reactFlowRef.current = instance
+    },
+    [],
+  )
+
+  const handleMoveEnd = useCallback(
+    (viewport: { x: number; y: number; zoom: number } | null) => {
+      captureActiveWorkspace(viewport)
+    },
+    [captureActiveWorkspace],
+  )
+
+  const handleCanvasDragOver = useCallback((event: React.DragEvent) => {
+    if (!isPaletteDragEvent(event)) {
       return
     }
-    seededSearchRef.current = initialQuery
-    void handleSearch(initialQuery)
-  }, [initialQuery, handleSearch])
 
-  const handleFiltersChange = (nextFilters: typeof filters) => {
-    setFilters(nextFilters)
-    syncSearchToUrl(nextFilters, initialQuery)
-  }
+    event.preventDefault()
+    event.dataTransfer.dropEffect = "move"
+    setIsCanvasDragOver(true)
+  }, [])
 
-  const handleClearFilters = () => {
-    clearFilters()
-    syncSearchToUrl({}, initialQuery)
-  }
+  const handleCanvasDragLeave = useCallback((event: React.DragEvent) => {
+    if (event.currentTarget.contains(event.relatedTarget as Node | null)) {
+      return
+    }
+    setIsCanvasDragOver(false)
+  }, [])
 
-  const handleClearFilter = (key: keyof typeof filters) => {
-    const nextFilters = { ...filters, [key]: undefined }
-    setFilters(nextFilters)
-    syncSearchToUrl(nextFilters, initialQuery)
-  }
+  const handleCanvasDrop = useCallback(
+    (event: React.DragEvent) => {
+      event.preventDefault()
+      setIsCanvasDragOver(false)
 
-  const handleSearchSubmit = (query: string) => {
-    syncSearchToUrl(filters, query)
-    void handleSearch(query)
-  }
+      const payload = readPaletteDragData(event)
+      const flow = reactFlowRef.current
+      if (!payload || !flow) {
+        return
+      }
+
+      const position = flow.screenToFlowPosition({
+        x: event.clientX,
+        y: event.clientY,
+      })
+
+      const currentNodes = useGraphStore.getState().nodes
+      const newNode =
+        payload.type === "input"
+          ? createInputNodeAtPosition(position)
+          : createFilterNodeAtPosition(payload.filterKey, position)
+
+      setNodes([...currentNodes, newNode])
+    },
+    [setNodes],
+  )
 
   const handleNodeClick: NodeMouseHandler<AppNode> = useCallback(
     (_event, node) => {
-      if (node.id === SEARCH_ROOT_ID) {
+      if (
+        node.type === GRAPH_NODE_TYPE.input ||
+        node.type === GRAPH_NODE_TYPE.filter
+      ) {
         return
       }
 
@@ -154,59 +209,52 @@ export default function GraphExplorer({ initialSearch = {} }: GraphExplorerProps
     [setActiveNodeId, setModalOpen, setSelectedNode],
   )
 
+  const handleEdgesDelete = useCallback(
+    (deletedEdges: Edge[]) => {
+      removeEdges(deletedEdges.map((edge) => edge.id))
+    },
+    [removeEdges],
+  )
+
+  if (!isWorkspaceHydrated) {
+    return (
+      <div className="graph-explorer__loading">Cargando área de trabajo…</div>
+    )
+  }
+
   return (
-    <div className="flex h-full min-h-0 w-full flex-col overflow-hidden bg-muted/20">
-      <div className="flex min-h-0 flex-1 flex-col overflow-hidden lg:flex-row">
-        <div className="relative min-h-[min(50vh,360px)] min-w-0 flex-1 overflow-hidden border-b-2 border-foreground lg:min-h-0 lg:border-b-0 lg:border-r-2">
-          <SearchBar
-            onSearch={handleSearchSubmit}
-            isLoading={isLoading}
-            initialQuery={initialQuery ?? ""}
-          />
+    <div className="graph-explorer">
+      <div className="graph-explorer__layout">
+        <aside className="graph-explorer__sidebar">
+          <WorkspaceBar />
+          <GraphNodePalette isLoading={isLoading} />
+        </aside>
+
+        <div
+          className={cn(
+            "graph-explorer__canvas",
+            isCanvasDragOver && "graph-explorer__canvas--drag-over",
+          )}
+          onDragOver={handleCanvasDragOver}
+          onDragLeave={handleCanvasDragLeave}
+          onDrop={handleCanvasDrop}
+        >
           <ArticleNodeModal
             node={selectedNode}
             open={modalOpen}
             onOpenChange={setModalOpen}
           />
-          <ReactFlow
-            className="h-full w-full"
-            style={{ width: "100%", height: "100%" }}
-            nodes={nodes}
-            edges={edges}
+          <GraphFlowCanvas
             nodeTypes={nodeTypes}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onConnect={onConnect}
-            onNodeClick={handleNodeClick}
             colorMode={resolvedTheme}
-            minZoom={GRAPH_MIN_ZOOM}
-            maxZoom={GRAPH_MAX_ZOOM}
-            fitView
-            fitViewOptions={GRAPH_FIT_VIEW_OPTIONS}
-          >
-            <Controls />
-            <MiniMap
-              nodeColor={(node) =>
-                node.id === activeNodeId
-                  ? "var(--color-primary)"
-                  : "var(--color-muted-foreground)"
-              }
-            />
-            <Background
-              variant={BackgroundVariant.Lines}
-              gap={GRAPH_BACKGROUND_PROPS.gap}
-              size={GRAPH_BACKGROUND_PROPS.size}
-              color={GRAPH_BACKGROUND_GRID_COLOR}
-            />
-          </ReactFlow>
+            activeNodeId={activeNodeId}
+            onInit={handleFlowInit}
+            onNodeClick={handleNodeClick}
+            onEdgesDelete={handleEdgesDelete}
+            onMoveEnd={handleMoveEnd}
+            isWorkspaceHydrated={isWorkspaceHydrated}
+          />
         </div>
-
-        <SearchFiltersBar
-          filters={filters}
-          onChange={handleFiltersChange}
-          onClear={handleClearFilters}
-          onClearFilter={handleClearFilter}
-        />
       </div>
     </div>
   )

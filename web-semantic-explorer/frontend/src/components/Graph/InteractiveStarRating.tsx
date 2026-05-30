@@ -16,11 +16,8 @@ export function InteractiveStarRating({
   max = 5,
 }: InteractiveStarRatingProps) {
   return (
-    <div
-      className="flex items-center gap-0.5"
-      role="group"
-      aria-label="Tu valoración"
-    >
+    <fieldset className="flex min-w-0 items-center gap-0.5 border-0 p-0">
+      <legend className="sr-only">Tu valoración</legend>
       {Array.from({ length: max }, (_, index) => {
         const starValue = index + 1
         const filled = value != null && starValue <= value
@@ -49,6 +46,6 @@ export function InteractiveStarRating({
           </button>
         )
       })}
-    </div>
+    </fieldset>
   )
 }
