@@ -1,7 +1,9 @@
-from fastapi import FastAPI
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI, Request
 from fastapi.routing import APIRoute
 from starlette.middleware.cors import CORSMiddleware
-from contextlib import asynccontextmanager
+from starlette.responses import JSONResponse
 
 from app.api.main import api_router
 from app.core.config import settings
@@ -26,6 +28,13 @@ app = FastAPI(
     generate_unique_id_function=custom_generate_unique_id,
     lifespan=lifespan,
 )
+
+
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(_request: Request, _exc: Exception) -> JSONResponse:
+    """Respuesta JSON en 500 para que CORSMiddleware pueda adjuntar cabeceras."""
+    return JSONResponse(status_code=500, content={"detail": "Internal Server Error"})
+
 
 # Set all CORS enabled origins
 if settings.all_cors_origins:
