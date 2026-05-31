@@ -56,7 +56,6 @@ export default function GraphExplorer() {
     setNodes,
     isLoading,
     setLoading,
-    activeNodeId,
     setActiveNodeId,
     selectedNode,
     setSelectedNode,
@@ -70,7 +69,6 @@ export default function GraphExplorer() {
       setNodes: state.setNodes,
       isLoading: state.isLoading,
       setLoading: state.setLoading,
-      activeNodeId: state.activeNodeId,
       setActiveNodeId: state.setActiveNodeId,
       selectedNode: state.selectedNode,
       setSelectedNode: state.setSelectedNode,
@@ -273,7 +271,6 @@ export default function GraphExplorer() {
           <GraphFlowCanvas
             nodeTypes={nodeTypes}
             colorMode={resolvedTheme}
-            activeNodeId={activeNodeId}
             onInit={handleFlowInit}
             onNodeClick={handleNodeClick}
             onEdgesDelete={handleEdgesDelete}

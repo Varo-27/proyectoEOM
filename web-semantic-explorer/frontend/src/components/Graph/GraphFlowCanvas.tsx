@@ -3,7 +3,6 @@ import {
   BackgroundVariant,
   Controls,
   type Edge,
-  MiniMap,
   type NodeMouseHandler,
   type NodeTypes,
   ReactFlow,
@@ -29,7 +28,6 @@ import { isActiveNodeDrag } from "./graphFlowDrag"
 type GraphFlowCanvasProps = {
   nodeTypes: NodeTypes
   colorMode: "light" | "dark" | "system"
-  activeNodeId: string | null
   onInit: (instance: ReactFlowInstance<AppNode, Edge>) => void
   onNodeClick: NodeMouseHandler<AppNode>
   onEdgesDelete: (edges: Edge[]) => void
@@ -40,7 +38,6 @@ type GraphFlowCanvasProps = {
 function GraphFlowCanvasComponent({
   nodeTypes,
   colorMode,
-  activeNodeId,
   onInit,
   onNodeClick,
   onEdgesDelete,
@@ -51,7 +48,6 @@ function GraphFlowCanvasComponent({
   const fitViewDoneRef = useRef(false)
   const isDraggingRef = useRef(false)
   const flowNodesRef = useRef<AppNode[]>([])
-  const [isViewportMoving, setIsViewportMoving] = useState(false)
 
   const storeNodes = useGraphStore((state) => state.nodes)
   const edges = useGraphStore((state) => state.edges)
@@ -123,13 +119,7 @@ function GraphFlowCanvasComponent({
     isDraggingRef.current = false
   }, [])
 
-  const handleMoveStart = useCallback(() => {
-    setIsViewportMoving(true)
-  }, [])
-
   const handleMoveEnd = useCallback(() => {
-    setIsViewportMoving(false)
-
     const viewport = reactFlowRef.current?.getViewport()
     onMoveEnd(
       viewport
@@ -137,14 +127,6 @@ function GraphFlowCanvasComponent({
         : null,
     )
   }, [onMoveEnd])
-
-  const miniMapNodeColor = useCallback(
-    (node: { id: string }) =>
-      node.id === activeNodeId
-        ? "var(--color-primary)"
-        : "var(--color-muted-foreground)",
-    [activeNodeId],
-  )
 
   return (
     <ReactFlow
@@ -160,17 +142,14 @@ function GraphFlowCanvasComponent({
       deleteKeyCode={["Backspace", "Delete"]}
       onInit={handleFlowInit}
       onNodeDragStop={handleNodeDragStop}
-      onMoveStart={handleMoveStart}
       onMoveEnd={handleMoveEnd}
       onNodeClick={onNodeClick}
       colorMode={colorMode}
       minZoom={GRAPH_MIN_ZOOM}
       maxZoom={GRAPH_MAX_ZOOM}
+      onlyRenderVisibleElements
     >
       <Controls />
-      {!isViewportMoving && (
-        <MiniMap nodeColor={miniMapNodeColor} zoomable pannable />
-      )}
       <Background
         variant={BackgroundVariant.Lines}
         gap={GRAPH_BACKGROUND_PROPS.gap}
