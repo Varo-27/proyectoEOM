@@ -1,6 +1,7 @@
 import { geoPath } from "d3-geo"
 import type { FeatureCollection } from "geojson"
 
+import { getCountrySearchLabel } from "@/lib/countrySearchLabels"
 import { getGeoIsoCode } from "@/lib/heatmapColors"
 import { getProjectionOption, type MapProjectionId } from "@/lib/mapProjections"
 
@@ -83,7 +84,9 @@ export function buildChoroplethScene(
         : typeof geoFeature.properties?.ADMIN === "string"
           ? geoFeature.properties.ADMIN
           : undefined
-    const name = isoCode === "SOM" ? "Somalia" : adminName
+    const name = isoCode
+      ? getCountrySearchLabel(isoCode, adminName)
+      : adminName
 
     items.push({
       key: `country-${index}`,

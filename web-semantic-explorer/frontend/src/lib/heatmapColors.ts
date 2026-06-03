@@ -4,6 +4,12 @@ export const GEO_URLS = [
   "https://cdn.jsdelivr.net/gh/nvkelso/natural-earth-vector@v5.1.2/geojson/ne_110m_admin_0_countries.geojson",
 ] as const
 
+/** Territorios de ultramar ausentes en ne_110m_admin_0_countries (p. ej. Guayana Francesa). */
+const OVERSEAS_MAP_UNITS_URL =
+  "https://cdn.jsdelivr.net/gh/nvkelso/natural-earth-vector@v5.1.2/geojson/ne_50m_admin_0_map_units.geojson"
+
+const OVERSEAS_TERRITORY_ISOS = new Set(["GUF", "BMU", "GIB"])
+
 const INVALID_GEO_ISO = new Set(["-99", "UNK", ""])
 
 /** Códigos del GeoJSON que deben unirse con el país reconocido en EOM / ISO. */
@@ -40,6 +46,72 @@ export function canonicalMapIso(isoCode: string | undefined) {
   return GEO_ISO_ALIAS[isoCode] ?? isoCode
 }
 
+type LonLat = [number, number]
+
+function ringLonBounds(ring: LonLat[]) {
+  let minLon = Number.POSITIVE_INFINITY
+  let maxLon = Number.NEGATIVE_INFINITY
+  for (const [lon] of ring) {
+    if (lon < minLon) minLon = lon
+    if (lon > maxLon) maxLon = lon
+  }
+  return { minLon, maxLon }
+}
+
+/** Polígonos en Sudamérica que Natural Earth agrupa dentro de FRA (Guayana Francesa). */
+export function isOverseasFrancePolygon(ring: LonLat[]) {
+  const { maxLon } = ringLonBounds(ring)
+  return maxLon < -10
+}
+
+/** Francia metropolitana sin Guayana Francesa (territorio aparte como GUF). */
+export function clipFranceMetropolitan(
+  feature: GeoJSON.Feature,
+): GeoJSON.Feature {
+  const iso = getGeoIsoCode({ properties: feature.properties ?? {} })
+  if (iso !== "FRA" || !feature.geometry) return feature
+
+  const { type, coordinates } = feature.geometry
+  if (type === "Polygon") {
+    const ring = coordinates[0] as LonLat[]
+    return isOverseasFrancePolygon(ring)
+      ? { ...feature, geometry: { type: "MultiPolygon", coordinates: [] } }
+      : feature
+  }
+  if (type !== "MultiPolygon") return feature
+
+  const metroPolys = (coordinates as LonLat[][][]).filter(
+    (poly) => !isOverseasFrancePolygon(poly[0] as LonLat[]),
+  )
+  if (metroPolys.length === (coordinates as LonLat[][][]).length) return feature
+
+  return {
+    ...feature,
+    geometry:
+      metroPolys.length === 1
+        ? { type: "Polygon", coordinates: metroPolys[0] }
+        : { type: "MultiPolygon", coordinates: metroPolys },
+  }
+}
+
+function normalizeChoroplethGeojson(
+  base: GeoJSON.FeatureCollection,
+): GeoJSON.FeatureCollection {
+  return {
+    ...base,
+    features: base.features
+      .map((feature) => clipFranceMetropolitan(feature))
+      .filter((feature) => {
+        const geometry = feature.geometry
+        if (!geometry) return false
+        if (geometry.type === "MultiPolygon") {
+          return geometry.coordinates.length > 0
+        }
+        return true
+      }),
+  }
+}
+
 export async function loadWorldCountriesGeoJson() {
   let lastError: Error | null = null
 
@@ -49,13 +121,49 @@ export async function loadWorldCountriesGeoJson() {
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`)
       }
-      return (await response.json()) as GeoJSON.FeatureCollection
+      const geojson = (await response.json()) as GeoJSON.FeatureCollection
+      return normalizeChoroplethGeojson(await mergeOverseasTerritories(geojson))
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error))
     }
   }
 
   throw lastError ?? new Error("No se pudo cargar el mapa mundial")
+}
+
+async function mergeOverseasTerritories(
+  base: GeoJSON.FeatureCollection,
+): Promise<GeoJSON.FeatureCollection> {
+  const existingIsos = new Set<string>()
+  for (const feature of base.features) {
+    const iso = getGeoIsoCode({ properties: feature.properties ?? {} })
+    if (iso) existingIsos.add(iso)
+  }
+
+  const missing = [...OVERSEAS_TERRITORY_ISOS].filter(
+    (iso) => !existingIsos.has(iso),
+  )
+  if (missing.length === 0) return base
+
+  try {
+    const response = await fetch(OVERSEAS_MAP_UNITS_URL)
+    if (!response.ok) return base
+
+    const units = (await response.json()) as GeoJSON.FeatureCollection
+    const extras = units.features.filter((feature) => {
+      const iso = getGeoIsoCode({ properties: feature.properties ?? {} })
+      return iso !== undefined && missing.includes(iso)
+    })
+
+    if (extras.length === 0) return base
+
+    return {
+      ...base,
+      features: [...base.features, ...extras],
+    }
+  } catch {
+    return base
+  }
 }
 
 export function isDirectCountryEntry(entry: {
@@ -214,11 +322,38 @@ export function getCountryFill(
     return regionSelected
   }
 
+  return getCountryBaseFill(isoCode, counts, maxCount)
+}
+
+/** Relleno sin estados de énfasis (capa base del mapa). */
+export function getCountryBaseFill(
+  isoCode: string | undefined,
+  counts: Map<string, number>,
+  maxCount: number,
+) {
+  if (!isoCode) return HEATMAP_SEA_FILL
+
   const count = counts.get(isoCode) ?? 0
   if (count === 0) return HEATMAP_EMPTY_COUNTRY_FILL
 
   const intensity = countToColorIntensity(count, maxCount)
   return colorFromIntensity(intensity)
+}
+
+export function isCountryEmphasized(
+  isoCode: string | undefined,
+  selectedCode: string | null,
+  hoveredCode: string | null,
+  highlightedCodes: Set<string> | null,
+  hoveredRegionCodes: Set<string> | null = null,
+) {
+  if (!isoCode) return false
+  return (
+    selectedCode === isoCode ||
+    hoveredCode === isoCode ||
+    Boolean(hoveredRegionCodes?.has(isoCode)) ||
+    Boolean(highlightedCodes?.has(isoCode))
+  )
 }
 
 /** Color EOM para un conteo (lista lateral, leyenda). */

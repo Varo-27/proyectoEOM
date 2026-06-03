@@ -3,16 +3,77 @@ import { useEffect, useMemo, useState } from "react"
 import {
   buildChoroplethScene,
   CHOROPLETH_OCEAN_RECT,
+  type RenderCountry,
 } from "@/lib/choroplethScene"
 import {
+  getCountryBaseFill,
   getCountryFill,
   HEATMAP_SEA_FILL,
+  isCountryEmphasized,
   loadWorldCountriesGeoJson,
 } from "@/lib/heatmapColors"
 import { DEFAULT_PROJECTION_ID } from "@/lib/mapProjections"
 
 import { useChoroplethZoom } from "./hooks/useChoroplethZoom"
 import type { WorldChoroplethProps } from "./types"
+
+function CountryPath({
+  country,
+  fill,
+  strokeWidth,
+  pointerEvents = "auto",
+}: {
+  country: RenderCountry
+  fill: string
+  strokeWidth: number
+  pointerEvents?: "auto" | "none"
+}) {
+  return (
+    <path
+      d={country.path}
+      fill={fill}
+      stroke="var(--map-stroke)"
+      strokeWidth={strokeWidth}
+      pointerEvents={pointerEvents}
+    />
+  )
+}
+
+function InteractiveCountry({
+  country,
+  fill,
+  strokeWidth,
+  onHoverCountry,
+  onSelectCountry,
+}: {
+  country: RenderCountry
+  fill: string
+  strokeWidth: number
+  onHoverCountry: WorldChoroplethProps["onHoverCountry"]
+  onSelectCountry: WorldChoroplethProps["onSelectCountry"]
+}) {
+  return (
+    <g
+      role="button"
+      tabIndex={0}
+      aria-label={country.name}
+      style={{ cursor: "pointer" }}
+      onMouseEnter={() =>
+        onHoverCountry(country.isoCode ?? null, country.name)
+      }
+      onMouseLeave={() => onHoverCountry(null)}
+      onClick={() => onSelectCountry(country.isoCode, country.name)}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault()
+          onSelectCountry(country.isoCode, country.name)
+        }
+      }}
+    >
+      <CountryPath country={country} fill={fill} strokeWidth={strokeWidth} />
+    </g>
+  )
+}
 
 export function WorldChoropleth({
   countryCounts,
@@ -57,6 +118,25 @@ export function WorldChoropleth({
     [countries, projectionId],
   )
 
+  const emphasizedItems = useMemo(() => {
+    if (!mapScene) return []
+    return mapScene.items.filter((country) =>
+      isCountryEmphasized(
+        country.isoCode,
+        selectedCode,
+        hoveredCode,
+        highlightedCodes,
+        hoveredRegionCodes,
+      ),
+    )
+  }, [
+    mapScene,
+    selectedCode,
+    hoveredCode,
+    highlightedCodes,
+    hoveredRegionCodes,
+  ])
+
   if (loadError) {
     return (
       <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
@@ -75,6 +155,8 @@ export function WorldChoropleth({
 
   const { items, viewBox } = mapScene
   const viewBoxStr = `${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`
+  const baseStroke = 0.45 / transform.k
+  const emphasisStroke = 0.9 / transform.k
 
   return (
     <div className="relative h-full w-full bg-map-ocean">
@@ -103,59 +185,55 @@ export function WorldChoropleth({
             className="pointer-events-none"
           />
           {items.map((country) => {
-            const fill = getCountryFill(
+            const fill = getCountryBaseFill(
               country.isoCode,
               countryCounts,
               maxCount,
-              selectedCode,
-              hoveredCode,
-              highlightedCodes,
-              hoveredRegionCodes,
             )
-
             const isInteractive = Boolean(country.isoCode)
 
             if (!isInteractive) {
               return (
-                <path
+                <CountryPath
                   key={country.key}
-                  d={country.path}
+                  country={country}
                   fill={fill}
-                  stroke="var(--map-stroke)"
-                  strokeWidth={0.45 / transform.k}
-                  aria-hidden
+                  strokeWidth={baseStroke}
+                  pointerEvents="none"
                 />
               )
             }
 
             return (
-              <g
+              <InteractiveCountry
                 key={country.key}
-                role="button"
-                tabIndex={0}
-                aria-label={country.name}
-                style={{ cursor: "pointer" }}
-                onMouseEnter={() =>
-                  onHoverCountry(country.isoCode ?? null, country.name)
-                }
-                onMouseLeave={() => onHoverCountry(null)}
-                onClick={() => onSelectCountry(country.isoCode, country.name)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" || event.key === " ") {
-                    event.preventDefault()
-                    onSelectCountry(country.isoCode, country.name)
-                  }
-                }}
-              >
-                <path
-                  d={country.path}
-                  fill={fill}
-                  stroke="var(--map-stroke)"
-                  strokeWidth={0.45 / transform.k}
-                />
-              </g>
+                country={country}
+                fill={fill}
+                strokeWidth={baseStroke}
+                onHoverCountry={onHoverCountry}
+                onSelectCountry={onSelectCountry}
+              />
             )
           })}
+          <g aria-hidden pointerEvents="none">
+            {emphasizedItems.map((country) => (
+              <CountryPath
+                key={`emphasis-${country.key}`}
+                country={country}
+                fill={getCountryFill(
+                  country.isoCode,
+                  countryCounts,
+                  maxCount,
+                  selectedCode,
+                  hoveredCode,
+                  highlightedCodes,
+                  hoveredRegionCodes,
+                )}
+                strokeWidth={emphasisStroke}
+                pointerEvents="none"
+              />
+            ))}
+          </g>
         </g>
       </svg>
     </div>
