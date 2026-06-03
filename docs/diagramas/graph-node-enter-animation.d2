@@ -1,0 +1,120 @@
+# Animación de entrada de nodos del grafo (Web Semantic Explorer)
+# Render: https://terrastruct.com/d2/  o  d2 docs/diagramas/graph-node-enter-animation.d2
+
+direction: right
+
+css: {
+  label: "CSS"
+  style.fill: "#ebf2e3"
+  style.stroke: "#497d0b"
+}
+
+react: {
+  label: "React / TS"
+  style.fill: "#e8f4fc"
+  style.stroke: "#2563eb"
+}
+
+flow: {
+  label: "Flujo búsqueda"
+  style.fill: "#fff8e6"
+  style.stroke: "#b45309"
+}
+
+index: "index.css\n@import motion.css" {
+  class: react
+}
+
+motion: "styles/base/motion.css" {
+  class: css
+
+  keyframes: "@keyframes graph-node-enter\nfrom opacity 0\nto opacity 1" {
+    class: css
+  }
+
+  rule: ".graph-node[data-enter-animate]\nanimation: graph-node-enter\n420ms cubic-bezier(0.22,0.61,0.36,1) both" {
+    class: css
+  }
+
+  reduced: "@media prefers-reduced-motion\nanimation: none" {
+    class: css
+  }
+
+  motion -> keyframes
+  motion -> rule
+  motion -> reduced
+}
+
+nodes_css: "styles/graph/nodes.css" {
+  class: css
+
+  drag_off: ".react-flow__node.dragging\n.graph-node[data-enter-animate]\n→ animation: none; opacity: 1" {
+    class: css
+  }
+
+  hover: ".graph-node__surface\ntransition transform 300ms\n(no es fade-in)" {
+    class: css
+  }
+}
+
+index -> motion: import
+rule -> drag_off: "durante drag"
+motion -> nodes_css
+
+article: "ArticleNode.tsx" {
+  class: react
+
+  attrs: "data-enter-animate={true}\nstyle.animationDelay = appearDelay ms" {
+    class: react
+  }
+}
+
+search_actions: "useGraphExplorerActions.ts" {
+  class: flow
+
+  search: "searchFromInputNode()\nappearDelay: 0" {
+    class: flow
+  }
+
+  expand: "expandSimilarFromNode()\nappearDelay via getStaggerDelay()" {
+    class: flow
+  }
+}
+
+reveal: "revealGraphNodesStaggered.ts\n+1 nodo cada SEARCH_REVEAL_STAGGER_MS" {
+  class: flow
+}
+
+mappers: "graphMappers.ts\narticleToNodeData(appearDelay)" {
+  class: react
+}
+
+constants: "graphConstants.ts\ngetStaggerDelay()\nSEARCH_REVEAL_STAGGER_MS" {
+  class: react
+}
+
+store_data: "AppNodeData.appearDelay?: number" {
+  class: react
+}
+
+search_actions.search -> reveal -> mappers -> store_data
+search_actions.expand -> mappers
+constants -> mappers
+constants -> reveal
+
+reveal -> article: "monta nodo"
+mappers -> article: "data.appearDelay"
+rule -> article: "selector CSS"
+
+article -> attrs
+attrs -> rule: "activa animación"
+
+legend: {
+  near: bottom-center
+  label: |md
+    **Fade-in:** solo `opacity` en `motion.css` (420ms).
+    **Retraso:** `animationDelay` inline en `ArticleNode` (búsqueda: 0; expand: escalonado).
+    **Hover:** `nodes.css` transform 300ms (independiente).
+    **Desactivar prueba:** comentar `.graph-node[data-enter-animate]` en `motion.css`.
+  |
+}
