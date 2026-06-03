@@ -19,12 +19,16 @@
     @apply font-mono text-[9px] uppercase tracking-widest text-muted-foreground;
   }
 
+  .eom-bitter {
+    @apply font-serif;
+  }
+
   .eom-lead-serif {
-    @apply font-serif text-sm text-muted-foreground;
+    @apply font-sans text-sm text-muted-foreground;
   }
 
   .eom-title-serif {
-    @apply font-serif text-lg font-bold leading-snug text-pretty text-foreground;
+    @apply font-sans text-lg font-bold leading-snug text-pretty text-foreground;
   }
 
   .eom-title-highlight {

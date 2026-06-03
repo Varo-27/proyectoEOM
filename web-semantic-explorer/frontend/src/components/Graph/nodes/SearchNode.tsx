@@ -25,7 +25,7 @@ export function SearchNode({ data }: NodeProps<AppNode>) {
             Semilla de búsqueda
           </span>
           <span
-            className="max-w-lg truncate font-serif text-2xl font-bold leading-tight"
+            className="max-w-lg truncate font-sans text-2xl font-bold leading-tight"
             title={queryLabel}
           >
             {queryLabel}

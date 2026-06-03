@@ -73,7 +73,7 @@ export function GeoHeatmap() {
           <p className="text-[10px] font-mono uppercase tracking-widest text-primary">
             Fase 3 · visión geoespacial
           </p>
-          <h1 className="font-serif text-2xl font-bold">Mapa de cobertura</h1>
+          <h1 className="font-sans text-2xl font-bold">Mapa de cobertura</h1>
           <p className="mt-1 max-w-xl text-sm text-muted-foreground">
             Intensidad por volumen de artículos. Rueda del ratón para zoom,
             arrastra para mover. Clic en cualquier país abre búsqueda semántica

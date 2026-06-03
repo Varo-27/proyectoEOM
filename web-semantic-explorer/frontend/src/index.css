@@ -4,12 +4,14 @@
 @custom-variant dark (&:is(.dark *));
 
 @import "./styles/tokens/colors.css";
+@import "./styles/tokens/fonts.css";
 @import "./styles/tokens/theme.css";
 @import "./styles/base/global.css";
 @import "./styles/base/motion.css";
 @import "./styles/shapes/brutalist.css";
 @import "./styles/typography/eom.css";
 @import "./styles/graph/react-flow.css";
+@import "./styles/graph/edges.css";
 @import "./styles/graph/nodes.css";
 @import "./styles/graph/explorer.css";
 @import "./styles/graph/modal.css";
