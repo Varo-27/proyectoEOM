@@ -8,11 +8,11 @@
   }
 
   .graph-explorer__sidebar {
-    @apply flex w-full shrink-0 flex-col border-t-2 border-foreground bg-background lg:w-56 lg:border-t-0 lg:border-r-2;
+    @apply flex w-full shrink-0 flex-col overflow-y-auto border-t-2 border-foreground bg-background lg:max-w-[min(20rem,40vw)] lg:w-80 lg:border-t-0 lg:border-l-2;
   }
 
   .graph-explorer__canvas {
-    @apply relative min-h-[min(50vh,360px)] min-w-0 flex-1 overflow-hidden border-b-2 border-foreground lg:min-h-0 lg:border-b-0;
+    @apply relative min-h-[min(50vh,360px)] min-w-0 flex-1 overflow-hidden border-b-2 border-foreground lg:min-h-0 lg:border-b-0 lg:border-r-2;
   }
 
   .graph-explorer__loading {
@@ -37,7 +37,7 @@
   }
 
   .graph-explorer__canvas--drag-over {
-    @apply outline-2 outline-dashed outline-primary/40 outline-offset-[-2px];
+    @apply outline-2 outline-dashed outline-primary/40 -outline-offset-2;
   }
 
   .graph-workspace {

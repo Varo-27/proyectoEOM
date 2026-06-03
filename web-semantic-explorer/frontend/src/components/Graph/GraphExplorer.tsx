@@ -219,6 +219,8 @@ export default function GraphExplorer() {
 
   const handleNodeClick: NodeMouseHandler<AppNode> = useCallback(
     (_event, node) => {
+      setActiveNodeId(node.id)
+
       if (
         node.type === GRAPH_NODE_TYPE.input ||
         node.type === GRAPH_NODE_TYPE.filter
@@ -226,7 +228,6 @@ export default function GraphExplorer() {
         return
       }
 
-      setActiveNodeId(node.id)
       setSelectedNode(node)
       setModalOpen(true)
     },
@@ -249,11 +250,6 @@ export default function GraphExplorer() {
   return (
     <div className="graph-explorer">
       <div className="graph-explorer__layout">
-        <aside className="graph-explorer__sidebar">
-          <WorkspaceBar />
-          <GraphNodePalette isLoading={isLoading} />
-        </aside>
-
         <div
           className={cn(
             "graph-explorer__canvas",
@@ -278,6 +274,11 @@ export default function GraphExplorer() {
             isWorkspaceHydrated={isWorkspaceHydrated}
           />
         </div>
+
+        <aside className="graph-explorer__sidebar">
+          <WorkspaceBar />
+          <GraphNodePalette isLoading={isLoading} />
+        </aside>
       </div>
     </div>
   )
