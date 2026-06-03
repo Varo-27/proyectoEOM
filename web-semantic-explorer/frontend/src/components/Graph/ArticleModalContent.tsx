@@ -23,11 +23,7 @@ import {
 } from "@/api/articles"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import {
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+import { DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
 import { isLoggedIn } from "@/hooks/useAuth"
 import useCustomToast from "@/hooks/useCustomToast"
@@ -132,84 +128,111 @@ export function ArticleModalContent({
     : node.data.author_name
   const displayExcerpt = detail?.excerpt ?? node.data.excerpt
   const displayUrl = detail?.url ?? node.data.url
+  const displayImageCaption =
+    typeof node.data.imageCaption === "string"
+      ? node.data.imageCaption.trim() || null
+      : null
+  const hasTaxonomy =
+    detail &&
+    (detail.categories.length > 0 || detail.places.length > 0)
 
   return (
     <>
       {displayImage && (
-        <div className="graph-article-modal__hero">
-          <img src={displayImage} alt={displayTitle} />
-        </div>
+        <figure className="graph-article-modal__hero">
+          <div className="graph-article-modal__hero-media">
+            <img src={displayImage} alt={displayTitle} />
+          </div>
+          {displayImageCaption && (
+            <figcaption className="graph-article-modal__hero-caption">
+              {displayImageCaption}
+            </figcaption>
+          )}
+        </figure>
       )}
 
       <div className="graph-article-modal__body">
-        <DialogHeader className="space-y-3 text-left">
-          <p className="graph-article-modal__kicker">Artículo</p>
-          <DialogTitle className="graph-article-modal__title">
-            <span className="eom-title-highlight">{displayTitle}</span>
-          </DialogTitle>
-          {displayAuthors && (
-            <DialogDescription className="graph-article-modal__byline">
-              Por {displayAuthors}
-            </DialogDescription>
+        <header className="graph-article-modal__header">
+          <DialogHeader className="space-y-0 text-left">
+            <p className="graph-article-modal__kicker">Artículo</p>
+            <DialogTitle className="graph-article-modal__title mt-2">
+              <span className="eom-title-highlight">{displayTitle}</span>
+            </DialogTitle>
+          </DialogHeader>
+
+          {(displayAuthors || detail?.date) && (
+            <div className="graph-article-modal__meta">
+              {displayAuthors && (
+                <p className="graph-article-modal__byline">Por {displayAuthors}</p>
+              )}
+              {displayAuthors && detail?.date && (
+                <span
+                  className="graph-article-modal__meta-sep"
+                  aria-hidden
+                />
+              )}
+              {detail?.date && (
+                <time className="graph-article-modal__date" dateTime={detail.date}>
+                  {formatArticleDate(detail.date)}
+                </time>
+              )}
+            </div>
           )}
-          {detail?.date && (
-            <p className="text-xs text-muted-foreground">
-              {formatArticleDate(detail.date)}
-            </p>
+
+          {displayExcerpt && (
+            <p className="graph-article-modal__excerpt">{displayExcerpt}</p>
           )}
-        </DialogHeader>
+        </header>
 
-        {displayExcerpt && (
-          <p className="graph-article-modal__excerpt">{displayExcerpt}</p>
+        {hasTaxonomy && (
+          <div className="graph-article-modal__sections">
+            {detail.categories.length > 0 && (
+              <section className="graph-article-modal__section">
+                <div className="graph-article-modal__section-label">
+                  <Tag className="h-3.5 w-3.5 shrink-0" />
+                  Categorías
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {detail.categories.map((category) => (
+                    <Badge
+                      key={category}
+                      variant="outline"
+                      className="graph-article-modal__badge"
+                    >
+                      {category}
+                    </Badge>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {detail.places.length > 0 && (
+              <section className="graph-article-modal__section">
+                <div className="graph-article-modal__section-label">
+                  <MapPin className="h-3.5 w-3.5 shrink-0" />
+                  Lugares
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {detail.places.map((place) => (
+                    <Badge
+                      key={place}
+                      variant="secondary"
+                      className="graph-article-modal__badge"
+                    >
+                      {place}
+                    </Badge>
+                  ))}
+                </div>
+              </section>
+            )}
+          </div>
         )}
 
-        {detail && detail.categories.length > 0 && (
-          <section className="space-y-2">
-            <div className="graph-article-modal__section-label">
-              <Tag className="h-3.5 w-3.5" />
-              Categorías
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {detail.categories.map((category) => (
-                <Badge
-                  key={category}
-                  variant="outline"
-                  className="graph-article-modal__badge"
-                >
-                  {category}
-                </Badge>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {detail && detail.places.length > 0 && (
-          <section className="space-y-2">
-            <div className="graph-article-modal__section-label">
-              <MapPin className="h-3.5 w-3.5" />
-              Lugares
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {detail.places.map((place) => (
-                <Badge
-                  key={place}
-                  variant="secondary"
-                  className="graph-article-modal__badge"
-                >
-                  {place}
-                </Badge>
-              ))}
-            </div>
-          </section>
-        )}
-
-        <div className="flex flex-wrap items-start justify-between gap-4 border-t-2 border-foreground pt-4">
-          <div className="space-y-3 min-w-[200px]">
-            <div className="space-y-1">
-              <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
-                Valoración media
-              </p>
-              <div className="flex items-center gap-2">
+        <div className="graph-article-modal__panel">
+          <div className="graph-article-modal__panel-block">
+            <div className="space-y-2">
+              <p className="graph-article-modal__panel-label">Valoración media</p>
+              <div className="graph-article-modal__rating-row">
                 {detail?.average_rating != null ? (
                   <>
                     <StarRating value={detail.average_rating} />
@@ -229,10 +252,8 @@ export function ArticleModalContent({
             </div>
 
             {loggedIn && (
-              <div className="space-y-1">
-                <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
-                  Tu valoración
-                </p>
+              <div className="space-y-2">
+                <p className="graph-article-modal__panel-label">Tu valoración</p>
                 <InteractiveStarRating
                   value={detail?.user_rating ?? null}
                   disabled={ratingMutation.isPending}
@@ -255,10 +276,10 @@ export function ArticleModalContent({
               favoriteMutation.mutate()
             }}
             className={cn(
-              "inline-flex items-center gap-2 border-2 border-foreground px-4 py-2 text-[10px] uppercase tracking-widest transition-colors",
+              "graph-article-modal__favorite",
               detail?.is_favorited
-                ? "bg-primary text-primary-foreground"
-                : "bg-background hover:bg-muted",
+                ? "graph-article-modal__favorite--active"
+                : "graph-article-modal__favorite--idle",
               !loggedIn && "opacity-60",
             )}
           >
@@ -269,18 +290,18 @@ export function ArticleModalContent({
           </button>
         </div>
 
-        <div className="border-2 border-foreground">
+        <div className="graph-article-modal__comments">
           <button
             type="button"
             aria-expanded={commentsOpen}
             onClick={() => setCommentsOpen((value) => !value)}
-            className="flex w-full items-center justify-between gap-3 bg-muted/60 px-4 py-3 text-left text-[10px] uppercase tracking-widest"
+            className="graph-article-modal__comments-toggle"
           >
             <span className="inline-flex items-center gap-2">
               <MessageSquare className="h-3.5 w-3.5" />
               Comentarios
               {detail && (
-                <span className="font-mono text-muted-foreground">
+                <span className="text-muted-foreground">
                   ({detail.comments.length})
                 </span>
               )}
@@ -294,9 +315,9 @@ export function ArticleModalContent({
           </button>
 
           {commentsOpen && (
-            <div className="space-y-3 border-t-2 border-foreground px-4 py-3">
+            <div className="graph-article-modal__comments-body">
               {!loggedIn && (
-                <p className="rounded-none border border-dashed border-foreground/30 bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+                <p className="rounded-none border border-dashed border-foreground/30 bg-muted/40 px-3 py-2.5 text-sm text-muted-foreground">
                   <RouterLink
                     to="/login"
                     className="font-medium text-primary underline underline-offset-2"
@@ -309,7 +330,7 @@ export function ArticleModalContent({
 
               {loggedIn && (
                 <form
-                  className="space-y-2"
+                  className="space-y-3"
                   onSubmit={(event) => {
                     event.preventDefault()
                     const trimmed = commentDraft.trim()
@@ -335,16 +356,16 @@ export function ArticleModalContent({
                 </form>
               )}
 
-              <div className="max-h-56 space-y-3 overflow-y-auto">
+              <div className="graph-article-modal__comments-list">
                 {!detail?.comments.length && (
-                  <p className="text-sm text-muted-foreground">
+                  <p className="graph-article-modal__comments-empty">
                     Aún no hay comentarios en este artículo.
                   </p>
                 )}
                 {detail?.comments.map((comment) => (
                   <article
                     key={comment.id}
-                    className="border-l-2 border-primary/30 pl-3"
+                    className="graph-article-modal__comment"
                   >
                     <div className="flex items-start justify-between gap-2">
                       <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
@@ -426,13 +447,13 @@ export function ArticleModalContent({
                         </div>
                       </form>
                     ) : (
-                      <p className="mt-1 text-sm leading-relaxed">
+                      <p className="graph-article-modal__comment-text">
                         {comment.content}
                       </p>
                     )}
 
                     {editingCommentId !== comment.id && (
-                      <p className="mt-1 text-[10px] text-muted-foreground">
+                      <p className="mt-1.5 font-mono text-[10px] text-muted-foreground">
                         {formatArticleDate(comment.created_at)}
                       </p>
                     )}
@@ -448,7 +469,7 @@ export function ArticleModalContent({
             href={displayUrl}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-foreground underline decoration-primary underline-offset-4"
+            className="graph-article-modal__footer-link"
           >
             Abrir artículo original
             <ExternalLink className="h-3.5 w-3.5" />

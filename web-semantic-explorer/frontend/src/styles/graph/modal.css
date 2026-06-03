@@ -1,27 +1,44 @@
 @layer components {
   .graph-article-modal {
-    @apply max-h-[min(90vh,820px)] overflow-y-auto rounded-none border-2 border-foreground p-0 sm:max-w-2xl;
+    /* !max-w anula sm:max-w-lg del DialogContent (~512px) */
+    @apply max-h-[min(92vh,880px)] w-full max-w-[calc(100%-1.5rem)]! gap-0 overflow-y-auto rounded-none border-2 border-foreground p-0 sm:max-w-[min(90vw,44rem)]! lg:max-w-[min(88vw,48rem)]!;
     box-shadow: 6px 6px 0 0 var(--color-foreground);
   }
 
+  .graph-article-modal [data-slot="dialog-close"] {
+    @apply top-3 right-3 z-20 rounded-none border-2 border-foreground bg-background opacity-100 shadow-[2px_2px_0_0_var(--color-foreground)] hover:bg-muted;
+  }
+
   .graph-article-modal__loading {
-    @apply flex items-center justify-center gap-2 px-6 py-16 text-sm text-muted-foreground;
+    @apply flex items-center justify-center gap-2 px-8 py-20 text-sm text-muted-foreground;
   }
 
   .graph-article-modal__error {
-    @apply px-6 py-16 text-center text-sm text-muted-foreground;
+    @apply px-8 py-20 text-center text-sm text-muted-foreground;
   }
 
   .graph-article-modal__hero {
-    @apply h-48 w-full overflow-hidden border-b-2 border-foreground;
+    @apply shrink-0 border-b-2 border-foreground;
   }
 
-  .graph-article-modal__hero img {
+  .graph-article-modal__hero-media {
+    @apply h-52 w-full overflow-hidden sm:h-60;
+  }
+
+  .graph-article-modal__hero-media img {
     @apply h-full w-full object-cover;
   }
 
+  .graph-article-modal__hero-caption {
+    @apply border-t border-foreground/15 bg-muted/30 px-5 py-2.5 text-right font-serif text-sm leading-snug text-muted-foreground sm:px-7;
+  }
+
   .graph-article-modal__body {
-    @apply space-y-5 px-6 py-5;
+    @apply flex flex-col gap-8 px-7 py-7 sm:px-9 sm:py-8;
+  }
+
+  .graph-article-modal__header {
+    @apply flex flex-col gap-4 border-b-2 border-foreground/15 pb-6;
   }
 
   .graph-article-modal__kicker {
@@ -29,15 +46,36 @@
   }
 
   .graph-article-modal__title {
-    @apply font-serif text-2xl font-bold leading-tight text-pretty;
+    @apply font-sans text-2xl font-bold leading-tight text-pretty sm:text-3xl;
+  }
+
+  .graph-article-modal__meta {
+    @apply flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground;
   }
 
   .graph-article-modal__byline {
-    @apply text-[11px] uppercase tracking-widest text-muted-foreground;
+    @apply font-medium text-foreground;
   }
 
+  .graph-article-modal__date {
+    @apply font-sans text-sm text-muted-foreground;
+  }
+
+  .graph-article-modal__meta-sep {
+    @apply hidden h-1 w-1 rounded-full bg-foreground/30 sm:inline-block;
+  }
+
+  /* Entradilla: en EOM va en Expose cursiva, no en Bitter */
   .graph-article-modal__excerpt {
-    @apply border-l-2 border-primary/40 pl-3 text-sm leading-relaxed text-muted-foreground;
+    @apply font-sans text-lg leading-relaxed font-normal italic text-pretty text-foreground/90 sm:text-xl;
+  }
+
+  .graph-article-modal__sections {
+    @apply grid gap-6 sm:grid-cols-2;
+  }
+
+  .graph-article-modal__section {
+    @apply flex flex-col gap-2.5;
   }
 
   .graph-article-modal__section-label {
@@ -45,6 +83,67 @@
   }
 
   .graph-article-modal__badge {
-    @apply rounded-none border-foreground text-[10px] uppercase tracking-wider;
+    @apply rounded-none border-foreground px-2.5 py-0.5 text-[10px] uppercase tracking-wider;
+  }
+
+  .graph-article-modal__panel {
+    @apply flex flex-wrap items-start justify-between gap-6 border-2 border-foreground bg-muted/25 px-5 py-5;
+  }
+
+  .graph-article-modal__panel-block {
+    @apply flex min-w-48 flex-col gap-4;
+  }
+
+  .graph-article-modal__panel-label {
+    @apply font-mono text-[10px] uppercase tracking-widest text-muted-foreground;
+  }
+
+  .graph-article-modal__rating-row {
+    @apply flex flex-wrap items-center gap-2;
+  }
+
+  .graph-article-modal__favorite {
+    @apply inline-flex shrink-0 items-center gap-2 self-start border-2 border-foreground px-4 py-2.5 text-[10px] uppercase tracking-widest transition-colors sm:self-center;
+  }
+
+  .graph-article-modal__favorite--active {
+    @apply bg-primary text-primary-foreground;
+  }
+
+  .graph-article-modal__favorite--idle {
+    @apply bg-background hover:bg-muted;
+  }
+
+  .graph-article-modal__comments {
+    @apply border-2 border-foreground;
+  }
+
+  .graph-article-modal__comments-toggle {
+    @apply flex w-full items-center justify-between gap-3 bg-muted/50 px-5 py-3.5 text-left font-mono text-[10px] uppercase tracking-widest;
+  }
+
+  .graph-article-modal__comments-body {
+    @apply flex flex-col gap-4 border-t-2 border-foreground px-5 py-4;
+  }
+
+  .graph-article-modal__comments-list {
+    @apply max-h-64 space-y-4 overflow-y-auto pr-1;
+  }
+
+  .graph-article-modal__comment {
+    @apply border-l-2 border-primary/35 pl-3.5;
+  }
+
+  /* Cuerpo de lectura (sustituto del <p> del artículo en EOM) */
+  .graph-article-modal__comment-text {
+    @apply mt-1.5 font-serif text-sm leading-relaxed text-pretty text-foreground/90;
+  }
+
+  .graph-article-modal__comments-empty {
+    @apply font-serif text-sm leading-relaxed text-muted-foreground;
+  }
+
+  .graph-article-modal__footer-link {
+    @apply inline-flex items-center gap-2 self-start border-b-2 border-primary/50 pb-0.5 text-xs uppercase tracking-widest text-foreground transition-colors hover:border-primary;
   }
 }

@@ -15,6 +15,8 @@ export type AppNodeData = {
   category_name?: string
   url?: string
   imageUrl?: string
+  /** Pie de foto (cuando exista en origen). */
+  imageCaption?: string
   /** Retraso de animación de entrada (ms), asignado al crear el nodo. */
   appearDelay?: number
   /** Artículo con input/filtro conectado downstream (sync topología). */
