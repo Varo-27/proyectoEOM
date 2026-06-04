@@ -7,4 +7,4 @@ export {
   type WorkspaceSchemaVersion,
   type WorkspaceStoragePayload,
   type WorkspaceViewport,
-} from "@/entities/workspace"
+} from "./model/types"
