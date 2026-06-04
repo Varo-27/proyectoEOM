@@ -14,7 +14,7 @@
 @import "./styles/graph/edges.css";
 @import "./styles/graph/nodes.css";
 @import "./styles/graph/explorer.css";
-@import "./styles/graph/modal.css";
+@import "./widgets/article-modal/ui/article-modal.css";
 @import "./styles/layout/nav.css";
 @import "./styles/layout/shell.css";
 @import "./styles/map/panel.css";

@@ -143,6 +143,14 @@
     @apply font-serif text-sm leading-relaxed text-muted-foreground;
   }
 
+  .graph-article-modal__follow-btn {
+    @apply flex w-full flex-col items-start gap-0.5 rounded-none border-2 border-foreground/25 bg-background px-3 py-2 text-left transition-colors hover:border-foreground;
+  }
+
+  .graph-article-modal__follow-btn--active {
+    @apply border-primary bg-primary/5;
+  }
+
   .graph-article-modal__footer-link {
     @apply inline-flex items-center gap-2 self-start border-b-2 border-primary/50 pb-0.5 text-xs uppercase tracking-widest text-foreground transition-colors hover:border-primary;
   }
