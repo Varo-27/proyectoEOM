@@ -37,13 +37,4 @@
     box-decoration-break: clone;
     -webkit-box-decoration-break: clone;
   }
-
-  .graph-node:hover .eom-title-highlight,
-  .graph-node.graph-node-active .eom-title-highlight {
-    background: linear-gradient(
-      0deg,
-      color-mix(in srgb, var(--eom-green) 16%, transparent) 50%,
-      transparent 50%
-    );
-  }
 }

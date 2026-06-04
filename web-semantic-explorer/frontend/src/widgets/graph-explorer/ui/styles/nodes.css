@@ -223,4 +223,13 @@
   .graph-node__delete-confirm {
     @apply mt-2 inline-flex w-full items-center justify-center border-2 border-destructive bg-destructive/10 px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest text-destructive transition-colors hover:bg-destructive hover:text-white focus-visible:ring-2 focus-visible:ring-destructive focus-visible:outline-none;
   }
+
+  .graph-node:hover .eom-title-highlight,
+  .graph-node.graph-node-active .eom-title-highlight {
+    background: linear-gradient(
+      0deg,
+      color-mix(in srgb, var(--eom-green) 16%, transparent) 50%,
+      transparent 50%
+    );
+  }
 }

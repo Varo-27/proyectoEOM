@@ -1,5 +1,6 @@
 import { type Edge, type NodeMouseHandler, type NodeTypes } from "@xyflow/react"
 import "@xyflow/react/dist/style.css"
+import "./styles/index.css"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useShallow } from "zustand/react/shallow"

@@ -1,6 +1,7 @@
 import { Outlet } from "@tanstack/react-router"
 
 import { Footer } from "@/shared/ui/footer/Footer"
+import "./styles/index.css"
 import { TopNavBar } from "./TopNavBar"
 
 export function DashboardLayout() {
