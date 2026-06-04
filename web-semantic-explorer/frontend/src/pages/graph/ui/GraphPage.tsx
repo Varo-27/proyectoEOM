@@ -1,4 +1,4 @@
-import { PageShell } from "@/components/Layout/PageShell"
+import { PageShell } from "@/widgets/app-shell"
 import { GraphExplorer } from "@/widgets/graph-explorer"
 
 export function GraphPage() {

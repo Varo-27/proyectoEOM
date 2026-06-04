@@ -3,7 +3,7 @@ import type { LucideIcon } from "lucide-react"
 import { LogIn, LogOut, Monitor, Moon, Settings, Sun, User, UserPlus } from "lucide-react"
 
 import { Logo } from "@/components/Common/Logo"
-import { getNavItems, type NavItem } from "@/components/Layout/navConfig"
+import { getNavItems, type NavItem } from "../config/navConfig"
 import { type Theme, useTheme } from "@/components/theme-provider"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
