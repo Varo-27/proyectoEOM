@@ -10,7 +10,7 @@ import { useGraphStore } from "@/store/useGraphStore"
 
 import { NodeDeleteButton } from "./NodeDeleteButton"
 
-function InputNodeComponent({ id, data }: NodeProps<AppNode>) {
+function QueryNodeComponent({ id, data }: NodeProps<AppNode>) {
   const isLoading = useGraphStore((state) => state.isLoading)
   const activeNodeId = useGraphStore((state) => state.activeNodeId)
   const isActive = activeNodeId === id
@@ -36,7 +36,7 @@ function InputNodeComponent({ id, data }: NodeProps<AppNode>) {
 
   return (
     <div
-      className={cn("graph-node graph-node--input", isActive && "graph-node-active")}
+      className={cn("graph-node graph-node--query", isActive && "graph-node-active")}
     >
       <Handle type="target" position={Position.Top} className="rf-handle" />
       <div className="graph-node__surface">
@@ -80,7 +80,10 @@ function InputNodeComponent({ id, data }: NodeProps<AppNode>) {
   )
 }
 
-export const InputNode = memo(InputNodeComponent)
+export const QueryNode = memo(QueryNodeComponent)
+
+/** @deprecated Usar `QueryNode`. */
+export const InputNode = QueryNode
 
 function readQueryFromTitle(title: string): string {
   const prefix = "Búsqueda: "

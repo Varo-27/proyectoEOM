@@ -1,7 +1,7 @@
 import type { Edge } from "@xyflow/react"
 
 import type { ArticleSearchResult, GraphNode } from "@/client"
-import type { AppNode, AppNodeData } from "@/store/useGraphStore"
+import type { AppNode, AppNodeData } from "@/entities/graph/model/types"
 
 import {
   DEFAULT_ARTICLE_TITLE,

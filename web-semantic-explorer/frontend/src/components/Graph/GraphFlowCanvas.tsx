@@ -2,8 +2,10 @@ import {
   Background,
   BackgroundVariant,
   Controls,
+  type Connection,
   type Edge,
   type EdgeTypes,
+  type IsValidConnection,
   type NodeMouseHandler,
   type NodeTypes,
   ReactFlow,
@@ -26,7 +28,7 @@ import {
   GRAPH_MAX_ZOOM,
   GRAPH_MIN_ZOOM,
 } from "./graphConstants"
-import { isActiveNodeDrag } from "./graphFlowDrag"
+import { isActiveNodeDrag } from "@/entities/graph"
 
 const edgeTypes: EdgeTypes = {
   graphFlow: GraphFlowEdge,
@@ -42,6 +44,7 @@ type GraphFlowCanvasProps = {
   onEdgesDelete: (edges: Edge[]) => void
   onMoveEnd: (viewport: WorkspaceViewport | null) => void
   isWorkspaceHydrated: boolean
+  isValidConnection?: IsValidConnection
 }
 
 function GraphFlowCanvasComponent({
@@ -52,6 +55,7 @@ function GraphFlowCanvasComponent({
   onEdgesDelete,
   onMoveEnd,
   isWorkspaceHydrated,
+  isValidConnection,
 }: GraphFlowCanvasProps) {
   const reactFlowRef = useRef<ReactFlowInstance<AppNode, Edge> | null>(null)
   const fitViewDoneRef = useRef(false)
@@ -70,6 +74,13 @@ function GraphFlowCanvasComponent({
     [edges, focusNodeId],
   )
   const onConnect = useGraphStore((state) => state.onConnect)
+
+  const handleConnect = useCallback(
+    (connection: Connection) => {
+      onConnect(connection)
+    },
+    [onConnect],
+  )
   const commitNodes = useGraphStore((state) => state.commitNodes)
 
   const [flowNodes, setFlowNodes] = useState(storeNodes)
@@ -167,7 +178,8 @@ function GraphFlowCanvasComponent({
       defaultEdgeOptions={defaultEdgeOptions}
       onNodesChange={handleNodesChange}
       onEdgesChange={onEdgesChange}
-      onConnect={onConnect}
+      onConnect={handleConnect}
+      isValidConnection={isValidConnection}
       onEdgesDelete={onEdgesDelete}
       deleteKeyCode={["Backspace", "Delete"]}
       onInit={handleFlowInit}

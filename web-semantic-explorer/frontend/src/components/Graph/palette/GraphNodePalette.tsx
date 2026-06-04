@@ -2,7 +2,7 @@ import { Filter, TextCursorInput } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
-import { FILTER_NODE_DIMENSIONS, type FilterNodeKind } from "../graphNodeTypes"
+import { FILTER_NODE_DIMENSIONS, type FilterNodeKind } from "@/entities/graph"
 import { setPaletteDragData } from "./paletteDrag"
 
 type GraphNodePaletteProps = {
@@ -21,7 +21,7 @@ export function GraphNodePalette({ isLoading }: GraphNodePaletteProps) {
         <h2 className="eom-heading-section">Añadir nodos</h2>
         <p className="graph-palette__hint">
           Arrastra un nodo al lienzo y suéltalo donde quieras. Conecta filtros
-          entre el input y los artículos.
+          entre la consulta y los artículos.
         </p>
       </div>
 
@@ -29,17 +29,17 @@ export function GraphNodePalette({ isLoading }: GraphNodePaletteProps) {
         role="button"
         tabIndex={disabled ? -1 : 0}
         draggable={!disabled}
-        aria-label="Arrastrar nodo input al lienzo"
+        aria-label="Arrastrar nodo consulta al lienzo"
         className={cn(
           paletteItemClass,
           "h-10 justify-start bg-background px-3",
         )}
         onDragStart={(event) => {
-          setPaletteDragData(event, { type: "input" })
+          setPaletteDragData(event, { type: "query" })
         }}
       >
         <TextCursorInput className="h-4 w-4 shrink-0 text-primary" />
-        Nodo input
+        Nodo consulta
       </div>
 
       <div className="flex flex-col gap-2">

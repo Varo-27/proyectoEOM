@@ -1,10 +1,10 @@
 import type { Edge } from "@xyflow/react"
 import { type HierarchyPointNode, hierarchy, tree } from "d3-hierarchy"
 
-import type { AppNode } from "@/store/useGraphStore"
+import { GRAPH_NODE_TYPE } from "@/entities/graph/model/graphNodeTypes"
+import type { AppNode } from "@/entities/graph/model/types"
 
 import { GRAPH_LAYOUT_TREE, SEARCH_ROOT_ID } from "./graphConstants"
-import { GRAPH_NODE_TYPE } from "@/entities/graph"
 
 type TreeDatum = {
   id: string

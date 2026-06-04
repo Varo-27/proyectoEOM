@@ -1,6 +1,10 @@
 import { create } from "zustand"
-import { syncLinkedContextFlags } from "@/components/Graph/context/syncLinkedContextFlags"
-import { migrateGraphSnapshot } from "@/components/Graph/workspace/migrateGraphSnapshot"
+import { migrateGraphSnapshot, syncLinkedContextFlags } from "@/entities/graph"
+import {
+  fetchWorkspaceSync,
+  pushWorkspaceSync,
+  syncResponseToStoragePayload,
+} from "@/api/workspaces"
 import { isLoggedIn } from "@/hooks/useAuth"
 import { useGraphStore } from "@/store/useGraphStore"
 
@@ -28,9 +32,11 @@ type WorkspaceState = {
   isHydrated: boolean
   isDirty: boolean
   isGuestMode: boolean
+  isSyncing: boolean
+  syncError: string | null
 
   hydrateFromStorage: () => void
-  hydrateForCurrentUser: () => void
+  hydrateForCurrentUser: () => Promise<void>
   createWorkspace: (name?: string) => string
   switchWorkspace: (workspaceId: string) => void
   renameActiveWorkspace: (name: string) => void
@@ -41,6 +47,7 @@ type WorkspaceState = {
   applyActiveWorkspaceToGraph: () => void
   getActiveWorkspace: () => WorkspaceRecord | null
   exportActiveWorkspaceForApi: () => WorkspaceRecord | null
+  pushToServer: () => Promise<void>
 }
 
 function persist(state: WorkspaceState) {
@@ -48,8 +55,8 @@ function persist(state: WorkspaceState) {
     return
   }
 
-  const payload = {
-    schemaVersion: 1 as const,
+  const payload: WorkspaceStoragePayload = {
+    schemaVersion: 1,
     activeWorkspaceId: state.activeWorkspaceId,
     workspaces: state.workspaces,
   }
@@ -67,8 +74,10 @@ function guestGraphHasProgress(graph: WorkspaceGraphSnapshot): boolean {
     return true
   }
 
-  const inputNodes = graph.nodes.filter((node) => node.type === "input")
-  if (inputNodes.length !== 1) {
+  const queryNodes = graph.nodes.filter(
+    (node) => node.type === "query" || node.type === "input",
+  )
+  if (queryNodes.length !== 1) {
     return true
   }
 
@@ -77,7 +86,7 @@ function guestGraphHasProgress(graph: WorkspaceGraphSnapshot): boolean {
     return true
   }
 
-  const query = inputNodes[0]?.data?.query
+  const query = queryNodes[0]?.data?.query
   return typeof query === "string" && query.trim().length > 0
 }
 
@@ -118,18 +127,50 @@ function applySnapshotToGraphStore(graph: WorkspaceGraphSnapshot) {
   return migrated.viewport
 }
 
+function payloadLatestUpdatedAt(payload: WorkspaceStoragePayload): number {
+  return payload.workspaces.reduce((latest, workspace) => {
+    const ts = Date.parse(workspace.updatedAt)
+    return Number.isFinite(ts) && ts > latest ? ts : latest
+  }, 0)
+}
+
+async function resolveLoggedInPayload(): Promise<WorkspaceStoragePayload> {
+  const local = loadWorkspacesFromStorage()
+  let payload = local ?? buildDefaultStoragePayload()
+
+  try {
+    const remote = await fetchWorkspaceSync()
+    const remotePayload = syncResponseToStoragePayload(remote)
+    const localTs = local ? payloadLatestUpdatedAt(local) : 0
+    const remoteTs = payloadLatestUpdatedAt(remotePayload)
+
+    if (remoteTs >= localTs) {
+      saveWorkspacesToStorage(remotePayload)
+      return remotePayload
+    }
+
+    await pushWorkspaceSync(payload)
+    const pushed = await fetchWorkspaceSync()
+    return syncResponseToStoragePayload(pushed)
+  } catch {
+    return payload
+  }
+}
+
 export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   workspaces: [],
   activeWorkspaceId: null,
   isHydrated: false,
   isDirty: false,
   isGuestMode: true,
+  isSyncing: false,
+  syncError: null,
 
   hydrateFromStorage: () => {
-    get().hydrateForCurrentUser()
+    void get().hydrateForCurrentUser()
   },
 
-  hydrateForCurrentUser: () => {
+  hydrateForCurrentUser: async () => {
     const guestMode = !isLoggedIn()
 
     if (guestMode) {
@@ -146,18 +187,19 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
         isHydrated: true,
         isDirty: false,
         isGuestMode: true,
+        isSyncing: false,
+        syncError: null,
       })
 
       applySnapshotToGraphStore(payload.workspaces[0].graph)
       return
     }
 
+    set({ isSyncing: true, syncError: null })
+
     const guestStored = loadGuestWorkspacesFromStorage()
-    const hadUserStorage = loadWorkspacesFromStorage() !== null
-    let payload = hadUserStorage
-      ? loadWorkspacesFromStorage()!
-      : buildDefaultStoragePayload()
-    let shouldPersistUser = !hadUserStorage
+    let payload = await resolveLoggedInPayload()
+    let shouldPersistUser = loadWorkspacesFromStorage() === null
 
     if (guestStored?.workspaces[0]?.graph) {
       const guestGraph = guestStored.workspaces[0].graph
@@ -170,6 +212,14 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
 
     if (shouldPersistUser) {
       saveWorkspacesToStorage(payload)
+      try {
+        await pushWorkspaceSync(payload)
+        const synced = await fetchWorkspaceSync()
+        payload = syncResponseToStoragePayload(synced)
+        saveWorkspacesToStorage(payload)
+      } catch {
+        // Mantener copia local si el servidor no responde.
+      }
     }
 
     set({
@@ -178,12 +228,15 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
       isHydrated: true,
       isDirty: false,
       isGuestMode: false,
+      isSyncing: false,
+      syncError: null,
     })
 
     applySnapshotToGraphStore(
       payload.workspaces.find((ws) => ws.id === payload.activeWorkspaceId)
         ?.graph ?? payload.workspaces[0].graph,
     )
+    persist(get())
   },
 
   createWorkspace: (name) => {
@@ -210,6 +263,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
 
     applySnapshotToGraphStore(workspace.graph)
     persist(get())
+    void get().pushToServer()
 
     return workspace.id
   },
@@ -236,6 +290,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
     set({ activeWorkspaceId: workspaceId, isDirty: false })
     applySnapshotToGraphStore(target.graph)
     persist(get())
+    void get().pushToServer()
   },
 
   renameActiveWorkspace: (name) => {
@@ -258,6 +313,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
 
     set({ workspaces: nextWorkspaces })
     persist(get())
+    void get().pushToServer()
   },
 
   deleteWorkspace: (workspaceId) => {
@@ -290,6 +346,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
     }
 
     persist(get())
+    void get().pushToServer()
   },
 
   markDirty: () => {
@@ -341,5 +398,41 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   exportActiveWorkspaceForApi: () => {
     get().captureActiveWorkspace()
     return get().getActiveWorkspace()
+  },
+
+  pushToServer: async () => {
+    if (get().isGuestMode || !isLoggedIn()) {
+      return
+    }
+
+    const payload: WorkspaceStoragePayload = {
+      schemaVersion: 1,
+      activeWorkspaceId: get().activeWorkspaceId ?? "",
+      workspaces: get().workspaces,
+    }
+
+    if (!payload.activeWorkspaceId || payload.workspaces.length === 0) {
+      return
+    }
+
+    set({ isSyncing: true, syncError: null })
+
+    try {
+      const response = await pushWorkspaceSync(payload)
+      const synced = syncResponseToStoragePayload(response)
+      set({
+        workspaces: synced.workspaces,
+        activeWorkspaceId: synced.activeWorkspaceId,
+        isSyncing: false,
+        syncError: null,
+      })
+      saveWorkspacesToStorage(synced)
+    } catch (error) {
+      set({
+        isSyncing: false,
+        syncError:
+          error instanceof Error ? error.message : "Error de sincronización",
+      })
+    }
   },
 }))

@@ -1,3 +1,4 @@
+import { toast } from "sonner"
 import {
   addEdge,
   applyEdgeChanges,
@@ -6,9 +7,13 @@ import {
 } from "@xyflow/react"
 import { create } from "zustand"
 
-import { syncLinkedContextFlags } from "@/components/Graph/context/syncLinkedContextFlags"
-import { deleteGraphNode } from "@/components/Graph/graph/deleteGraphNode"
-import { isPositionOnlyChange } from "@/components/Graph/graphFlowDrag"
+import { syncLinkedContextFlags } from "@/entities/graph"
+import { deleteGraphNode } from "@/entities/graph"
+import {
+  getInvalidConnectionMessage,
+  isValidGraphConnection,
+} from "@/entities/graph"
+import { isPositionOnlyChange } from "@/entities/graph/lib/graph/graphFlowDrag"
 
 import type { AppNode, GraphState } from "./graph/types"
 
@@ -73,12 +78,22 @@ export const useGraphStore = create<GraphState>((set, get) => ({
   },
 
   onConnect: (connection) => {
-    const nextEdges = addEdge(connection, get().edges)
+    const { nodes, edges } = get()
+    if (!isValidGraphConnection(connection, nodes)) {
+      const message = getInvalidConnectionMessage(connection, nodes)
+      if (message) {
+        toast.message(message)
+      }
+      return false
+    }
+
+    const nextEdges = addEdge(connection, edges)
     set((state) => ({
       edges: nextEdges,
       nodes: syncLinkedContextFlags(state.nodes, nextEdges),
       graphRevision: nextRevision(state),
     }))
+    return true
   },
 
   setNodes: (nodes) =>

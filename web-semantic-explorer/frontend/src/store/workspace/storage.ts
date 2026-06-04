@@ -1,5 +1,4 @@
-import { createDefaultInputNode } from "@/components/Graph/createDefaultInputNode"
-import { migrateGraphSnapshot } from "@/components/Graph/workspace/migrateGraphSnapshot"
+import { createDefaultInputNode, migrateGraphSnapshot } from "@/entities/graph"
 
 import type {
   WorkspaceGraphSnapshot,

@@ -1,8 +1,9 @@
-import type { FilterNodeKind } from "../graphNodeTypes"
+import type { FilterNodeKind } from "@/entities/graph"
 
 export const PALETTE_DRAG_MIME = "application/x-wse-graph-node"
 
 export type PaletteDragPayload =
+  | { type: "query" }
   | { type: "input" }
   | { type: "filter"; filterKey: FilterNodeKind }
 
@@ -24,8 +25,8 @@ export function readPaletteDragData(
 
   try {
     const parsed = JSON.parse(raw) as PaletteDragPayload
-    if (parsed.type === "input") {
-      return { type: "input" }
+    if (parsed.type === "query" || parsed.type === "input") {
+      return { type: "query" }
     }
     if (parsed.type === "filter" && typeof parsed.filterKey === "string") {
       return { type: "filter", filterKey: parsed.filterKey as FilterNodeKind }

@@ -8,7 +8,7 @@ import { type ArticleMetadataFilters, FILTER_LABELS } from "@/lib/filters"
 import type { AppNode } from "@/store/useGraphStore"
 import { useGraphStore } from "@/store/useGraphStore"
 
-import { FILTER_NODE_DIMENSIONS, type FilterNodeKind } from "../graphNodeTypes"
+import { FILTER_NODE_DIMENSIONS, type FilterNodeKind } from "@/entities/graph"
 import { AuthorFilterCombobox } from "./AuthorFilterCombobox"
 import { NodeDeleteButton } from "./NodeDeleteButton"
 

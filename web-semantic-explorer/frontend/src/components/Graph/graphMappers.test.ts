@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { dedupeEdgesById } from "./graphMappers"
+import { dedupeEdgesById } from "@/entities/graph/lib/mappers/dedupeEdges"
 
 describe("dedupeEdgesById", () => {
   it("elimina aristas duplicadas por id conservando la primera", () => {

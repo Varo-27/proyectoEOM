@@ -5,11 +5,17 @@ import {
   expandGraphWithFilters,
   searchArticlesWithFilters,
 } from "@/api/searchWithFilters"
+import {
+  collectDownstreamArticleIds,
+  dedupeEdgesById,
+  isQueryNodeType,
+  removeEdgesTouchingNodes,
+  resolveExpandContext,
+  resolveSearchContext,
+} from "@/entities/graph"
 import type { AppNode } from "@/store/useGraphStore"
 import { useGraphStore } from "@/store/useGraphStore"
 
-import { resolveExpandContext } from "./context/resolveExpandContext"
-import { resolveSearchContext } from "./context/resolveSearchContext"
 import {
   EXPAND_SIMILAR_LIMIT,
   EXPAND_SIMILAR_THRESHOLD,
@@ -20,18 +26,12 @@ import {
 import {
   createSearchEdges,
   createSearchResultNodesAround,
-  dedupeEdgesById,
   graphNodeToAppNode,
   updateInputNodeQuery,
 } from "./graphMappers"
 import { applyTreeLayout } from "./graphLayout"
-import { GRAPH_NODE_TYPE } from "./graphNodeTypes"
 import { mergeGraphArticles } from "./mergeGraphArticles"
 import { revealGraphNodesStaggered } from "./revealGraphNodesStaggered"
-import {
-  collectDownstreamArticleIds,
-  removeEdgesTouchingNodes,
-} from "./subgraph/collectDownstreamArticleIds"
 
 type GraphExplorerActionsDeps = {
   setNodes: (nodes: AppNode[]) => void
@@ -135,7 +135,7 @@ export function useGraphExplorerActions({
       const currentEdges = state.edges
       const inputNode = currentNodes.find((node) => node.id === inputNodeId)
 
-      if (!inputNode || inputNode.type !== GRAPH_NODE_TYPE.input) {
+      if (!inputNode || !isQueryNodeType(inputNode.type)) {
         return
       }
 
