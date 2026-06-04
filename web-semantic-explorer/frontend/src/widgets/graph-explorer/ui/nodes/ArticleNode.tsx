@@ -9,8 +9,8 @@ import {
   type ArticleDetail,
   articleDetailQueryKey,
   fetchArticleDetail,
-  toggleArticleFavorite,
-} from "@/shared/api/articles"
+} from "@/entities/article"
+import { toggleArticleFavorite } from "@/entities/engagement"
 import { isLoggedIn } from "@/shared/auth"
 import useCustomToast from "@/shared/lib/useCustomToast"
 import { cn } from "@/shared/lib/utils"

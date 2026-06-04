@@ -5,22 +5,6 @@
  * - `@/shared/api/*` — clientes manuales y tipos de endpoints aún no en el OpenAPI.
  */
 
-export type {
-  ArticleComment,
-  ArticleDetail,
-  CommentRecord,
-  FavoriteStatus,
-  RatingSummary,
-} from "./articles"
-export {
-  articleDetailQueryKey,
-  createArticleComment,
-  deleteComment,
-  fetchArticleDetail,
-  toggleArticleFavorite,
-  updateComment,
-  upsertArticleRating,
-} from "./articles"
 export {
   expandGraphWithFilters,
   searchArticlesWithFilters,
