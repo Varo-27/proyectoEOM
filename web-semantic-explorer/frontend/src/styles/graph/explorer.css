@@ -44,6 +44,14 @@
     @apply flex flex-col gap-3 border-b-2 border-foreground bg-background p-4;
   }
 
+  .graph-favorites {
+    @apply flex flex-col gap-3 border-b-2 border-foreground p-4;
+  }
+
+  .graph-favorites__list {
+    @apply mt-1;
+  }
+
   .graph-workspace__select {
     @apply h-9 rounded-none border-2 border-foreground font-mono text-xs;
   }
