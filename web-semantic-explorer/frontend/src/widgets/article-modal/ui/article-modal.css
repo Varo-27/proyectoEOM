@@ -1,3 +1,5 @@
+@reference "../../../index.css";
+
 @layer components {
   .graph-article-modal {
     /* !max-w anula sm:max-w-lg del DialogContent (~512px) */

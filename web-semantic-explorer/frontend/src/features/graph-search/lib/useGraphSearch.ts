@@ -8,7 +8,6 @@ import {
   createSearchResultNodesAround,
   dedupeEdgesById,
   isQueryNodeType,
-  mergeGraphArticles,
   removeEdgesTouchingNodes,
   resolveSearchContext,
   revealGraphNodesStaggered,

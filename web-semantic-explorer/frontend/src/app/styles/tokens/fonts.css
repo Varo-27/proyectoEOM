@@ -4,7 +4,6 @@
  * - Bitter (Google Fonts) → lectura (comentarios, pies de foto)
  * - Roboto Mono (Google Fonts) → metadatos y controles del explorador
  */
-@import url("https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,400;0,700;1,400&family=Roboto+Mono:ital,wght@0,400;0,500;0,700;1,400&display=swap");
 @font-face {
   font-family: "Expose";
   src:
