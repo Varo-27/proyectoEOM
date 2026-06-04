@@ -1,5 +1,3 @@
 export { ArticleNodeModal } from "./ArticleNodeModal"
 export { default as GraphExplorer } from "./GraphExplorer"
-export { SearchBar } from "./SearchBar"
-export { SearchFiltersBar } from "./SearchFiltersBar"
-export { useGraphExplorerActions } from "./useGraphExplorerActions"
+export { useGraphExplorerActions } from "@/features/graph-search"
