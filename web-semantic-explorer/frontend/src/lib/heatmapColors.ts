@@ -71,19 +71,20 @@ export function clipFranceMetropolitan(
   const iso = getGeoIsoCode({ properties: feature.properties ?? {} })
   if (iso !== "FRA" || !feature.geometry) return feature
 
-  const { type, coordinates } = feature.geometry
-  if (type === "Polygon") {
-    const ring = coordinates[0] as LonLat[]
+  const geometry = feature.geometry
+  if (geometry.type === "Polygon") {
+    const ring = geometry.coordinates[0] as LonLat[]
     return isOverseasFrancePolygon(ring)
       ? { ...feature, geometry: { type: "MultiPolygon", coordinates: [] } }
       : feature
   }
-  if (type !== "MultiPolygon") return feature
+  if (geometry.type !== "MultiPolygon") return feature
 
-  const metroPolys = (coordinates as LonLat[][][]).filter(
+  const coordinates = geometry.coordinates
+  const metroPolys = coordinates.filter(
     (poly) => !isOverseasFrancePolygon(poly[0] as LonLat[]),
   )
-  if (metroPolys.length === (coordinates as LonLat[][][]).length) return feature
+  if (metroPolys.length === coordinates.length) return feature
 
   return {
     ...feature,

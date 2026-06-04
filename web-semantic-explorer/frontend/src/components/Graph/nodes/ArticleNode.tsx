@@ -1,7 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { Handle, type NodeProps, Position } from "@xyflow/react"
-import { Heart, Sparkles } from "lucide-react"
+import { Filter, GitBranch, Heart, Sparkles } from "lucide-react"
 import { memo } from "react"
+import { toast } from "sonner"
 import { useShallow } from "zustand/react/shallow"
 
 import {
@@ -16,21 +17,37 @@ import { cn } from "@/lib/utils"
 import type { AppNode } from "@/store/useGraphStore"
 import { useGraphStore } from "@/store/useGraphStore"
 
+import {
+  articleDetailToMetadata,
+  articleNodeToMetadata,
+  createFilterFromArticleAtPosition,
+  createQueryBranchFromArticle,
+} from "@/entities/graph"
 import { NodeDeleteButton } from "./NodeDeleteButton"
 
 function ArticleNodeComponent({ id, data }: NodeProps<AppNode>) {
-  const { activeNodeId, expandSimilar, setSelectedNode, setModalOpen, setActiveNodeId } =
-    useGraphStore(
-      useShallow((state) => ({
-        activeNodeId: state.activeNodeId,
-        expandSimilar: state.expandSimilar,
-        setSelectedNode: state.setSelectedNode,
-        setModalOpen: state.setModalOpen,
-        setActiveNodeId: state.setActiveNodeId,
-      })),
-    )
+  const {
+    activeNodeId,
+    expandSimilar,
+    setSelectedNode,
+    setModalOpen,
+    setActiveNodeId,
+    setNodes,
+    setEdges,
+  } = useGraphStore(
+    useShallow((state) => ({
+      activeNodeId: state.activeNodeId,
+      expandSimilar: state.expandSimilar,
+      setSelectedNode: state.setSelectedNode,
+      setModalOpen: state.setModalOpen,
+      setActiveNodeId: state.setActiveNodeId,
+      setNodes: state.setNodes,
+      setEdges: state.setEdges,
+    })),
+  )
   const usesLinkedContext = data.hasLinkedDownstreamContext === true
   const isActive = activeNodeId === id
+  const visited = typeof data.visitedAt === "string"
   const queryClient = useQueryClient()
   const { showSuccessToast, showErrorToast } = useCustomToast()
   const articleId = Number(id)
@@ -57,6 +74,46 @@ function ArticleNodeComponent({ id, data }: NodeProps<AppNode>) {
     onError: () => showErrorToast("No se pudo actualizar el favorito"),
   })
 
+  const branchMutation = useMutation({
+    mutationFn: async (mode: "filter" | "branch") => {
+      const node = useGraphStore.getState().nodes.find((candidate) => candidate.id === id)
+      if (!node) {
+        return
+      }
+
+      let metadata = articleNodeToMetadata(node)
+      if (detail) {
+        metadata = articleDetailToMetadata(detail)
+      } else if (!Number.isNaN(articleId)) {
+        const fetched = await fetchArticleDetail(articleId)
+        metadata = articleDetailToMetadata(fetched)
+      }
+
+      const { nodes, edges } = useGraphStore.getState()
+
+      if (mode === "filter") {
+        const created = createFilterFromArticleAtPosition(node, metadata)
+        if (!created) {
+          toast.message("Sin metadatos", {
+            description: "Este artículo no tiene autor, categoría ni lugar.",
+          })
+          return
+        }
+
+        setNodes([...nodes, created.node])
+        setEdges([...edges, created.edge])
+        toast.success("Filtro creado desde el artículo")
+        return
+      }
+
+      const branch = createQueryBranchFromArticle(node, metadata)
+      setNodes([...nodes, ...branch.nodes])
+      setEdges([...edges, ...branch.edges])
+      toast.success("Rama query + filtro creada")
+    },
+    onError: () => showErrorToast("No se pudo crear la rama"),
+  })
+
   const isFavorited = detail?.is_favorited ?? false
   const shouldEnterAnimate = typeof data.appearDelay === "number"
 
@@ -65,6 +122,7 @@ function ArticleNodeComponent({ id, data }: NodeProps<AppNode>) {
       className={cn(
         "graph-node graph-node--article",
         isActive && "graph-node-active",
+        visited && "graph-node--visited",
       )}
       {...(shouldEnterAnimate ? { "data-enter-animate": true } : {})}
       style={
@@ -130,7 +188,7 @@ function ArticleNodeComponent({ id, data }: NodeProps<AppNode>) {
           )}
         </div>
 
-        <div className="graph-node__footer">
+        <div className="graph-node__footer graph-node__footer--stacked">
           <button
             type="button"
             className="graph-node__btn-primary nodrag nopan"
@@ -143,25 +201,53 @@ function ArticleNodeComponent({ id, data }: NodeProps<AppNode>) {
             <Sparkles className="graph-node__icon" />
             {usesLinkedContext ? "Ver más (contexto enlazado)" : "Ver más"}
           </button>
-          <button
-            type="button"
-            className="graph-node__btn-link nodrag nopan"
-            onClick={(event) => {
-              event.stopPropagation()
-              const node = useGraphStore
-                .getState()
-                .nodes.find((candidate) => candidate.id === id)
-              if (!node) {
-                return
-              }
-              setActiveNodeId(id)
-              setSelectedNode(node)
-              setModalOpen(true)
-            }}
-            onMouseDown={(event) => event.stopPropagation()}
-          >
-            Abrir detalle
-          </button>
+          <div className="flex flex-wrap gap-1">
+            <button
+              type="button"
+              className="graph-node__btn-link nodrag nopan"
+              onClick={(event) => {
+                event.stopPropagation()
+                branchMutation.mutate("filter")
+              }}
+              onMouseDown={(event) => event.stopPropagation()}
+              disabled={branchMutation.isPending}
+            >
+              <Filter className="graph-node__icon" />
+              Filtro
+            </button>
+            <button
+              type="button"
+              className="graph-node__btn-link nodrag nopan"
+              onClick={(event) => {
+                event.stopPropagation()
+                branchMutation.mutate("branch")
+              }}
+              onMouseDown={(event) => event.stopPropagation()}
+              disabled={branchMutation.isPending}
+            >
+              <GitBranch className="graph-node__icon" />
+              Rama
+            </button>
+            <button
+              type="button"
+              className="graph-node__btn-link nodrag nopan"
+              onClick={(event) => {
+                event.stopPropagation()
+                const node = useGraphStore
+                  .getState()
+                  .nodes.find((candidate) => candidate.id === id)
+                if (!node) {
+                  return
+                }
+                setActiveNodeId(id)
+                setSelectedNode(node)
+                setModalOpen(true)
+              }}
+              onMouseDown={(event) => event.stopPropagation()}
+            >
+              Abrir detalle
+            </button>
+          </div>
         </div>
       </div>
 
