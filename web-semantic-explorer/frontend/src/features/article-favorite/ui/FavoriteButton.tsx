@@ -1,8 +1,8 @@
 import { Heart } from "lucide-react"
 
-import { isLoggedIn } from "@/hooks/useAuth"
-import useCustomToast from "@/hooks/useCustomToast"
-import { cn } from "@/lib/utils"
+import { isLoggedIn } from "@/shared/auth"
+import useCustomToast from "@/shared/lib/useCustomToast"
+import { cn } from "@/shared/lib/utils"
 
 import { useToggleFavorite } from "../lib/useToggleFavorite"
 

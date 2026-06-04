@@ -1,8 +1,8 @@
 import { UserPlus } from "lucide-react"
 
 import type { FollowTarget } from "@/entities/engagement"
-import { isLoggedIn } from "@/hooks/useAuth"
-import { cn } from "@/lib/utils"
+import { isLoggedIn } from "@/shared/auth"
+import { cn } from "@/shared/lib/utils"
 
 import { useFollowTargets } from "../lib/useFollowTargets"
 

@@ -5,7 +5,7 @@ import {
   pushWorkspaceSync,
   syncResponseToStoragePayload,
 } from "@/shared/api/workspaces"
-import { isLoggedIn } from "@/hooks/useAuth"
+import { isLoggedIn } from "@/shared/auth"
 import { useGraphStore } from "@/entities/graph"
 
 import {

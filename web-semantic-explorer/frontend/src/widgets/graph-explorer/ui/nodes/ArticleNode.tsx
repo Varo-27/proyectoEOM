@@ -11,9 +11,9 @@ import {
   fetchArticleDetail,
   toggleArticleFavorite,
 } from "@/shared/api/articles"
-import { isLoggedIn } from "@/hooks/useAuth"
-import useCustomToast from "@/hooks/useCustomToast"
-import { cn } from "@/lib/utils"
+import { isLoggedIn } from "@/shared/auth"
+import useCustomToast from "@/shared/lib/useCustomToast"
+import { cn } from "@/shared/lib/utils"
 import type { AppNode } from "@/entities/graph"
 import { useGraphStore } from "@/entities/graph"
 

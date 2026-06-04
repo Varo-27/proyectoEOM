@@ -6,7 +6,7 @@ import {
   articleDetailQueryKey,
   fetchArticleDetail,
 } from "@/entities/article"
-import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { Dialog, DialogContent } from "@/shared/ui/dialog"
 import type { AppNode } from "@/entities/graph"
 
 import { ArticleModalContent } from "./ArticleModalContent"

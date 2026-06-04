@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 
 import { patchArticleDetailCache } from "@/entities/article/lib/patchArticleDetailCache"
 import { upsertArticleRating } from "@/entities/engagement"
-import useCustomToast from "@/hooks/useCustomToast"
+import useCustomToast from "@/shared/lib/useCustomToast"
 
 export function useArticleRating(articleId: number) {
   const queryClient = useQueryClient()

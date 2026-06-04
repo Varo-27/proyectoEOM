@@ -5,8 +5,8 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { cn } from "@/lib/utils"
+} from "@/shared/ui/dropdown-menu"
+import { cn } from "@/shared/lib/utils"
 import { useGraphStore } from "@/entities/graph"
 
 type NodeDeleteButtonProps = {

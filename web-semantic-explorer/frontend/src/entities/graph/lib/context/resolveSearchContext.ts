@@ -1,6 +1,6 @@
 import type { Edge } from "@xyflow/react"
 
-import type { ArticleMetadataFilters } from "@/lib/filters"
+import type { ArticleMetadataFilters } from "@/shared/lib/filters"
 import type { AppNode } from "@/entities/graph/model/types"
 
 import { collectFiltersFromInputPipeline } from "@/entities/graph/lib/subgraph/collectFiltersFromInputPipeline"

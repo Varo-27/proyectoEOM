@@ -2,9 +2,9 @@ import { Handle, type NodeProps, Position } from "@xyflow/react"
 import { Search } from "lucide-react"
 import { memo, useEffect, useState } from "react"
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { cn } from "@/lib/utils"
+import { Button } from "@/shared/ui/button"
+import { Input } from "@/shared/ui/input"
+import { cn } from "@/shared/lib/utils"
 import type { AppNode } from "@/entities/graph"
 import { useGraphStore } from "@/entities/graph"
 

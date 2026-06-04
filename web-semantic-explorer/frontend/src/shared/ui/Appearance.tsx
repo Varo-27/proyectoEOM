@@ -1,13 +1,13 @@
 import { Monitor, Moon, Sun } from "lucide-react"
 
-import { useTheme } from "@/components/theme-provider"
-import { Button } from "@/components/ui/button"
+import { useTheme } from "@/shared/lib/theme/ThemeProvider"
+import { Button } from "@/shared/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/shared/ui/dropdown-menu"
 
 export const Appearance = () => {
   const { setTheme } = useTheme()

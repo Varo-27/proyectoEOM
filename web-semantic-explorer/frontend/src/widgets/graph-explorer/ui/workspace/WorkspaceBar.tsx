@@ -2,15 +2,15 @@ import { Link as RouterLink } from "@tanstack/react-router"
 import { Plus, Trash2 } from "lucide-react"
 import { useEffect, useState } from "react"
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { Button } from "@/shared/ui/button"
+import { Input } from "@/shared/ui/input"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/shared/ui/select"
 import { useWorkspaceStore } from "@/entities/workspace"
 
 export function WorkspaceBar() {

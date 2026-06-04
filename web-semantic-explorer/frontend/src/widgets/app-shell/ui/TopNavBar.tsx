@@ -2,10 +2,10 @@ import { Link as RouterLink, useRouterState } from "@tanstack/react-router"
 import type { LucideIcon } from "lucide-react"
 import { LogIn, LogOut, Monitor, Moon, Settings, Sun, User, UserPlus } from "lucide-react"
 
-import { Logo } from "@/components/Common/Logo"
+import { Logo } from "@/shared/ui/logo/Logo"
 import { getNavItems, type NavItem } from "../config/navConfig"
-import { type Theme, useTheme } from "@/components/theme-provider"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { type Theme, useTheme } from "@/shared/lib/theme/ThemeProvider"
+import { Avatar, AvatarFallback } from "@/shared/ui/avatar"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,10 +13,10 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import useAuth from "@/hooks/useAuth"
-import { cn } from "@/lib/utils"
-import { getInitials } from "@/utils"
+} from "@/shared/ui/dropdown-menu"
+import useAuth from "@/features/auth"
+import { cn } from "@/shared/lib/utils"
+import { getInitials } from "@/shared/lib/string"
 
 const THEME_ICONS: Record<Theme, LucideIcon> = {
   system: Monitor,

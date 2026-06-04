@@ -10,7 +10,7 @@ import { useForm } from "react-hook-form"
 import { z } from "zod"
 
 import { LoginService } from "@/client"
-import { AuthLayout } from "@/components/Common/AuthLayout"
+import { AuthLayout } from "@/features/auth"
 import {
   Form,
   FormControl,
@@ -18,12 +18,12 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { LoadingButton } from "@/components/ui/loading-button"
-import { PasswordInput } from "@/components/ui/password-input"
-import { isLoggedIn } from "@/hooks/useAuth"
-import useCustomToast from "@/hooks/useCustomToast"
-import { handleError } from "@/utils"
+} from "@/shared/ui/form"
+import { LoadingButton } from "@/shared/ui/loading-button"
+import { PasswordInput } from "@/shared/ui/password-input"
+import { isLoggedIn } from "@/shared/auth"
+import useCustomToast from "@/shared/lib/useCustomToast"
+import { handleError } from "@/shared/lib/errors"
 
 const searchSchema = z.object({
   token: z.string().catch(""),

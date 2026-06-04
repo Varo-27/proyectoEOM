@@ -2,7 +2,7 @@ import type { CancelablePromise } from "@/client/core/CancelablePromise"
 import { OpenAPI } from "@/client/core/OpenAPI"
 import { request } from "@/client/core/request"
 import type { ExpandResponse, SearchResponse } from "@/client/types.gen"
-import { type ArticleMetadataFilters, filtersToApiQuery } from "@/lib/filters"
+import { type ArticleMetadataFilters, filtersToApiQuery } from "@/shared/lib/filters"
 
 type ExpandGraphBody = {
   source_article_id: number

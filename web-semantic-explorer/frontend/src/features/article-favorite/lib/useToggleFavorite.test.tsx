@@ -12,7 +12,7 @@ vi.mock("@/entities/engagement", () => ({
   toggleArticleFavorite: vi.fn(),
 }))
 
-vi.mock("@/hooks/useCustomToast", () => ({
+vi.mock("@/shared/lib/useCustomToast", () => ({
   default: () => ({
     showSuccessToast: vi.fn(),
     showErrorToast: vi.fn(),

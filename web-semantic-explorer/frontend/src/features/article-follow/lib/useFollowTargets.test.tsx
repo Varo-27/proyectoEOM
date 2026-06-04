@@ -13,7 +13,7 @@ vi.mock("@/entities/engagement", () => ({
   unfollowTarget: vi.fn(),
 }))
 
-vi.mock("@/hooks/useCustomToast", () => ({
+vi.mock("@/shared/lib/useCustomToast", () => ({
   default: () => ({
     showSuccessToast: vi.fn(),
     showErrorToast: vi.fn(),

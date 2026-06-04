@@ -6,8 +6,8 @@ import { useForm } from "react-hook-form"
 import { z } from "zod"
 
 import { type UserCreate, UsersService } from "@/client"
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
+import { Button } from "@/shared/ui/button"
+import { Checkbox } from "@/shared/ui/checkbox"
 import {
   Dialog,
   DialogClose,
@@ -17,7 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
+} from "@/shared/ui/dialog"
 import {
   Form,
   FormControl,
@@ -25,11 +25,11 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { LoadingButton } from "@/components/ui/loading-button"
-import useCustomToast from "@/hooks/useCustomToast"
-import { handleError } from "@/utils"
+} from "@/shared/ui/form"
+import { Input } from "@/shared/ui/input"
+import { LoadingButton } from "@/shared/ui/loading-button"
+import useCustomToast from "@/shared/lib/useCustomToast"
+import { handleError } from "@/shared/lib/errors"
 
 const formSchema = z
   .object({

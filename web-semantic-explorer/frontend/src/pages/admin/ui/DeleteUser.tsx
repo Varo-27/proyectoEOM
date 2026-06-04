@@ -4,7 +4,7 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 
 import { UsersService } from "@/client"
-import { Button } from "@/components/ui/button"
+import { Button } from "@/shared/ui/button"
 import {
   Dialog,
   DialogClose,
@@ -13,11 +13,11 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { DropdownMenuItem } from "@/components/ui/dropdown-menu"
-import { LoadingButton } from "@/components/ui/loading-button"
-import useCustomToast from "@/hooks/useCustomToast"
-import { handleError } from "@/utils"
+} from "@/shared/ui/dialog"
+import { DropdownMenuItem } from "@/shared/ui/dropdown-menu"
+import { LoadingButton } from "@/shared/ui/loading-button"
+import useCustomToast from "@/shared/lib/useCustomToast"
+import { handleError } from "@/shared/lib/errors"
 
 interface DeleteUserProps {
   id: string

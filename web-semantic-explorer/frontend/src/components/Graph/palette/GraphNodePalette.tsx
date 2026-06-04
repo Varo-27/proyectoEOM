@@ -1,6 +1,6 @@
 import { Filter, TextCursorInput } from "lucide-react"
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/shared/lib/utils"
 
 import { FILTER_NODE_DIMENSIONS, type FilterNodeKind } from "@/entities/graph"
 import { setPaletteDragData } from "./paletteDrag"

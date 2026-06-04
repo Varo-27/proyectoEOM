@@ -6,7 +6,7 @@ import {
   deleteComment,
   updateComment,
 } from "@/entities/engagement"
-import useCustomToast from "@/hooks/useCustomToast"
+import useCustomToast from "@/shared/lib/useCustomToast"
 
 export function useArticleComments(articleId: number) {
   const queryClient = useQueryClient()

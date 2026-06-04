@@ -2,9 +2,9 @@ import { Handle, type NodeProps, Position } from "@xyflow/react"
 import { Filter } from "lucide-react"
 import { memo, useEffect, useState } from "react"
 
-import { Input } from "@/components/ui/input"
-import { cn } from "@/lib/utils"
-import { type ArticleMetadataFilters, FILTER_LABELS } from "@/lib/filters"
+import { Input } from "@/shared/ui/input"
+import { cn } from "@/shared/lib/utils"
+import { type ArticleMetadataFilters, FILTER_LABELS } from "@/shared/lib/filters"
 import type { AppNode } from "@/entities/graph"
 import { useGraphStore } from "@/entities/graph"
 

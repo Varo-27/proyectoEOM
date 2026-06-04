@@ -1,10 +1,10 @@
 import { ChevronDown, NotebookPen } from "lucide-react"
 import { useEffect, useState } from "react"
 
-import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
-import { isLoggedIn } from "@/hooks/useAuth"
-import { cn } from "@/lib/utils"
+import { Button } from "@/shared/ui/button"
+import { Textarea } from "@/shared/ui/textarea"
+import { isLoggedIn } from "@/shared/auth"
+import { cn } from "@/shared/lib/utils"
 
 import { formatArticleDate } from "@/entities/article/lib/formatArticleDate"
 import { useArticleNote } from "../lib/useArticleNote"

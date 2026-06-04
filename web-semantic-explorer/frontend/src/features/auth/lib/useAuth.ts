@@ -10,8 +10,8 @@ import {
 } from "@/client"
 import { useWorkspaceStore } from "@/entities/workspace"
 import { isLoggedIn } from "@/shared/auth"
-import { handleError } from "@/utils"
-import useCustomToast from "@/hooks/useCustomToast"
+import { handleError } from "@/shared/lib/errors"
+import useCustomToast from "@/shared/lib/useCustomToast"
 
 const useAuth = () => {
   const navigate = useNavigate()

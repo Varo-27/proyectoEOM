@@ -3,9 +3,10 @@ import { createFileRoute, redirect } from "@tanstack/react-router"
 import { Suspense } from "react"
 
 import { type UserPublic, UsersService } from "@/client"
-import { DataTable } from "@/components/Common/DataTable"
+import { DataTable } from "@/shared/ui/data-table/DataTable"
 import { AddUser, columns, PendingUsers, type UserTableData } from "@/pages/admin"
-import useAuth, { isLoggedIn } from "@/hooks/useAuth"
+import useAuth from "@/features/auth"
+import { isLoggedIn } from "@/shared/auth"
 
 function getUsersQueryOptions() {
   return {

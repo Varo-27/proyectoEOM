@@ -1,6 +1,6 @@
-import { Appearance } from "@/components/Common/Appearance"
-import { Footer } from "@/components/Common/Footer"
-import { Logo } from "@/components/Common/Logo"
+import { Appearance } from "@/shared/ui/Appearance"
+import { Footer } from "@/shared/ui/footer/Footer"
+import { Logo } from "@/shared/ui/logo/Logo"
 
 interface AuthLayoutProps {
   children: React.ReactNode

@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import type { ArticleDetail } from "@/entities/article"
 import { articleDetailQueryKey } from "@/entities/article"
 import { followTarget, unfollowTarget } from "@/entities/engagement"
-import useCustomToast from "@/hooks/useCustomToast"
+import useCustomToast from "@/shared/lib/useCustomToast"
 
 export function useFollowTargets(articleId: number) {
   const queryClient = useQueryClient()

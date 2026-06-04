@@ -3,9 +3,9 @@ import { Star } from "lucide-react"
 import { toast } from "sonner"
 
 import { fetchFavorites, type FavoriteArticle } from "@/shared/api/workspaces"
-import { Button } from "@/components/ui/button"
-import { isLoggedIn } from "@/hooks/useAuth"
-import { cn } from "@/lib/utils"
+import { Button } from "@/shared/ui/button"
+import { isLoggedIn } from "@/shared/auth"
+import { cn } from "@/shared/lib/utils"
 import { useGraphStore } from "@/entities/graph"
 
 import { favoriteArticleToGraphNode } from "@/entities/graph"

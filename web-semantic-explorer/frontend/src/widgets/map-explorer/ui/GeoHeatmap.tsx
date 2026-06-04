@@ -7,7 +7,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/shared/ui/select"
 import {
   DEFAULT_PROJECTION_ID,
   MAP_PROJECTIONS,

@@ -1,4 +1,4 @@
-import { isLoggedIn } from "@/hooks/useAuth"
+import { isLoggedIn } from "@/shared/auth"
 
 import { useArticleRating } from "../lib/useArticleRating"
 import { InteractiveStarRating } from "./InteractiveStarRating"

@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form"
 import { z } from "zod"
 
 import type { Body_login_login_access_token as AccessToken } from "@/client"
-import { AuthLayout } from "@/components/Common/AuthLayout"
+import { AuthLayout } from "@/features/auth"
 import {
   Form,
   FormControl,
@@ -16,11 +16,12 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { LoadingButton } from "@/components/ui/loading-button"
-import { PasswordInput } from "@/components/ui/password-input"
-import useAuth, { isLoggedIn } from "@/hooks/useAuth"
+} from "@/shared/ui/form"
+import { Input } from "@/shared/ui/input"
+import { LoadingButton } from "@/shared/ui/loading-button"
+import { PasswordInput } from "@/shared/ui/password-input"
+import useAuth from "@/features/auth"
+import { isLoggedIn } from "@/shared/auth"
 
 const formSchema = z.object({
   username: z.email(),

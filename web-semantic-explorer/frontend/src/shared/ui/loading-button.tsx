@@ -3,7 +3,7 @@ import { Slot, Slottable } from "@radix-ui/react-slot"
 import { Loader2 } from "lucide-react"
 import { type VariantProps } from "class-variance-authority"
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/shared/lib/utils"
 import { buttonVariants } from "./button"
 
 export interface LoadingButtonProps

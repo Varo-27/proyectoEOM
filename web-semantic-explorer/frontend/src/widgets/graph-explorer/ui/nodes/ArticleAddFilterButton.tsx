@@ -5,8 +5,8 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { cn } from "@/lib/utils"
+} from "@/shared/ui/dropdown-menu"
+import { cn } from "@/shared/lib/utils"
 
 type ArticleAddFilterButtonProps = {
   articleId: string

@@ -1,8 +1,9 @@
 import { createFileRoute, redirect } from "@tanstack/react-router"
 
 import { ChangePassword, DeleteAccount, UserInformation } from "@/pages/settings"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import useAuth, { isLoggedIn } from "@/hooks/useAuth"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs"
+import useAuth from "@/features/auth"
+import { isLoggedIn } from "@/shared/auth"
 
 const tabsConfig = [
   { value: "my-profile", title: "Mi perfil", component: UserInformation },

@@ -1,29 +1,31 @@
 import { Link } from "@tanstack/react-router"
-import { Button } from "@/components/ui/button"
+import { Button } from "@/shared/ui/button"
 
-const ErrorComponent = () => {
+const NotFound = () => {
   return (
     <div
       className="flex min-h-screen items-center justify-center flex-col p-4"
-      data-testid="error-component"
+      data-testid="not-found"
     >
       <div className="flex items-center z-10">
         <div className="flex flex-col ml-4 items-center justify-center p-4">
           <span className="text-6xl md:text-8xl font-bold leading-none mb-4">
-            Error
+            404
           </span>
           <span className="text-2xl font-bold mb-2">Oops!</span>
         </div>
       </div>
 
       <p className="text-lg text-muted-foreground mb-4 text-center z-10">
-        Something went wrong. Please try again.
+        The page you are looking for was not found.
       </p>
-      <Button asChild>
-        <Link to="/">Go Home</Link>
-      </Button>
+      <div className="z-10">
+        <Button asChild className="mt-4">
+          <Link to="/">Go Back</Link>
+        </Button>
+      </div>
     </div>
   )
 }
 
-export default ErrorComponent
+export default NotFound
