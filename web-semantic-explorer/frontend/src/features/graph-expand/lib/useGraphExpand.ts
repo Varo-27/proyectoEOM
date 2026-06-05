@@ -10,6 +10,7 @@ import {
   getStaggerDelay,
   graphNodeToAppNode,
   mergeGraphArticles,
+  readArticleExpandFilters,
   resolveExpandContext,
   revealGraphNodesStaggered,
   SEARCH_REVEAL_STAGGER_MS,
@@ -37,7 +38,8 @@ export function useGraphExpand({
 
       const { nodes, edges } = useGraphStore.getState()
       const context = resolveExpandContext(node, nodes, edges)
-      const filters = context.upstreamFilters
+      const inlineFilters = readArticleExpandFilters(node.data)
+      const filters = { ...context.upstreamFilters, ...inlineFilters }
 
       const existingIds = nodes
         .map((currentNode) => Number(currentNode.id))

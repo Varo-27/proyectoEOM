@@ -6,6 +6,8 @@ import type {
   NodeChange,
 } from "@xyflow/react"
 
+import type { ArticleMetadataFilters } from "@/shared/lib/filters"
+
 /** Payload de datos compartido por nodos de artículo y búsqueda en React Flow. */
 export type AppNodeData = {
   title: string
@@ -23,6 +25,8 @@ export type AppNodeData = {
   hasLinkedDownstreamContext?: boolean
   /** Marca de visita persistida en workspace (ISO timestamp). */
   visitedAt?: string
+  /** Filtros locales para «Ver más»; no crean nodos en el grafo. */
+  expandFilters?: ArticleMetadataFilters
   query?: string
   filterKey?: string
   filterValue?: string | number

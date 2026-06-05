@@ -1,7 +1,8 @@
 import type { Edge, XYPosition } from "@xyflow/react"
 
 import type { ArticleDetail } from "@/entities/article"
-import type { AppNode } from "@/entities/graph/model/types"
+import type { ArticleMetadataFilters } from "@/shared/lib/filters"
+import type { AppNode, AppNodeData } from "@/entities/graph/model/types"
 
 import { createDefaultQueryNode } from "@/entities/graph/model/createDefaultInputNode"
 import { buildEdge } from "@/entities/graph/lib/edges/isValidGraphConnection"
@@ -21,24 +22,101 @@ type ArticleMetadata = {
   category_name?: string
 }
 
+export type ArticleExpandFilterKind = "place" | "category" | "author"
+
 export function pickFilterValueForKind(
   metadata: ArticleMetadata,
-  kind: "place" | "category",
+  kind: ArticleExpandFilterKind,
 ): string | null {
   if (kind === "place") {
     const place = metadata.places?.[0]?.trim()
     return place || null
   }
 
-  const category =
-    metadata.categories?.[0]?.trim() ?? metadata.category_name?.trim()
-  return category || null
+  if (kind === "category") {
+    const category =
+      metadata.categories?.[0]?.trim() ?? metadata.category_name?.trim()
+    return category || null
+  }
+
+  const author = metadata.authors?.[0]?.trim() ?? metadata.author_name?.trim()
+  return author || null
+}
+
+export function readArticleExpandFilters(
+  data: AppNodeData,
+): ArticleMetadataFilters {
+  const raw = data.expandFilters
+  if (!raw || typeof raw !== "object") {
+    return {}
+  }
+
+  const filters: ArticleMetadataFilters = {}
+  for (const key of ["place", "category", "author", "year_start", "year_end"] as const) {
+    const value = raw[key]
+    if (value === undefined || value === "") {
+      continue
+    }
+    if (key === "year_start" || key === "year_end") {
+      const parsed =
+        typeof value === "number" ? value : Number.parseInt(String(value), 10)
+      if (Number.isFinite(parsed)) {
+        filters[key] = parsed
+      }
+      continue
+    }
+    const text = String(value).trim()
+    if (text) {
+      filters[key] = text
+    }
+  }
+  return filters
+}
+
+export function setArticleExpandFilter(
+  articleNode: AppNode,
+  metadata: ArticleMetadata,
+  kind: ArticleExpandFilterKind,
+): AppNode | null {
+  const value = pickFilterValueForKind(metadata, kind)
+  if (!value) {
+    return null
+  }
+
+  const current = readArticleExpandFilters(articleNode.data)
+  return {
+    ...articleNode,
+    data: {
+      ...articleNode.data,
+      expandFilters: {
+        ...current,
+        [kind]: value,
+      },
+    },
+  }
+}
+
+export function removeArticleExpandFilter(
+  articleNode: AppNode,
+  kind: keyof ArticleMetadataFilters,
+): AppNode {
+  const current = { ...readArticleExpandFilters(articleNode.data) }
+  delete current[kind]
+
+  const hasFilters = Object.keys(current).length > 0
+  return {
+    ...articleNode,
+    data: {
+      ...articleNode.data,
+      expandFilters: hasFilters ? current : undefined,
+    },
+  }
 }
 
 export function createFilterFromArticleByKind(
   articleNode: AppNode,
   metadata: ArticleMetadata,
-  kind: "place" | "category",
+  kind: ArticleExpandFilterKind,
   offsetIndex = 0,
 ): { node: AppNode; edge: Edge } | null {
   const value = pickFilterValueForKind(metadata, kind)

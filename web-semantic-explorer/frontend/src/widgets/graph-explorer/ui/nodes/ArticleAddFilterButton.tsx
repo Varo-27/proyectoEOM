@@ -1,4 +1,4 @@
-import { Filter, MapPin, Tag, X } from "lucide-react"
+import { Filter, MapPin, Tag, User, X } from "lucide-react"
 import { useState, type MouseEvent } from "react"
 
 import {
@@ -8,10 +8,12 @@ import {
 } from "@/shared/ui/dropdown-menu"
 import { cn } from "@/shared/lib/utils"
 
+import type { ArticleExpandFilterKind } from "@/entities/graph"
+
 type ArticleAddFilterButtonProps = {
   articleId: string
   disabled?: boolean
-  onAddFilter: (kind: "place" | "category") => void
+  onAddFilter: (kind: ArticleExpandFilterKind) => void
 }
 
 function stopGraphPointer(event: MouseEvent) {
@@ -27,7 +29,7 @@ export function ArticleAddFilterButton({
   const [open, setOpen] = useState(false)
   const menuId = `add-filter-menu-${articleId}`
 
-  const handlePick = (kind: "place" | "category") => {
+  const handlePick = (kind: ArticleExpandFilterKind) => {
     setOpen(false)
     onAddFilter(kind)
   }
@@ -106,6 +108,18 @@ export function ArticleAddFilterButton({
           >
             <Tag className="graph-node__icon shrink-0" />
             Categoría
+          </button>
+          <button
+            type="button"
+            className="graph-node__filter-option nodrag nopan"
+            onClick={(event) => {
+              stopGraphPointer(event)
+              handlePick("author")
+            }}
+            onMouseDown={stopGraphPointer}
+          >
+            <User className="graph-node__icon shrink-0" />
+            Autor
           </button>
         </div>
       </DropdownMenuContent>
