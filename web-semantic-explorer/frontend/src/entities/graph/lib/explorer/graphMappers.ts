@@ -5,9 +5,9 @@ import type { AppNode, AppNodeData } from "@/entities/graph/model/types"
 
 import {
   DEFAULT_ARTICLE_TITLE,
-  GRAPH_SEARCH_RADIAL,
   getStaggerDelay,
   SEARCH_ROOT_ID,
+  GRAPH_LAYOUT_SUGIYAMA,
 } from "./graphConstants"
 
 export function articleToNodeData(
@@ -40,14 +40,14 @@ export function graphNodeToAppNode(
 }
 
 export function createSearchRootNode(query: string): AppNode {
-  const { centerOffsetX, centerOffsetY } = GRAPH_SEARCH_RADIAL
+  const { defaultCenterOffsetX, defaultCenterOffsetY } = GRAPH_LAYOUT_SUGIYAMA
 
   return {
     id: SEARCH_ROOT_ID,
     type: "searchCenter",
     position: {
-      x: window.innerWidth / 2 - centerOffsetX,
-      y: window.innerHeight / 2 - centerOffsetY,
+      x: window.innerWidth / 2 - defaultCenterOffsetX,
+      y: window.innerHeight / 2 - defaultCenterOffsetY,
     },
     data: {
       title: `Búsqueda: ${query}`,
@@ -59,27 +59,12 @@ export function createSearchRootNode(query: string): AppNode {
 export function createSearchResultNodes(
   results: ArticleSearchResult[],
 ): AppNode[] {
-  const { radius, spread, baseAngle, articleOffsetX, articleOffsetY } =
-    GRAPH_SEARCH_RADIAL
-  const total = results.length
-  const centerX = window.innerWidth / 2
-  const centerY = window.innerHeight / 2
-
-  return results.map((article, index) => {
-    const t = total > 1 ? index / (total - 1) : 0.5
-    const jitter = (Math.random() - 0.5) * 0.3
-    const angle = baseAngle - spread / 2 + t * spread + jitter
-
-    return {
-      id: String(article.id),
-      type: "article",
-      position: {
-        x: centerX + radius * Math.cos(angle) - articleOffsetX,
-        y: centerY + radius * Math.sin(angle) - articleOffsetY,
-      },
-      data: articleToNodeData(article, getStaggerDelay(index, 160, 90)),
-    }
-  })
+  return results.map((article, index) => ({
+    id: String(article.id),
+    type: "article",
+    position: { x: 0, y: 0 },
+    data: articleToNodeData(article, getStaggerDelay(index, 160, 90)),
+  }))
 }
 
 export function createSearchEdges(
@@ -105,40 +90,6 @@ export function updateInputNodeQuery(
       title: `Búsqueda: ${query}`,
     },
   }
-}
-
-export function createSearchResultNodesAround(
-  results: ArticleSearchResult[],
-  center: { x: number; y: number },
-): AppNode[] {
-  const {
-    radius,
-    spread,
-    baseAngle,
-    centerOffsetX,
-    centerOffsetY,
-    articleOffsetX,
-    articleOffsetY,
-  } = GRAPH_SEARCH_RADIAL
-  const total = results.length
-  const centerX = center.x + centerOffsetX
-  const centerY = center.y + centerOffsetY
-
-  return results.map((article, index) => {
-    const t = total > 1 ? index / (total - 1) : 0.5
-    const jitter = (Math.random() - 0.5) * 0.3
-    const angle = baseAngle - spread / 2 + t * spread + jitter
-
-    return {
-      id: String(article.id),
-      type: "article",
-      position: {
-        x: centerX + radius * Math.cos(angle) - articleOffsetX,
-        y: centerY + radius * Math.sin(angle) - articleOffsetY,
-      },
-      data: articleToNodeData(article, getStaggerDelay(index, 160, 90)),
-    }
-  })
 }
 
 export { dedupeEdgesById } from "@/entities/graph/lib/mappers/dedupeEdges"

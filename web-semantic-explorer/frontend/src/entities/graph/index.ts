@@ -33,6 +33,8 @@ export {
   removeEdgesTouchingNodes,
 } from "./lib/subgraph/collectDownstreamArticleIds"
 export { collectFiltersFromInputPipeline } from "./lib/subgraph/collectFiltersFromInputPipeline"
+export { resolveSearchAttachmentNodeId } from "./lib/subgraph/resolveSearchAttachmentNodeId"
+export { markPipelineSearched } from "./lib/subgraph/markPipelineSearched"
 export { deleteGraphNode } from "./lib/graph/deleteGraphNode"
 export {
   isValidGraphConnection,
@@ -58,10 +60,10 @@ export {
   GRAPH_BACKGROUND_GRID_COLOR,
   GRAPH_BACKGROUND_PROPS,
   GRAPH_FIT_VIEW_OPTIONS,
+  GRAPH_LAYOUT_SUGIYAMA,
   GRAPH_LAYOUT_TREE,
   GRAPH_MAX_ZOOM,
   GRAPH_MIN_ZOOM,
-  GRAPH_SEARCH_RADIAL,
   SEARCH_ARTICLES_LIMIT,
   SEARCH_REVEAL_STAGGER_MS,
   SEARCH_ROOT_ID,
@@ -72,12 +74,17 @@ export {
   articleToNodeData,
   createSearchEdges,
   createSearchResultNodes,
-  createSearchResultNodesAround,
   createSearchRootNode,
   graphNodeToAppNode,
   updateInputNodeQuery,
 } from "./lib/explorer/graphMappers"
-export { applyTreeLayout } from "./lib/explorer/graphLayout"
+export { applySugiyamaLayout } from "./lib/explorer/graphLayout"
+export { assignLayersLongestPath } from "./lib/explorer/graphLayerAssignment"
+export {
+  filterSubgraph,
+  findConnectedComponents,
+  inDegree,
+} from "./lib/explorer/graphTopology"
 export { mergeGraphArticles } from "./lib/explorer/mergeGraphArticles"
 export { revealGraphNodesStaggered } from "./lib/explorer/revealGraphNodesStaggered"
 export {
