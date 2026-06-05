@@ -57,9 +57,33 @@ export function migrateGraphSnapshot(
 
   return {
     ...snapshot,
-    nodes: stripAppearDelay(ensureDefaultQuery(nodes)),
+    nodes: stripTransientLayoutProps(stripAppearDelay(ensureDefaultQuery(nodes))),
     edges,
   }
+}
+
+const TRANSIENT_LAYOUT_KEYS = [
+  "layoutLayer",
+  "layoutComponentIndex",
+  "layoutOrder",
+] as const
+
+/** Elimina props de layout transientes; conserva `searched`. */
+function stripTransientLayoutProps(nodes: AppNode[]): AppNode[] {
+  return nodes.map((node) => {
+    const hasTransient = TRANSIENT_LAYOUT_KEYS.some(
+      (key) => node.data[key] != null,
+    )
+    if (!hasTransient) {
+      return node
+    }
+
+    const nextData = { ...node.data }
+    for (const key of TRANSIENT_LAYOUT_KEYS) {
+      delete nextData[key]
+    }
+    return { ...node, data: nextData }
+  })
 }
 
 /** Evita re-animar artículos al rehidratar el workspace. */

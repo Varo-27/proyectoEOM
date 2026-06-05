@@ -1,18 +1,18 @@
 import type { AppNode } from "@/entities/graph/model/types"
 
-import { GRAPH_SEARCH_RADIAL } from "@/entities/graph/model/constants"
+import { GRAPH_LAYOUT_SUGIYAMA } from "@/entities/graph/lib/explorer/graphConstants"
 import { DEFAULT_INPUT_NODE_ID } from "./graphNodeIds"
 import { GRAPH_NODE_TYPE } from "./graphNodeTypes"
 
 export function createDefaultQueryNode(): AppNode {
-  const { centerOffsetX, centerOffsetY } = GRAPH_SEARCH_RADIAL
+  const { defaultCenterOffsetX, defaultCenterOffsetY } = GRAPH_LAYOUT_SUGIYAMA
 
   return {
     id: DEFAULT_INPUT_NODE_ID,
     type: GRAPH_NODE_TYPE.query,
     position: {
-      x: window.innerWidth / 2 - centerOffsetX,
-      y: window.innerHeight / 2 - centerOffsetY,
+      x: window.innerWidth / 2 - defaultCenterOffsetX,
+      y: window.innerHeight / 2 - defaultCenterOffsetY,
     },
     data: {
       title: "Nueva búsqueda",

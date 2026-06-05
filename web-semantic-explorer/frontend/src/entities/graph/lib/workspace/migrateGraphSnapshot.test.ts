@@ -23,4 +23,31 @@ describe("migrateGraphSnapshot", () => {
     expect(queryNode.data.query).toBe("economía")
     expect(snapshot.edges[0].source).toBe(queryNode.id)
   })
+
+  it("elimina props de layout transientes y conserva searched", () => {
+    const snapshot = migrateGraphSnapshot({
+      nodes: [
+        {
+          id: "input",
+          type: "query",
+          position: { x: 0, y: 0 },
+          data: {
+            title: "Búsqueda: economía",
+            query: "economía",
+            layoutLayer: 1,
+            layoutComponentIndex: 0,
+            layoutOrder: 0,
+            searched: true,
+          },
+        },
+      ],
+      edges: [],
+      viewport: null,
+    })
+
+    expect(snapshot.nodes[0].data.layoutLayer).toBeUndefined()
+    expect(snapshot.nodes[0].data.layoutComponentIndex).toBeUndefined()
+    expect(snapshot.nodes[0].data.layoutOrder).toBeUndefined()
+    expect(snapshot.nodes[0].data.searched).toBe(true)
+  })
 })

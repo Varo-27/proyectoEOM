@@ -26,6 +26,14 @@ export type AppNodeData = {
   query?: string
   filterKey?: string
   filterValue?: string | number
+  /** Capa Sugiyama (1-based). Transiente: se elimina al persistir workspace. */
+  layoutLayer?: number
+  /** Índice del componente conexo. Transiente: se elimina al persistir. */
+  layoutComponentIndex?: number
+  /** Orden horizontal dentro de la capa. Transiente: se elimina al persistir. */
+  layoutOrder?: number
+  /** true tras primera búsqueda exitosa desde este input o filtro del pipeline. */
+  searched?: boolean
   [key: string]: unknown
 }
 
