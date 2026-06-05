@@ -1,7 +1,6 @@
 import { Loader2 } from "lucide-react"
 import { useMemo, useState } from "react"
 
-import "./styles/panel.css"
 
 import {
   Select,

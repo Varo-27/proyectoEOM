@@ -1,0 +1,12 @@
+/**
+ * Estilos de widgets cargados en el bootstrap global.
+ * Evita depender del code-splitting de imports colocados en componentes.
+ */
+@import "../../widgets/app-shell/ui/styles/nav.css";
+@import "../../widgets/app-shell/ui/styles/shell.css";
+@import "../../widgets/graph-explorer/ui/styles/react-flow.css";
+@import "../../widgets/graph-explorer/ui/styles/edges.css";
+@import "../../widgets/graph-explorer/ui/styles/nodes.css";
+@import "../../widgets/graph-explorer/ui/styles/explorer.css";
+@import "../../widgets/map-explorer/ui/styles/panel.css";
+@import "../../widgets/article-modal/ui/article-modal.css";

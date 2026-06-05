@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { Handle, type NodeProps, Position } from "@xyflow/react"
-import { GitBranch, Heart, Sparkles } from "lucide-react"
+import { FileText, Heart, Sparkles } from "lucide-react"
 import { memo } from "react"
 import { toast } from "sonner"
 import { useShallow } from "zustand/react/shallow"
@@ -18,11 +18,9 @@ import type { AppNode } from "@/entities/graph"
 import { useGraphStore } from "@/entities/graph"
 
 import {
-  applySugiyamaLayout,
   articleDetailToMetadata,
   articleNodeToMetadata,
   createFilterFromArticleByKind,
-  createQueryBranchFromArticle,
 } from "@/entities/graph"
 import { ArticleAddFilterButton } from "./ArticleAddFilterButton"
 import { NodeDeleteButton } from "./NodeDeleteButton"
@@ -108,32 +106,6 @@ function ArticleNodeComponent({ id, data }: NodeProps<AppNode>) {
       )
     },
     onError: () => showErrorToast("No se pudo crear el filtro"),
-  })
-
-  const branchMutation = useMutation({
-    mutationFn: async () => {
-      const node = useGraphStore.getState().nodes.find((candidate) => candidate.id === id)
-      if (!node) {
-        return
-      }
-
-      let metadata = articleNodeToMetadata(node)
-      if (detail) {
-        metadata = articleDetailToMetadata(detail)
-      } else if (!Number.isNaN(articleId)) {
-        const fetched = await fetchArticleDetail(articleId)
-        metadata = articleDetailToMetadata(fetched)
-      }
-
-      const { nodes, edges } = useGraphStore.getState()
-      const branch = createQueryBranchFromArticle(node, metadata)
-      const mergedNodes = [...nodes, ...branch.nodes]
-      const mergedEdges = [...edges, ...branch.edges]
-      setNodes(applySugiyamaLayout(mergedNodes, mergedEdges))
-      useGraphStore.getState().setEdges(mergedEdges)
-      toast.success("Rama query + filtro creada")
-    },
-    onError: () => showErrorToast("No se pudo crear la rama"),
   })
 
   const isFavorited = detail?.is_favorited ?? false
@@ -224,29 +196,10 @@ function ArticleNodeComponent({ id, data }: NodeProps<AppNode>) {
               <Sparkles className="graph-node__icon" />
               {usesLinkedContext ? "Ver más (contexto enlazado)" : "Ver más"}
             </button>
-            <ArticleAddFilterButton
-              articleId={id}
-              disabled={addFilterMutation.isPending}
-              onAddFilter={(kind) => addFilterMutation.mutate(kind)}
-            />
-          </div>
-          <div className="flex flex-wrap gap-1">
             <button
               type="button"
-              className="graph-node__btn-link nodrag nopan"
-              onClick={(event) => {
-                event.stopPropagation()
-                branchMutation.mutate()
-              }}
-              onMouseDown={(event) => event.stopPropagation()}
-              disabled={branchMutation.isPending}
-            >
-              <GitBranch className="graph-node__icon" />
-              Rama
-            </button>
-            <button
-              type="button"
-              className="graph-node__btn-link nodrag nopan"
+              aria-label="Abrir detalle"
+              className="graph-node__btn-filter nodrag nopan"
               onClick={(event) => {
                 event.stopPropagation()
                 const node = useGraphStore
@@ -261,8 +214,13 @@ function ArticleNodeComponent({ id, data }: NodeProps<AppNode>) {
               }}
               onMouseDown={(event) => event.stopPropagation()}
             >
-              Abrir detalle
+              <FileText className="graph-node__icon" />
             </button>
+            <ArticleAddFilterButton
+              articleId={id}
+              disabled={addFilterMutation.isPending}
+              onAddFilter={(kind) => addFilterMutation.mutate(kind)}
+            />
           </div>
         </div>
       </div>

@@ -9,7 +9,6 @@ import {
 import { Dialog, DialogContent } from "@/shared/ui/dialog"
 import type { AppNode } from "@/entities/graph"
 
-import "./article-modal.css"
 import { ArticleModalContent } from "./ArticleModalContent"
 
 type ArticleNodeModalProps = {

@@ -6,12 +6,10 @@ import { fetchFavorites, type FavoriteArticle } from "@/shared/api/workspaces"
 import { Button } from "@/shared/ui/button"
 import { isLoggedIn } from "@/shared/auth"
 import { cn } from "@/shared/lib/utils"
-import { useGraphStore } from "@/entities/graph"
-
 import {
-  applySugiyamaLayout,
   favoriteArticleToGraphNode,
   mergeGraphArticles,
+  useGraphStore,
 } from "@/entities/graph"
 
 type FavoritesToolbarProps = {
@@ -55,8 +53,7 @@ export function FavoritesToolbar({ disabled }: FavoritesToolbarProps) {
       })
 
       const merged = mergeGraphArticles(nodes, edges, [newNode], [])
-      const layoutedNodes = applySugiyamaLayout(merged.nodes, merged.edges)
-      setNodes(layoutedNodes)
+      setNodes(merged.nodes)
       useGraphStore.getState().setEdges(merged.edges)
 
       toast.success("Artículo añadido al lienzo")
