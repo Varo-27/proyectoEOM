@@ -21,7 +21,16 @@ from app.schemas.engagement import (
     FollowsListPublic,
     NotePublic,
     RatingSummaryPublic,
+    normalize_rating_value,
 )
+
+
+def _rating_to_storage(value: float) -> int:
+    return int(round(normalize_rating_value(value) * 2))
+
+
+def _rating_from_storage(value: int) -> float:
+    return value / 2
 
 ALLOWED_FOLLOW_TYPES = frozenset({"author", "category", "topic", "article"})
 
@@ -278,16 +287,20 @@ def get_rating_summary(
     ).one()
 
     average_raw, count = avg_row
-    average_rating = round(float(average_raw), 1) if average_raw is not None else None
+    average_rating = (
+        round(float(average_raw) / 2, 1) if average_raw is not None else None
+    )
 
-    user_rating: int | None = None
+    user_rating: float | None = None
     if user:
         user_row = session.exec(
             select(Rating.value)
             .where(Rating.article_id == article_id)
             .where(Rating.user_id == user.id)
         ).first()
-        user_rating = int(user_row) if user_row is not None else None
+        user_rating = (
+            _rating_from_storage(int(user_row)) if user_row is not None else None
+        )
 
     return RatingSummaryPublic(
         article_id=article_id,
@@ -466,10 +479,11 @@ def toggle_favorite(
 
 
 def upsert_rating(
-    session: Session, article_id: int, user: User, value: int
+    session: Session, article_id: int, user: User, value: float
 ) -> RatingSummaryPublic:
     _ensure_article(session, article_id)
 
+    storage_value = _rating_to_storage(value)
     existing = session.exec(
         select(Rating)
         .where(Rating.article_id == article_id)
@@ -478,7 +492,7 @@ def upsert_rating(
 
     now = get_datetime_utc()
     if existing:
-        existing.value = value
+        existing.value = storage_value
         existing.updated_at = now
         session.add(existing)
     else:
@@ -486,7 +500,7 @@ def upsert_rating(
             Rating(
                 user_id=user.id,
                 article_id=article_id,
-                value=value,
+                value=storage_value,
                 updated_at=now,
             )
         )

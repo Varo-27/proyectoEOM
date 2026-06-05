@@ -33,7 +33,7 @@ class Rating(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     user_id: uuid.UUID | None = Field(default=None, foreign_key="user.id", index=True)
     article_id: int = Field(foreign_key="article.id", index=True)
-    value: int = Field(ge=1, le=5)
+    value: int = Field(ge=1, le=10)
     created_at: datetime = Field(
         default_factory=get_datetime_utc,
         sa_type=DateTime(timezone=True),  # type: ignore

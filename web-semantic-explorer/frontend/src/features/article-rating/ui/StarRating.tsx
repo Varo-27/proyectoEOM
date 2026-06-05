@@ -1,6 +1,5 @@
-import { Star } from "lucide-react"
-
-import { cn } from "@/shared/lib/utils"
+import { getStarFill } from "../lib/starFill"
+import { StarIcon } from "./StarIcon"
 
 type StarRatingProps = {
   value: number
@@ -9,28 +8,21 @@ type StarRatingProps = {
 }
 
 export function StarRating({ value, max = 5, size = "md" }: StarRatingProps) {
-  const iconClass = size === "sm" ? "h-3.5 w-3.5" : "h-4 w-4"
+  const iconSize = size === "sm" ? "sm" : "md"
 
   return (
     <div
       role="img"
       className="flex items-center gap-0.5"
-      aria-label={`Valoración ${value} de ${max}`}
+      aria-label={`Valoración ${value.toFixed(1)} de ${max}`}
     >
-      {Array.from({ length: max }, (_, index) => {
-        const filled = index < Math.round(value)
-        return (
-          <Star
-            key={index}
-            className={cn(
-              iconClass,
-              filled
-                ? "fill-primary text-primary"
-                : "fill-transparent text-muted-foreground/40",
-            )}
-          />
-        )
-      })}
+      {Array.from({ length: max }, (_, index) => (
+        <StarIcon
+          key={index}
+          fill={getStarFill(index, value)}
+          size={iconSize}
+        />
+      ))}
     </div>
   )
 }

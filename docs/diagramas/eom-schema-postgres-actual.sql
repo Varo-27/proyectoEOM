@@ -660,7 +660,7 @@ CREATE TABLE public.rating (
     value integer NOT NULL,
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp with time zone,
-    CONSTRAINT rating_value_check CHECK (((value >= 1) AND (value <= 5)))
+    CONSTRAINT rating_value_check CHECK (((value >= 1) AND (value <= 10)))
 );
 
 

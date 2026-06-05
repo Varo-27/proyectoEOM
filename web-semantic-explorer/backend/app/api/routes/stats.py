@@ -100,7 +100,9 @@ def get_place_preview(
                 excerpt=article.excerpt,
                 image_url=article.image_url,
                 date=article.date.isoformat() if article.date else None,
-                average_rating=round(float(average), 1) if average is not None else None,
+                average_rating=(
+                    round(float(average) / 2, 1) if average is not None else None
+                ),
                 ratings_count=int(rating_total or 0),
             )
         )

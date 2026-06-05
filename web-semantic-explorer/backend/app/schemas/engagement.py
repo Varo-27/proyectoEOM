@@ -1,6 +1,13 @@
 from datetime import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
+
+
+def normalize_rating_value(value: float) -> float:
+    normalized = round(value * 2) / 2
+    if normalized < 0.5 or normalized > 5:
+        raise ValueError("La valoración debe estar entre 0.5 y 5")
+    return normalized
 
 
 class ArticleCommentPublic(BaseModel):
@@ -25,7 +32,7 @@ class ArticleDetailPublic(BaseModel):
     comments: list[ArticleCommentPublic]
     average_rating: float | None
     ratings_count: int
-    user_rating: int | None = None
+    user_rating: float | None = None
     is_favorited: bool = False
     user_note: str | None = None
     user_note_updated_at: datetime | None = None
@@ -54,14 +61,19 @@ class FavoritesListPublic(BaseModel):
 
 
 class RatingUpsert(BaseModel):
-    value: int = Field(ge=1, le=5)
+    value: float = Field(ge=0.5, le=5)
+
+    @field_validator("value")
+    @classmethod
+    def validate_half_step(cls, value: float) -> float:
+        return normalize_rating_value(value)
 
 
 class RatingSummaryPublic(BaseModel):
     article_id: int
     average_rating: float | None
     ratings_count: int
-    user_rating: int | None = None
+    user_rating: float | None = None
 
 
 class CommentCreate(BaseModel):

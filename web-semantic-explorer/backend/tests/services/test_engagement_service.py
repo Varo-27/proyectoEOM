@@ -61,6 +61,10 @@ def test_favorite_toggle_and_rating(
     assert rating.average_rating == 4.0
     assert rating.ratings_count == 1
 
+    half = engagement_service.upsert_rating(db, article_id, user, 3.5)
+    assert half.user_rating == 3.5
+    assert half.average_rating == 3.5
+
     engagement_service.upsert_rating(db, article_id, user, 5)
     summary = engagement_service.get_rating_summary(db, article_id, user)
     assert summary.user_rating == 5

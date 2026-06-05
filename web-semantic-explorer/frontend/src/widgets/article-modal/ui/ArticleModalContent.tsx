@@ -1,15 +1,15 @@
-import { ExternalLink, MapPin, Tag } from "lucide-react"
+import { ExternalLink } from "lucide-react"
 
 import type { ArticleDetail } from "@/entities/article"
 import { formatArticleDate } from "@/entities/article/lib/formatArticleDate"
-import { Badge } from "@/shared/ui/badge"
 import { DialogHeader, DialogTitle } from "@/shared/ui/dialog"
 import { CommentsSection } from "@/features/article-comments"
 import { FavoriteButton } from "@/features/article-favorite"
-import { FollowTargetsList } from "@/features/article-follow"
 import { PrivateNoteSection } from "@/features/article-notes"
 import { RatingPanel } from "@/features/article-rating"
 import type { AppNode } from "@/entities/graph"
+
+import { ArticleModalTaxonomy } from "./ArticleModalTaxonomy"
 
 type ArticleModalContentProps = {
   node: AppNode
@@ -21,8 +21,10 @@ export function ArticleModalContent({ node, detail }: ArticleModalContentProps) 
   const displayTitle = detail?.title ?? node.data.title ?? "Sin título"
   const displayImage = detail?.image_url ?? node.data.imageUrl
   const displayAuthors = detail?.authors?.length
-    ? detail.authors.join(", ")
+    ? detail.authors
     : node.data.author_name
+      ? [node.data.author_name]
+      : []
   const displayExcerpt = detail?.excerpt ?? node.data.excerpt
   const displayUrl = detail?.url ?? node.data.url
   const displayImageCaption =
@@ -33,7 +35,7 @@ export function ArticleModalContent({ node, detail }: ArticleModalContentProps) 
     detail &&
     (detail.categories.length > 0 ||
       detail.places.length > 0 ||
-      (detail.follow_targets?.length ?? 0) > 0)
+      displayAuthors.length > 0)
 
   return (
     <>
@@ -59,77 +61,40 @@ export function ArticleModalContent({ node, detail }: ArticleModalContentProps) 
             </DialogTitle>
           </DialogHeader>
 
-          {(displayAuthors || detail?.date) && (
-            <div className="graph-article-modal__meta">
-              {displayAuthors && (
-                <p className="graph-article-modal__byline">Por {displayAuthors}</p>
-              )}
-              {displayAuthors && detail?.date && (
-                <span
-                  className="graph-article-modal__meta-sep"
-                  aria-hidden
-                />
-              )}
-              {detail?.date && (
-                <time className="graph-article-modal__date" dateTime={detail.date}>
-                  {formatArticleDate(detail.date)}
-                </time>
-              )}
-            </div>
+          {detail?.date && (
+            <time
+              className="graph-article-modal__date"
+              dateTime={detail.date}
+            >
+              {formatArticleDate(detail.date)}
+            </time>
           )}
 
           {displayExcerpt && (
             <p className="graph-article-modal__excerpt">{displayExcerpt}</p>
           )}
+
+          {displayUrl && (
+            <a
+              href={displayUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="graph-article-modal__original-link"
+            >
+              Abrir artículo original
+              <ExternalLink className="h-4 w-4 shrink-0" aria-hidden />
+            </a>
+          )}
         </header>
 
         {hasTaxonomy && detail && (
-          <div className="graph-article-modal__sections">
-            {detail.categories.length > 0 && (
-              <section className="graph-article-modal__section">
-                <div className="graph-article-modal__section-label">
-                  <Tag className="h-3.5 w-3.5 shrink-0" />
-                  Categorías
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {detail.categories.map((category) => (
-                    <Badge
-                      key={category}
-                      variant="outline"
-                      className="graph-article-modal__badge"
-                    >
-                      {category}
-                    </Badge>
-                  ))}
-                </div>
-              </section>
-            )}
-
-            {detail.places.length > 0 && (
-              <section className="graph-article-modal__section">
-                <div className="graph-article-modal__section-label">
-                  <MapPin className="h-3.5 w-3.5 shrink-0" />
-                  Lugares
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {detail.places.map((place) => (
-                    <Badge
-                      key={place}
-                      variant="secondary"
-                      className="graph-article-modal__badge"
-                    >
-                      {place}
-                    </Badge>
-                  ))}
-                </div>
-              </section>
-            )}
-
-            <FollowTargetsList
-              articleId={articleId}
-              targets={detail.follow_targets ?? []}
-            />
-          </div>
+          <ArticleModalTaxonomy
+            articleId={articleId}
+            categories={detail.categories}
+            places={detail.places}
+            authors={displayAuthors}
+            followTargets={detail.follow_targets ?? []}
+          />
         )}
 
         <div className="graph-article-modal__panel">
@@ -152,18 +117,6 @@ export function ArticleModalContent({ node, detail }: ArticleModalContentProps) 
         />
 
         <CommentsSection articleId={articleId} comments={detail?.comments} />
-
-        {displayUrl && (
-          <a
-            href={displayUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="graph-article-modal__footer-link"
-          >
-            Abrir artículo original
-            <ExternalLink className="h-3.5 w-3.5" />
-          </a>
-        )}
       </div>
     </>
   )
