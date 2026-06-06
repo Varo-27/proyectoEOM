@@ -3,13 +3,359 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { GraphExpandGraphData, GraphExpandGraphResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PrivateCreateUserData, PrivateCreateUserResponse, SearchSearchArticlesData, SearchSearchArticlesResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse } from './types.gen';
+import type { ArticlesGetArticleDetailData, ArticlesGetArticleDetailResponse, ArticlesToggleArticleFavoriteData, ArticlesToggleArticleFavoriteResponse, ArticlesRemoveArticleFavoriteData, ArticlesRemoveArticleFavoriteResponse, ArticlesUpsertArticleRatingData, ArticlesUpsertArticleRatingResponse, ArticlesGetArticleRatingSummaryData, ArticlesGetArticleRatingSummaryResponse, ArticlesListArticleCommentsData, ArticlesListArticleCommentsResponse, ArticlesCreateArticleCommentData, ArticlesCreateArticleCommentResponse, ArticlesGetArticleNoteData, ArticlesGetArticleNoteResponse, ArticlesUpsertArticleNoteData, ArticlesUpsertArticleNoteResponse, CommentsUpdateCommentData, CommentsUpdateCommentResponse, CommentsDeleteCommentData, CommentsDeleteCommentResponse, FavoritesListFavoritesResponse, FavoritesAddFavoriteData, FavoritesAddFavoriteResponse, FavoritesDeleteFavoriteData, FavoritesDeleteFavoriteResponse, FollowsListFollowsResponse, FollowsFollowTargetData, FollowsFollowTargetResponse, FollowsUnfollowTargetData, FollowsUnfollowTargetResponse, GraphExpandGraphRouteData, GraphExpandGraphRouteResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PrivateCreateUserData, PrivateCreateUserResponse, RatingsCreateOrUpdateRatingData, RatingsCreateOrUpdateRatingResponse, RatingsGetRatingAverageData, RatingsGetRatingAverageResponse, SearchSearchArticlesData, SearchSearchArticlesResponse, StatsGetHeatmapResponse, StatsGetPlacePreviewData, StatsGetPlacePreviewResponse, TaxonomyListAuthorsResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse, WorkspacesListWorkspacesResponse, WorkspacesCreateWorkspaceData, WorkspacesCreateWorkspaceResponse, WorkspacesGetWorkspaceSyncResponse, WorkspacesPutWorkspaceSyncData, WorkspacesPutWorkspaceSyncResponse, WorkspacesGetWorkspaceData, WorkspacesGetWorkspaceResponse, WorkspacesUpdateWorkspaceData, WorkspacesUpdateWorkspaceResponse, WorkspacesDeleteWorkspaceData, WorkspacesDeleteWorkspaceResponse } from './types.gen';
+
+export class ArticlesService {
+    /**
+     * Get Article Detail
+     * Detalle del artículo con comentarios, valoraciones y estado de favorito del usuario.
+     * @param data The data for the request.
+     * @param data.articleId
+     * @returns ArticleDetailPublic Successful Response
+     * @throws ApiError
+     */
+    public static getArticleDetail(data: ArticlesGetArticleDetailData): CancelablePromise<ArticlesGetArticleDetailResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/articles/{article_id}',
+            path: {
+                article_id: data.articleId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Toggle Article Favorite
+     * @param data The data for the request.
+     * @param data.articleId
+     * @returns FavoriteStatusPublic Successful Response
+     * @throws ApiError
+     */
+    public static toggleArticleFavorite(data: ArticlesToggleArticleFavoriteData): CancelablePromise<ArticlesToggleArticleFavoriteResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/articles/{article_id}/favorite',
+            path: {
+                article_id: data.articleId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Remove Article Favorite
+     * @param data The data for the request.
+     * @param data.articleId
+     * @returns FavoriteStatusPublic Successful Response
+     * @throws ApiError
+     */
+    public static removeArticleFavorite(data: ArticlesRemoveArticleFavoriteData): CancelablePromise<ArticlesRemoveArticleFavoriteResponse> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/api/v1/articles/{article_id}/favorite',
+            path: {
+                article_id: data.articleId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Upsert Article Rating
+     * @param data The data for the request.
+     * @param data.articleId
+     * @param data.requestBody
+     * @returns RatingSummaryPublic Successful Response
+     * @throws ApiError
+     */
+    public static upsertArticleRating(data: ArticlesUpsertArticleRatingData): CancelablePromise<ArticlesUpsertArticleRatingResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/articles/{article_id}/rating',
+            path: {
+                article_id: data.articleId
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Get Article Rating Summary
+     * @param data The data for the request.
+     * @param data.articleId
+     * @returns RatingSummaryPublic Successful Response
+     * @throws ApiError
+     */
+    public static getArticleRatingSummary(data: ArticlesGetArticleRatingSummaryData): CancelablePromise<ArticlesGetArticleRatingSummaryResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/articles/{article_id}/ratings/summary',
+            path: {
+                article_id: data.articleId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * List Article Comments
+     * @param data The data for the request.
+     * @param data.articleId
+     * @returns CommentPublic Successful Response
+     * @throws ApiError
+     */
+    public static listArticleComments(data: ArticlesListArticleCommentsData): CancelablePromise<ArticlesListArticleCommentsResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/articles/{article_id}/comments',
+            path: {
+                article_id: data.articleId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Create Article Comment
+     * @param data The data for the request.
+     * @param data.articleId
+     * @param data.requestBody
+     * @returns CommentPublic Successful Response
+     * @throws ApiError
+     */
+    public static createArticleComment(data: ArticlesCreateArticleCommentData): CancelablePromise<ArticlesCreateArticleCommentResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/articles/{article_id}/comments',
+            path: {
+                article_id: data.articleId
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Get Article Note
+     * @param data The data for the request.
+     * @param data.articleId
+     * @returns NotePublic Successful Response
+     * @throws ApiError
+     */
+    public static getArticleNote(data: ArticlesGetArticleNoteData): CancelablePromise<ArticlesGetArticleNoteResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/articles/{article_id}/note',
+            path: {
+                article_id: data.articleId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Upsert Article Note
+     * @param data The data for the request.
+     * @param data.articleId
+     * @param data.requestBody
+     * @returns NotePublic Successful Response
+     * @throws ApiError
+     */
+    public static upsertArticleNote(data: ArticlesUpsertArticleNoteData): CancelablePromise<ArticlesUpsertArticleNoteResponse> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/api/v1/articles/{article_id}/note',
+            path: {
+                article_id: data.articleId
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+}
+
+export class CommentsService {
+    /**
+     * Update Comment
+     * @param data The data for the request.
+     * @param data.commentId
+     * @param data.requestBody
+     * @returns CommentPublic Successful Response
+     * @throws ApiError
+     */
+    public static updateComment(data: CommentsUpdateCommentData): CancelablePromise<CommentsUpdateCommentResponse> {
+        return __request(OpenAPI, {
+            method: 'PATCH',
+            url: '/api/v1/comments/{comment_id}',
+            path: {
+                comment_id: data.commentId
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Delete Comment
+     * @param data The data for the request.
+     * @param data.commentId
+     * @returns void Successful Response
+     * @throws ApiError
+     */
+    public static deleteComment(data: CommentsDeleteCommentData): CancelablePromise<CommentsDeleteCommentResponse> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/api/v1/comments/{comment_id}',
+            path: {
+                comment_id: data.commentId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+}
+
+export class FavoritesService {
+    /**
+     * List Favorites
+     * @returns FavoritesListPublic Successful Response
+     * @throws ApiError
+     */
+    public static listFavorites(): CancelablePromise<FavoritesListFavoritesResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/favorites'
+        });
+    }
+    
+    /**
+     * Add Favorite
+     * @param data The data for the request.
+     * @param data.articleId
+     * @returns FavoriteStatusPublic Successful Response
+     * @throws ApiError
+     */
+    public static addFavorite(data: FavoritesAddFavoriteData): CancelablePromise<FavoritesAddFavoriteResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/favorites/{article_id}',
+            path: {
+                article_id: data.articleId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Delete Favorite
+     * @param data The data for the request.
+     * @param data.articleId
+     * @returns FavoriteStatusPublic Successful Response
+     * @throws ApiError
+     */
+    public static deleteFavorite(data: FavoritesDeleteFavoriteData): CancelablePromise<FavoritesDeleteFavoriteResponse> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/api/v1/favorites/{article_id}',
+            path: {
+                article_id: data.articleId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+}
+
+export class FollowsService {
+    /**
+     * List Follows
+     * @returns FollowsListPublic Successful Response
+     * @throws ApiError
+     */
+    public static listFollows(): CancelablePromise<FollowsListFollowsResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/follows'
+        });
+    }
+    
+    /**
+     * Follow Target
+     * @param data The data for the request.
+     * @param data.requestBody
+     * @returns FollowStatusPublic Successful Response
+     * @throws ApiError
+     */
+    public static followTarget(data: FollowsFollowTargetData): CancelablePromise<FollowsFollowTargetResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/follows',
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Unfollow Target
+     * @param data The data for the request.
+     * @param data.targetType
+     * @param data.targetId
+     * @returns FollowStatusPublic Successful Response
+     * @throws ApiError
+     */
+    public static unfollowTarget(data: FollowsUnfollowTargetData): CancelablePromise<FollowsUnfollowTargetResponse> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/api/v1/follows',
+            query: {
+                target_type: data.targetType,
+                target_id: data.targetId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+}
 
 export class GraphService {
     /**
-     * Expand Graph
-     * Expande el grafo a partir de un artículo. Retorna N nodos nuevos que no existan en existing_node_ids
-     * y calcula las aristas cruzadas entre los nuevos y los existentes según afinidad.
+     * Expand Graph Route
+     * Expande el grafo desde un artículo. Devuelve nodos nuevos y aristas,
+     * opcionalmente mezclando el contexto de las semillas (nodos input).
      * @param data The data for the request.
      * @param data.requestBody
      * @param data.limit
@@ -17,7 +363,7 @@ export class GraphService {
      * @returns ExpandResponse Successful Response
      * @throws ApiError
      */
-    public static expandGraph(data: GraphExpandGraphData): CancelablePromise<GraphExpandGraphResponse> {
+    public static expandGraphRoute(data: GraphExpandGraphRouteData): CancelablePromise<GraphExpandGraphRouteResponse> {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/api/v1/graph/expand',
@@ -153,6 +499,51 @@ export class PrivateService {
     }
 }
 
+export class RatingsService {
+    /**
+     * Create Or Update Rating
+     * @param data The data for the request.
+     * @param data.articleId ID del artículo
+     * @param data.requestBody
+     * @returns RatingSummaryPublic Successful Response
+     * @throws ApiError
+     */
+    public static createOrUpdateRating(data: RatingsCreateOrUpdateRatingData): CancelablePromise<RatingsCreateOrUpdateRatingResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/ratings',
+            query: {
+                article_id: data.articleId
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Get Rating Average
+     * @param data The data for the request.
+     * @param data.articleId ID del artículo
+     * @returns RatingSummaryPublic Successful Response
+     * @throws ApiError
+     */
+    public static getRatingAverage(data: RatingsGetRatingAverageData): CancelablePromise<RatingsGetRatingAverageResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/ratings/average',
+            query: {
+                article_id: data.articleId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+}
+
 export class SearchService {
     /**
      * Search Articles
@@ -160,6 +551,13 @@ export class SearchService {
      * @param data The data for the request.
      * @param data.q Texto libre a buscar en los artículos
      * @param data.limit Número máximo de artículos a devolver
+     * @param data.place Filtra por nombre o slug de Place
+     * @param data.category Filtra por nombre de Category
+     * @param data.author Filtra por nombre de Author
+     * @param data.yearStart Año mínimo de publicación (inclusive)
+     * @param data.yearEnd Año máximo de publicación (inclusive)
+     * @param data.seedQueries Consultas de nodos input upstream (repetir param para varias)
+     * @param data.contextArticleIds Ids de artículos ancestros del input para mezclar contexto
      * @returns SearchResponse Successful Response
      * @throws ApiError
      */
@@ -169,11 +567,73 @@ export class SearchService {
             url: '/api/v1/search',
             query: {
                 q: data.q,
+                limit: data.limit,
+                place: data.place,
+                category: data.category,
+                author: data.author,
+                year_start: data.yearStart,
+                year_end: data.yearEnd,
+                seed_queries: data.seedQueries,
+                context_article_ids: data.contextArticleIds
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+}
+
+export class StatsService {
+    /**
+     * Get Heatmap
+     * Agrega artículos por lugar (ArticlePlace) para alimentar el mapa de calor.
+     * @returns HeatmapResponse Successful Response
+     * @throws ApiError
+     */
+    public static getHeatmap(): CancelablePromise<StatsGetHeatmapResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/stats/heatmap'
+        });
+    }
+    
+    /**
+     * Get Place Preview
+     * Artículos mejor valorados de un lugar para el modal del mapa.
+     * @param data The data for the request.
+     * @param data.placeId
+     * @param data.limit
+     * @returns PlacePreviewResponse Successful Response
+     * @throws ApiError
+     */
+    public static getPlacePreview(data: StatsGetPlacePreviewData): CancelablePromise<StatsGetPlacePreviewResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/stats/places/{place_id}/preview',
+            path: {
+                place_id: data.placeId
+            },
+            query: {
                 limit: data.limit
             },
             errors: {
                 422: 'Validation Error'
             }
+        });
+    }
+}
+
+export class TaxonomyService {
+    /**
+     * List Authors
+     * Autores con al menos un artículo, ordenados por nombre (para filtros exactos).
+     * @returns AuthorsListResponse Successful Response
+     * @throws ApiError
+     */
+    public static listAuthors(): CancelablePromise<TaxonomyListAuthorsResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/taxonomy/authors'
         });
     }
 }
@@ -406,6 +866,133 @@ export class UtilsService {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/v1/utils/health-check/'
+        });
+    }
+}
+
+export class WorkspacesService {
+    /**
+     * List Workspaces
+     * @returns WorkspacesPublic Successful Response
+     * @throws ApiError
+     */
+    public static listWorkspaces(): CancelablePromise<WorkspacesListWorkspacesResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/workspaces'
+        });
+    }
+    
+    /**
+     * Create Workspace
+     * @param data The data for the request.
+     * @param data.requestBody
+     * @returns WorkspacePublic Successful Response
+     * @throws ApiError
+     */
+    public static createWorkspace(data: WorkspacesCreateWorkspaceData): CancelablePromise<WorkspacesCreateWorkspaceResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/workspaces',
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Get Workspace Sync
+     * @returns WorkspaceSyncResponse Successful Response
+     * @throws ApiError
+     */
+    public static getWorkspaceSync(): CancelablePromise<WorkspacesGetWorkspaceSyncResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/workspaces/sync'
+        });
+    }
+    
+    /**
+     * Put Workspace Sync
+     * @param data The data for the request.
+     * @param data.requestBody
+     * @returns WorkspaceSyncResponse Successful Response
+     * @throws ApiError
+     */
+    public static putWorkspaceSync(data: WorkspacesPutWorkspaceSyncData): CancelablePromise<WorkspacesPutWorkspaceSyncResponse> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/api/v1/workspaces/sync',
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Get Workspace
+     * @param data The data for the request.
+     * @param data.workspaceId
+     * @returns WorkspacePublic Successful Response
+     * @throws ApiError
+     */
+    public static getWorkspace(data: WorkspacesGetWorkspaceData): CancelablePromise<WorkspacesGetWorkspaceResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/workspaces/{workspace_id}',
+            path: {
+                workspace_id: data.workspaceId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Update Workspace
+     * @param data The data for the request.
+     * @param data.workspaceId
+     * @param data.requestBody
+     * @returns WorkspacePublic Successful Response
+     * @throws ApiError
+     */
+    public static updateWorkspace(data: WorkspacesUpdateWorkspaceData): CancelablePromise<WorkspacesUpdateWorkspaceResponse> {
+        return __request(OpenAPI, {
+            method: 'PATCH',
+            url: '/api/v1/workspaces/{workspace_id}',
+            path: {
+                workspace_id: data.workspaceId
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Delete Workspace
+     * @param data The data for the request.
+     * @param data.workspaceId
+     * @returns string Successful Response
+     * @throws ApiError
+     */
+    public static deleteWorkspace(data: WorkspacesDeleteWorkspaceData): CancelablePromise<WorkspacesDeleteWorkspaceResponse> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/api/v1/workspaces/{workspace_id}',
+            path: {
+                workspace_id: data.workspaceId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
         });
     }
 }

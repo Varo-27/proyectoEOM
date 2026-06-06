@@ -1,6 +1,6 @@
 /**
  * Configuración compartida del cliente openapi-ts.
- * Importar y llamar `configureOpenAPI()` desde el entrypoint (main.tsx).
+ * Importar y llamar `configureOpenAPI()` desde el entrypoint (AppProviders).
  */
 import { OpenAPI } from "./core/OpenAPI"
 
