@@ -28,6 +28,7 @@ mkdir -p "$OUTPUT_DIR"
 
 echo "Exportando volumen ${VOLUME_NAME}..."
 docker run --rm \
+  --user "$(id -u):$(id -g)" \
   -v "${VOLUME_NAME}:/data:ro" \
   -v "${OUTPUT_DIR}:/backup" \
   alpine tar czf "/backup/${ARCHIVE_NAME}" -C /data .
