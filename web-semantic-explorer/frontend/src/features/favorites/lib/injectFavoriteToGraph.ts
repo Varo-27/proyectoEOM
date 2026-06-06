@@ -1,11 +1,10 @@
 import type { XYPosition } from "@xyflow/react"
-
-import type { FavoriteArticle } from "@/shared/api/workspaces"
 import {
   favoriteArticleToGraphNode,
   mergeGraphArticles,
   useGraphStore,
 } from "@/entities/graph"
+import type { FavoriteArticle } from "@/shared/api/workspaces"
 
 type FavoriteGraphPayload = Pick<
   FavoriteArticle,
@@ -28,7 +27,7 @@ export function defaultFavoriteInjectPosition(): XYPosition {
       320,
     y:
       nodes.reduce((sum, node) => sum + node.position.y, 0) /
-        Math.max(nodes.length, 1),
+      Math.max(nodes.length, 1),
   }
 }
 

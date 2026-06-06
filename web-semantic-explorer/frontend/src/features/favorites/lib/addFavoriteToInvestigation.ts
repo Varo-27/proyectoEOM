@@ -1,17 +1,14 @@
-import type { FavoriteArticle } from "@/shared/api/workspaces"
-import type { GraphSearchParams } from "@/shared/lib/filters"
-import { filtersToSearchParams } from "@/shared/lib/filters"
 import {
   favoriteArticleToGraphNode,
   mergeGraphArticles,
   useGraphStore,
 } from "@/entities/graph"
 import { useWorkspaceStore } from "@/entities/workspace"
+import type { FavoriteArticle } from "@/shared/api/workspaces"
+import type { GraphSearchParams } from "@/shared/lib/filters"
+import { filtersToSearchParams } from "@/shared/lib/filters"
 
-type NavigateFn = (options: {
-  to: string
-  search?: GraphSearchParams
-}) => void
+type NavigateFn = (options: { to: string; search?: GraphSearchParams }) => void
 
 export function addFavoriteToInvestigation(
   favorite: FavoriteArticle,

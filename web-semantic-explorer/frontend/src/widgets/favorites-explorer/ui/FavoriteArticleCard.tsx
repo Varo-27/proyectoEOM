@@ -1,5 +1,5 @@
-import type { FavoriteArticle } from "@/shared/api/workspaces"
 import { StarRating } from "@/features/article-rating"
+import type { FavoriteArticle } from "@/shared/api/workspaces"
 import { cn } from "@/shared/lib/utils"
 
 import { FavoriteArticleAddMenu } from "./FavoriteArticleAddMenu"

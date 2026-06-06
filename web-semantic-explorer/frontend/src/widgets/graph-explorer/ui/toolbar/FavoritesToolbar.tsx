@@ -3,8 +3,6 @@ import { Link } from "@tanstack/react-router"
 import { Search, Star } from "lucide-react"
 import { useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
-
-import type { FavoriteArticle } from "@/shared/api/workspaces"
 import {
   defaultFavoriteInjectPosition,
   EMPTY_FAVORITES_FILTERS,
@@ -12,13 +10,14 @@ import {
   injectFavoriteToGraph,
   useFavoritesList,
 } from "@/features/favorites"
-import { Input } from "@/shared/ui/input"
+import type { FavoriteArticle } from "@/shared/api/workspaces"
 import { isLoggedIn } from "@/shared/auth"
 import { cn } from "@/shared/lib/utils"
+import { Input } from "@/shared/ui/input"
 
 import {
-  setPaletteDragData,
   type PaletteArticleDragData,
+  setPaletteDragData,
 } from "../palette/paletteDrag"
 
 type FavoritesToolbarProps = {
@@ -130,7 +129,9 @@ export function FavoritesToolbar({ disabled }: FavoritesToolbarProps) {
         <p className="text-xs text-muted-foreground">Cargando favoritos…</p>
       )}
       {isError && (
-        <p className="text-xs text-destructive">No se pudieron cargar favoritos</p>
+        <p className="text-xs text-destructive">
+          No se pudieron cargar favoritos
+        </p>
       )}
 
       <div className="graph-favorites__list max-h-48 overflow-y-auto">

@@ -1,32 +1,32 @@
-import { type Edge, type NodeMouseHandler, type NodeTypes } from "@xyflow/react"
+import type { Edge, NodeMouseHandler, NodeTypes } from "@xyflow/react"
 import "@xyflow/react/dist/style.css"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import { useShallow } from "zustand/react/shallow"
-
 import {
+  type AppNode,
   centerPaletteDropPosition,
   createQueryNodeAtPosition,
   GRAPH_NODE_TYPE,
   isValidGraphConnection,
   markArticleVisited,
+  useGraphStore,
 } from "@/entities/graph"
+import type { WorkspaceViewport } from "@/entities/workspace"
+import { useWorkspaceStore } from "@/entities/workspace"
+import { injectFavoriteToGraph } from "@/features/favorites"
 import { useGraphExpand } from "@/features/graph-expand"
 import { useGraphSearch, useMapSearchBootstrap } from "@/features/graph-search"
-import { injectFavoriteToGraph } from "@/features/favorites"
 import { useWorkspaceAutosave } from "@/features/workspace-sync"
 import { useTheme } from "@/shared/lib/theme/ThemeProvider"
 import { cn } from "@/shared/lib/utils"
-import { type AppNode, useGraphStore } from "@/entities/graph"
-import { useWorkspaceStore } from "@/entities/workspace"
-import type { WorkspaceViewport } from "@/entities/workspace"
 import { ArticleNodeModal } from "@/widgets/article-modal"
 
 import { scheduleCenterViewportOnNode } from "./centerViewportOnNode"
 import { GraphFlowCanvas } from "./GraphFlowCanvas"
-import { QueryNode } from "./nodes/InputNode"
 import { ArticleNode } from "./nodes/ArticleNode"
+import { QueryNode } from "./nodes/InputNode"
 import { SearchNode } from "./nodes/SearchNode"
 import { GraphNodePalette } from "./palette/GraphNodePalette"
 import { isPaletteDragEvent, readPaletteDragData } from "./palette/paletteDrag"
@@ -46,10 +46,9 @@ export function GraphExplorer() {
   const { resolvedTheme } = useTheme()
   const navigate = useNavigate({ from: "/" })
   const searchParams = useSearch({ from: "/_layout/" })
-  const reactFlowRef = useRef<import("@xyflow/react").ReactFlowInstance<
-    AppNode,
-    Edge
-  > | null>(null)
+  const reactFlowRef = useRef<
+    import("@xyflow/react").ReactFlowInstance<AppNode, Edge> | null
+  >(null)
   const viewportSaveTimerRef = useRef<number | null>(null)
   const [isCanvasDragOver, setIsCanvasDragOver] = useState(false)
 
@@ -292,8 +291,11 @@ export function GraphExplorer() {
   )
 
   const isValidConnection = useCallback(
-    (connection: import("@xyflow/react").Edge | import("@xyflow/react").Connection) =>
-      isValidGraphConnection(connection, nodes),
+    (
+      connection:
+        | import("@xyflow/react").Edge
+        | import("@xyflow/react").Connection,
+    ) => isValidGraphConnection(connection, nodes),
     [nodes],
   )
 

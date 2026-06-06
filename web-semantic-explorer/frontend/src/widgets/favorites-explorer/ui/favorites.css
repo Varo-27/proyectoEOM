@@ -22,7 +22,7 @@
 
   .favorites-filters {
     @apply flex flex-col gap-3 border-2 border-foreground bg-background p-3;
-    box-shadow: 4px 4px 0 0 var(--color-foreground);
+    box-shadow: var(--shadow-brutal-sm);
   }
 
   .favorites-filters__row {

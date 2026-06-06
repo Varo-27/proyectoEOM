@@ -1,17 +1,17 @@
 export { addFavoriteToInvestigation } from "./lib/addFavoriteToInvestigation"
 export {
-  defaultFavoriteInjectPosition,
-  injectFavoriteToGraph,
-} from "./lib/injectFavoriteToGraph"
+  EMPTY_FAVORITES_FILTERS,
+  FAVORITES_QUERY_KEY,
+  type FavoritesFilters,
+  hasActiveFavoritesFilters,
+  type RatedFilter,
+} from "./lib/favoritesFilters"
 export {
   collectFavoriteFilterOptions,
   filterFavorites,
 } from "./lib/filterFavorites"
 export {
-  EMPTY_FAVORITES_FILTERS,
-  FAVORITES_QUERY_KEY,
-  hasActiveFavoritesFilters,
-  type FavoritesFilters,
-  type RatedFilter,
-} from "./lib/favoritesFilters"
+  defaultFavoriteInjectPosition,
+  injectFavoriteToGraph,
+} from "./lib/injectFavoriteToGraph"
 export { useFavoritesList } from "./lib/useFavoritesList"

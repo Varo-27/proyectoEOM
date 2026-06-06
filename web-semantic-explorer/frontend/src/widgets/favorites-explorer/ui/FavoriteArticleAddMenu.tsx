@@ -1,12 +1,11 @@
 import { Plus, X } from "lucide-react"
 import { useState } from "react"
-
+import { cn } from "@/shared/lib/utils"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/shared/ui/dropdown-menu"
-import { cn } from "@/shared/lib/utils"
 
 type FavoriteArticleAddMenuProps = {
   articleTitle: string

@@ -1,20 +1,18 @@
-import { Link } from "@tanstack/react-router"
-import { useNavigate } from "@tanstack/react-router"
+import { Link, useNavigate } from "@tanstack/react-router"
 import { Star } from "lucide-react"
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
-
-import type { FavoriteArticle } from "@/shared/api/workspaces"
+import type { AppNode } from "@/entities/graph"
+import { useWorkspaceStore } from "@/entities/workspace"
 import {
   addFavoriteToInvestigation,
   collectFavoriteFilterOptions,
   EMPTY_FAVORITES_FILTERS,
+  type FavoritesFilters,
   filterFavorites,
   useFavoritesList,
-  type FavoritesFilters,
 } from "@/features/favorites"
-import type { AppNode } from "@/entities/graph"
-import { useWorkspaceStore } from "@/entities/workspace"
+import type { FavoriteArticle } from "@/shared/api/workspaces"
 import { isLoggedIn } from "@/shared/auth"
 import { ArticleNodeModal } from "@/widgets/article-modal"
 
@@ -24,7 +22,9 @@ import { FavoritesFilterBar } from "./FavoritesFilterBar"
 export function FavoritesExplorer() {
   const navigate = useNavigate()
   const loggedIn = isLoggedIn()
-  const [filters, setFilters] = useState<FavoritesFilters>(EMPTY_FAVORITES_FILTERS)
+  const [filters, setFilters] = useState<FavoritesFilters>(
+    EMPTY_FAVORITES_FILTERS,
+  )
   const [articleModalNode, setArticleModalNode] = useState<AppNode | null>(null)
   const [articleModalOpen, setArticleModalOpen] = useState(false)
 
@@ -33,7 +33,9 @@ export function FavoritesExplorer() {
     (state) => state.hydrateForCurrentUser,
   )
   const activeWorkspaceName = useWorkspaceStore((state) => {
-    const active = state.workspaces.find((ws) => ws.id === state.activeWorkspaceId)
+    const active = state.workspaces.find(
+      (ws) => ws.id === state.activeWorkspaceId,
+    )
     return active?.name
   })
 

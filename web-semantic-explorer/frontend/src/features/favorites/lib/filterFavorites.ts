@@ -56,8 +56,7 @@ export function filterFavorites(
     if (
       filters.category &&
       !favorite.categories.some(
-        (category) =>
-          category.toLowerCase() === filters.category.toLowerCase(),
+        (category) => category.toLowerCase() === filters.category.toLowerCase(),
       )
     ) {
       return false
