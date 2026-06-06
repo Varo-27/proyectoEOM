@@ -2,12 +2,12 @@
   .graph-article-modal {
     /* !max-w anula sm:max-w-lg del DialogContent (~512px) */
     @apply max-h-[min(92vh,880px)] w-full max-w-[calc(100%-1.5rem)]! gap-0 overflow-y-auto rounded-none border-2 border-foreground p-0 sm:max-w-[min(90vw,44rem)]! lg:max-w-[min(88vw,48rem)]!;
-    box-shadow: 6px 6px 0 0 var(--color-foreground);
+    box-shadow: var(--shadow-brutal-md);
   }
 
   .graph-article-modal [data-slot="dialog-close"] {
     @apply inline-flex items-center justify-center rounded-none border-2 border-foreground bg-background text-muted-foreground opacity-100 transition-colors hover:bg-muted hover:text-foreground top-3 right-3 z-20;
-    box-shadow: 2px 2px 0 0 var(--color-foreground);
+    box-shadow: var(--shadow-brutal-xs);
   }
 
   .graph-article-modal__loading {
@@ -73,7 +73,7 @@
 
   .graph-article-modal__original-link {
     @apply inline-flex w-full items-center justify-center gap-2 border-2 border-foreground bg-background px-5 py-3 font-mono text-sm uppercase tracking-widest text-foreground transition-colors hover:bg-muted sm:w-auto;
-    box-shadow: 3px 3px 0 0 var(--color-foreground);
+    box-shadow: var(--shadow-brutal-lift);
   }
 
   .graph-article-modal__taxonomy {
@@ -104,7 +104,9 @@
     @apply border-primary/45 bg-primary/8 text-foreground hover:bg-primary/12;
   }
 
-  .graph-article-modal__taxon-chip:not(.graph-article-modal__taxon-chip--static):hover {
+  .graph-article-modal__taxon-chip:not(
+      .graph-article-modal__taxon-chip--static
+    ):hover {
     @apply border-foreground/45 bg-muted/40;
   }
 

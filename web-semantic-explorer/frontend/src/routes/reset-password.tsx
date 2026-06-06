@@ -11,6 +11,9 @@ import { z } from "zod"
 
 import { LoginService } from "@/client"
 import { AuthLayout } from "@/features/auth"
+import { isLoggedIn } from "@/shared/auth"
+import { handleError } from "@/shared/lib/errors"
+import useCustomToast from "@/shared/lib/useCustomToast"
 import {
   Form,
   FormControl,
@@ -21,9 +24,6 @@ import {
 } from "@/shared/ui/form"
 import { LoadingButton } from "@/shared/ui/loading-button"
 import { PasswordInput } from "@/shared/ui/password-input"
-import { isLoggedIn } from "@/shared/auth"
-import useCustomToast from "@/shared/lib/useCustomToast"
-import { handleError } from "@/shared/lib/errors"
 
 const searchSchema = z.object({
   token: z.string().catch(""),

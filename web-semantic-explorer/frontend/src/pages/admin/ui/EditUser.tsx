@@ -6,6 +6,8 @@ import { useForm } from "react-hook-form"
 import { z } from "zod"
 
 import { type UserPublic, UsersService } from "@/client"
+import { handleError } from "@/shared/lib/errors"
+import useCustomToast from "@/shared/lib/useCustomToast"
 import { Button } from "@/shared/ui/button"
 import { Checkbox } from "@/shared/ui/checkbox"
 import {
@@ -28,8 +30,6 @@ import {
 } from "@/shared/ui/form"
 import { Input } from "@/shared/ui/input"
 import { LoadingButton } from "@/shared/ui/loading-button"
-import useCustomToast from "@/shared/lib/useCustomToast"
-import { handleError } from "@/shared/lib/errors"
 
 const formSchema = z
   .object({

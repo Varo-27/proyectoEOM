@@ -57,16 +57,27 @@ export function Footer() {
 
           <nav className="eom-footer__nav" aria-label="Enlaces del sitio">
             {footerNavLinks.map(({ label, href }) => (
-              <ExternalLink key={href} href={href} className="eom-footer__nav-link">
+              <ExternalLink
+                key={href}
+                href={href}
+                className="eom-footer__nav-link"
+              >
                 {label}
               </ExternalLink>
             ))}
           </nav>
 
-          <ul className="eom-footer__icons" aria-label="Redes sociales y podcast">
+          <ul
+            className="eom-footer__icons"
+            aria-label="Redes sociales y podcast"
+          >
             {allIcons.map(({ icon: Icon, href, label }) => (
               <li key={href}>
-                <ExternalLink href={href} className="eom-footer__icon-btn" ariaLabel={label}>
+                <ExternalLink
+                  href={href}
+                  className="eom-footer__icon-btn"
+                  ariaLabel={label}
+                >
                   <Icon className="size-3.5" aria-hidden />
                 </ExternalLink>
               </li>

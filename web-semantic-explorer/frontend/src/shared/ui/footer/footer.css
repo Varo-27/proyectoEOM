@@ -1,7 +1,7 @@
 @layer components {
   .eom-footer {
     @apply shrink-0 border-t-2 border-foreground bg-muted/30 text-foreground;
-    box-shadow: 0 -2px 0 0 var(--color-foreground);
+    box-shadow: var(--shadow-brutal-footer-top);
   }
 
   .eom-footer__inner {
@@ -38,12 +38,12 @@
 
   .eom-footer__cta-btn {
     @apply inline-flex shrink-0 items-center border-2 border-foreground bg-primary px-2.5 py-1 font-mono text-[9px] font-bold uppercase tracking-widest text-primary-foreground transition-all sm:text-[10px];
-    box-shadow: 2px 2px 0 0 var(--color-foreground);
+    box-shadow: var(--shadow-brutal-xs);
   }
 
   .eom-footer__cta-btn:hover {
     @apply -translate-x-px -translate-y-px;
-    box-shadow: 3px 3px 0 0 var(--color-foreground);
+    box-shadow: var(--shadow-brutal-lift);
   }
 
   .eom-footer__legal {

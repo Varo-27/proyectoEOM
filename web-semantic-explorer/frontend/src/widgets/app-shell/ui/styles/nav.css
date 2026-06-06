@@ -5,7 +5,7 @@
 
   .eom-nav-link--active {
     @apply -translate-x-0.5 -translate-y-0.5 border-foreground bg-background text-foreground;
-    box-shadow: 3px 3px 0 0 var(--color-foreground);
+    box-shadow: var(--shadow-brutal-lift);
   }
 
   .eom-nav-link--idle {
@@ -14,12 +14,12 @@
 
   .eom-nav-icon-btn {
     @apply inline-flex size-9 items-center justify-center border-2 border-foreground bg-background text-muted-foreground transition-all;
-    box-shadow: 2px 2px 0 0 var(--color-foreground);
+    box-shadow: var(--shadow-brutal-xs);
   }
 
   .eom-nav-icon-btn:hover {
     @apply -translate-x-px -translate-y-px;
-    box-shadow: 3px 3px 0 0 var(--color-foreground);
+    box-shadow: var(--shadow-brutal-lift);
   }
 
   .eom-nav-bar {
@@ -32,7 +32,7 @@
 
   .eom-nav-header {
     @apply z-20 flex h-14 shrink-0 items-center gap-3 overflow-visible border-b-2 border-foreground bg-background px-4 sm:gap-4 sm:px-6;
-    box-shadow: 0 4px 0 0 var(--color-foreground);
+    box-shadow: var(--shadow-brutal-nav-under);
   }
 
   .eom-nav-logo {
@@ -45,7 +45,7 @@
 
   .eom-dropdown-brutal {
     @apply min-w-40 rounded-none border-2 border-foreground;
-    box-shadow: 4px 4px 0 0 var(--color-foreground);
+    box-shadow: var(--shadow-brutal-sm);
   }
 
   .eom-dropdown-item {
@@ -54,11 +54,11 @@
 
   .eom-nav-user-trigger {
     @apply inline-flex max-w-[200px] items-center gap-2 border-2 border-foreground bg-background px-2 py-1 transition-all;
-    box-shadow: 2px 2px 0 0 var(--color-foreground);
+    box-shadow: var(--shadow-brutal-xs);
   }
 
   .eom-nav-user-trigger:hover {
     @apply -translate-x-px -translate-y-px;
-    box-shadow: 3px 3px 0 0 var(--color-foreground);
+    box-shadow: var(--shadow-brutal-lift);
   }
 }

@@ -6,7 +6,8 @@ import {
 } from "@tanstack/react-router"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import { AuthLayout } from "@/features/auth"
+import useAuth, { AuthLayout } from "@/features/auth"
+import { isLoggedIn } from "@/shared/auth"
 import {
   Form,
   FormControl,
@@ -18,8 +19,6 @@ import {
 import { Input } from "@/shared/ui/input"
 import { LoadingButton } from "@/shared/ui/loading-button"
 import { PasswordInput } from "@/shared/ui/password-input"
-import useAuth from "@/features/auth"
-import { isLoggedIn } from "@/shared/auth"
 
 const formSchema = z
   .object({

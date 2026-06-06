@@ -7,13 +7,13 @@
   }
 
   .graph-edge--highlight .react-flow__edge-path {
-    stroke: var(--eom-green);
+    stroke: var(--primary);
     stroke-width: 2.5;
     opacity: 0.45;
   }
 
   .graph-edge__flow {
-    stroke: var(--eom-green-light);
+    stroke: var(--primary);
     stroke-dasharray: 6 10;
     animation: graph-edge-flow 0.75s linear infinite;
   }

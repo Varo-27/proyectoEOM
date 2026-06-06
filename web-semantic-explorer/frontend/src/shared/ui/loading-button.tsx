@@ -1,7 +1,7 @@
-import * as React from "react"
 import { Slot, Slottable } from "@radix-ui/react-slot"
+import type { VariantProps } from "class-variance-authority"
 import { Loader2 } from "lucide-react"
-import { type VariantProps } from "class-variance-authority"
+import type * as React from "react"
 
 import { cn } from "@/shared/lib/utils"
 import { buttonVariants } from "./button"

@@ -241,7 +241,7 @@
 
   .graph-node__author-menu {
     @apply absolute top-full right-0 left-0 z-50 mt-1 max-h-44 overflow-y-auto border-2 border-foreground bg-popover py-1;
-    box-shadow: 2px 2px 0 0 var(--color-foreground);
+    box-shadow: var(--shadow-brutal-xs);
   }
 
   .graph-node__author-option {
@@ -272,7 +272,7 @@
   .graph-node.graph-node-active .eom-title-highlight {
     background: linear-gradient(
       0deg,
-      color-mix(in srgb, var(--eom-green) 16%, transparent) 50%,
+      color-mix(in srgb, var(--primary) 16%, transparent) 50%,
       transparent 50%
     );
   }

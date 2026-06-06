@@ -2,6 +2,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 
 import { UsersService } from "@/client"
+import useAuth from "@/features/auth"
+import { handleError } from "@/shared/lib/errors"
+import useCustomToast from "@/shared/lib/useCustomToast"
 import { Button } from "@/shared/ui/button"
 import {
   Dialog,
@@ -14,9 +17,6 @@ import {
   DialogTrigger,
 } from "@/shared/ui/dialog"
 import { LoadingButton } from "@/shared/ui/loading-button"
-import useAuth from "@/features/auth"
-import useCustomToast from "@/shared/lib/useCustomToast"
-import { handleError } from "@/shared/lib/errors"
 
 const DeleteConfirmation = () => {
   const queryClient = useQueryClient()

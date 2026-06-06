@@ -4,6 +4,8 @@ import { useForm } from "react-hook-form"
 import { z } from "zod"
 
 import { type UpdatePassword, UsersService } from "@/client"
+import { handleError } from "@/shared/lib/errors"
+import useCustomToast from "@/shared/lib/useCustomToast"
 import {
   Form,
   FormControl,
@@ -14,8 +16,6 @@ import {
 } from "@/shared/ui/form"
 import { LoadingButton } from "@/shared/ui/loading-button"
 import { PasswordInput } from "@/shared/ui/password-input"
-import useCustomToast from "@/shared/lib/useCustomToast"
-import { handleError } from "@/shared/lib/errors"
 
 const formSchema = z
   .object({
