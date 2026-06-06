@@ -205,7 +205,7 @@ Inventario de lo que el usuario puede hacer hoy en la interfaz. Sirve como base 
 - Clic en lugar del listado o región seleccionada: misma navegación al grafo con parámetros de lugar.
 - Resaltar códigos de países al pasar por regiones transnacionales.
 
-### Autenticación y cuenta (template FastAPI)
+### Autenticación y cuenta
 
 - **Login**, **registro**, **recuperar** y **restablecer** contraseña.
 - Sesión con token; rutas protegidas según plantilla.

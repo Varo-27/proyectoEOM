@@ -1,5 +1,4 @@
 import { Appearance } from "@/shared/ui/Appearance"
-import { Footer } from "@/shared/ui/footer/Footer"
 import { Logo } from "@/shared/ui/logo/Logo"
 
 interface AuthLayoutProps {
@@ -8,23 +7,16 @@ interface AuthLayoutProps {
 
 export function AuthLayout({ children }: AuthLayoutProps) {
   return (
-    <div className="grid min-h-svh lg:grid-cols-2">
-      <div className="bg-muted dark:bg-zinc-900 relative hidden lg:flex lg:items-center lg:justify-center lg:p-[clamp(2rem,5vw,4rem)]">
-        <Logo
-          variant="full"
-          className="h-auto w-[clamp(16rem,38vw,36rem)] max-w-full"
-          asLink={false}
-        />
+    <div className="relative flex min-h-svh flex-col items-center justify-center px-6 py-10">
+      <div className="absolute top-4 right-4 sm:top-6 sm:right-6">
+        <Appearance />
       </div>
-      <div className="flex flex-col gap-4 p-6 md:p-10">
-        <div className="flex justify-end">
-          <Appearance />
-        </div>
-        <div className="flex flex-1 items-center justify-center">
-          <div className="w-full max-w-xs">{children}</div>
-        </div>
-        <Footer />
-      </div>
+      <Logo
+        variant="full"
+        className="h-auto w-[clamp(12rem,min(72vw,38vh),28rem)] max-w-full"
+        asLink={false}
+      />
+      <div className="mt-8 w-full max-w-xs">{children}</div>
     </div>
   )
 }

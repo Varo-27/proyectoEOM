@@ -1,5 +1,5 @@
 {
-  "name": "fastapi-full-stack-template",
+  "name": "semantic-explorer",
   "private": true,
   "packageManager": "pnpm@10.32.1",
   "scripts": {

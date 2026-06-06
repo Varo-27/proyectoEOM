@@ -1,4 +1,4 @@
-# FastAPI Project - Backend
+# Semantic Explorer — Backend
 
 ## Requirements
 

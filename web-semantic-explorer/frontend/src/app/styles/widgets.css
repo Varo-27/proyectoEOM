@@ -2,6 +2,7 @@
  * Estilos de widgets cargados en el bootstrap global.
  * Evita depender del code-splitting de imports colocados en componentes.
  */
+@import "../../shared/ui/footer/footer.css";
 @import "../../widgets/app-shell/ui/styles/nav.css";
 @import "../../widgets/app-shell/ui/styles/shell.css";
 @import "../../widgets/graph-explorer/ui/styles/react-flow.css";

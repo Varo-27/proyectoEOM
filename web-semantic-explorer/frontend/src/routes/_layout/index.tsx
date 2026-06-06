@@ -18,7 +18,7 @@ export const Route = createFileRoute("/_layout/")({
   head: () => ({
     meta: [
       {
-        title: "Semantic Graph Explorer",
+        title: "Gnosis graph",
       },
     ],
   }),
