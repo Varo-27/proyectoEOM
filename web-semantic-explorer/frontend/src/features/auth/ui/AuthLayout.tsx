@@ -9,8 +9,12 @@ interface AuthLayoutProps {
 export function AuthLayout({ children }: AuthLayoutProps) {
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
-      <div className="bg-muted dark:bg-zinc-900 relative hidden lg:flex lg:items-center lg:justify-center">
-        <Logo variant="full" className="h-16" asLink={false} />
+      <div className="bg-muted dark:bg-zinc-900 relative hidden lg:flex lg:items-center lg:justify-center lg:p-[clamp(2rem,5vw,4rem)]">
+        <Logo
+          variant="full"
+          className="h-auto w-[clamp(16rem,38vw,36rem)] max-w-full"
+          asLink={false}
+        />
       </div>
       <div className="flex flex-col gap-4 p-6 md:p-10">
         <div className="flex justify-end">

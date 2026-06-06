@@ -31,8 +31,12 @@
   }
 
   .eom-nav-header {
-    @apply z-20 flex h-14 shrink-0 items-center gap-3 border-b-2 border-foreground bg-background px-4 sm:gap-4 sm:px-6;
+    @apply z-20 flex h-14 shrink-0 items-center gap-3 overflow-visible border-b-2 border-foreground bg-background px-4 sm:gap-4 sm:px-6;
     box-shadow: 0 4px 0 0 var(--color-foreground);
+  }
+
+  .eom-nav-logo {
+    @apply ml-1.5 inline-flex shrink-0 items-center;
   }
 
   .eom-nav-menu {

@@ -184,7 +184,11 @@ export function TopNavBar() {
 
   return (
     <header className="eom-nav-header">
-      <Logo variant="full" className="h-5 w-auto shrink-0" />
+      <Logo
+        variant="full"
+        className="h-9 w-auto"
+        linkClassName="eom-nav-logo"
+      />
       <nav className="eom-nav-menu" aria-label="Principal">
         {items.map((item) => (
           <NavLink key={item.path} item={item} />
