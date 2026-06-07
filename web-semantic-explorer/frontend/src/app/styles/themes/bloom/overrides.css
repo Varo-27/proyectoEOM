@@ -11,7 +11,7 @@ html[data-theme="bloom"] .border-2 {
 }
 
 /* Sidebar: tarjetas */
-html[data-theme="bloom"] :is(.graph-workspace, .graph-favorites, .graph-palette) {
+html[data-theme="bloom"] :is(.graph-workspace, .graph-drag-sidebar) {
   margin: 0.75rem !important;
   border-radius: 1.25rem !important;
   border: 1px solid color-mix(in srgb, var(--border) 85%, transparent) !important;

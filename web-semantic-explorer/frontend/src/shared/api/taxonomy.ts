@@ -10,9 +10,24 @@ export type AuthorsListResponse = {
   authors: AuthorOption[]
 }
 
+export type CategoryOption = {
+  name: string
+}
+
+export type CategoriesListResponse = {
+  categories: CategoryOption[]
+}
+
 export function listAuthors(): CancelablePromise<AuthorsListResponse> {
   return request(OpenAPI, {
     method: "GET",
     url: "/api/v1/taxonomy/authors",
+  })
+}
+
+export function listCategories(): CancelablePromise<CategoriesListResponse> {
+  return request(OpenAPI, {
+    method: "GET",
+    url: "/api/v1/taxonomy/categories",
   })
 }

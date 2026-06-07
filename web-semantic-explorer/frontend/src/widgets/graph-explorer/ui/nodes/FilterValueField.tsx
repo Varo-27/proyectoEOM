@@ -5,6 +5,7 @@ import { FILTER_LABELS } from "@/shared/lib/filters"
 import { Input } from "@/shared/ui/input"
 
 import { AuthorFilterCombobox } from "./AuthorFilterCombobox"
+import { CategoryFilterCombobox } from "./CategoryFilterCombobox"
 
 type FilterValueFieldProps = {
   filterKey: FilterNodeKind
@@ -26,6 +27,17 @@ function FilterValueFieldComponent({
         onCommit={onCommit}
         disabled={disabled}
         placeholder={FILTER_LABELS.author}
+      />
+    )
+  }
+
+  if (filterKey === "category") {
+    return (
+      <CategoryFilterCombobox
+        value={value}
+        onCommit={onCommit}
+        disabled={disabled}
+        placeholder={FILTER_LABELS.category}
       />
     )
   }

@@ -26,11 +26,10 @@ import { ArticleNodeModal } from "@/widgets/article-modal"
 import { scheduleCenterViewportOnNode } from "./centerViewportOnNode"
 import { GraphFlowCanvas } from "./GraphFlowCanvas"
 import { ArticleNode } from "./nodes/ArticleNode"
-import { QueryNode } from "./nodes/InputNode"
+import { QueryNode } from "./nodes/QueryNode"
 import { SearchNode } from "./nodes/SearchNode"
-import { GraphNodePalette } from "./palette/GraphNodePalette"
 import { isPaletteDragEvent, readPaletteDragData } from "./palette/paletteDrag"
-import { FavoritesToolbar } from "./toolbar/FavoritesToolbar"
+import { ExplorerDragSidebar } from "./sidebar/ExplorerDragSidebar"
 import { WorkspaceBar } from "./workspace/WorkspaceBar"
 
 const nodeTypes: NodeTypes = {
@@ -336,8 +335,7 @@ export function GraphExplorer() {
 
         <aside className="graph-explorer__sidebar">
           <WorkspaceBar />
-          <GraphNodePalette isLoading={isLoading} />
-          <FavoritesToolbar disabled={isLoading} />
+          <ExplorerDragSidebar disabled={isLoading} />
         </aside>
       </div>
     </div>

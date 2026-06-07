@@ -19,12 +19,24 @@
     @apply flex h-full items-center justify-center bg-muted/20 font-mono text-sm text-muted-foreground;
   }
 
-  .graph-palette {
-    @apply flex flex-col gap-4 p-4;
+  .graph-drag-sidebar {
+    @apply flex flex-col gap-4 border-b-2 border-foreground p-4;
   }
 
-  .graph-palette__hint {
+  .graph-drag-sidebar__hint {
     @apply mt-1 text-xs leading-relaxed text-muted-foreground;
+  }
+
+  .graph-drag-sidebar__section {
+    @apply flex flex-col gap-2;
+  }
+
+  .graph-drag-sidebar__section-title {
+    @apply font-mono text-[10px] uppercase tracking-wider text-muted-foreground;
+  }
+
+  .graph-drag-sidebar__list {
+    @apply mt-1;
   }
 
   .graph-explorer__canvas--drag-over {
@@ -33,14 +45,6 @@
 
   .graph-workspace {
     @apply flex flex-col gap-3 border-b-2 border-foreground bg-background p-4;
-  }
-
-  .graph-favorites {
-    @apply flex flex-col gap-3 border-b-2 border-foreground p-4;
-  }
-
-  .graph-favorites__list {
-    @apply mt-1;
   }
 
   .graph-workspace__select {

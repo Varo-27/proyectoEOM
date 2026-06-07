@@ -41,12 +41,13 @@ def apply_metadata_filters(
         )
 
     if filters.category:
-        pattern = f"%{filters.category}%"
+        # Filtro duro: coincidencia exacta de nombre (lista desplegable en UI)
+        category_name = filters.category.strip()
         conditions.append(
             select(ArticleCategory.article_id)
             .join(Category, Category.id == ArticleCategory.category_id)
             .where(ArticleCategory.article_id == Article.id)
-            .where(Category.name.ilike(pattern))
+            .where(func.lower(Category.name) == category_name.lower())
             .exists()
         )
 

@@ -60,6 +60,17 @@ def test_apply_metadata_filters_place_adds_exists(mock_session: MagicMock) -> No
     assert "españa" in sql
 
 
+def test_apply_metadata_filters_category_exact_match(mock_session: MagicMock) -> None:
+    base = select(Article).join(Embedding, Article.id == Embedding.entity_id)
+    filters = ArticleMetadataFilters(category="Geopolítica")
+    result = apply_metadata_filters(base, mock_session, filters)
+    sql = _compile_sql(result).lower()
+    assert "exists" in sql
+    assert "article_category" in sql
+    assert "geopolítica" in sql
+    assert "%geopolítica%" not in sql
+
+
 def test_apply_metadata_filters_author_exact_match(mock_session: MagicMock) -> None:
     base = select(Article).join(Embedding, Article.id == Embedding.entity_id)
     filters = ArticleMetadataFilters(author="Álvaro Merino")

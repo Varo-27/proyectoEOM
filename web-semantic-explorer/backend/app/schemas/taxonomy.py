@@ -7,3 +7,11 @@ class AuthorOption(BaseModel):
 
 class AuthorsListResponse(BaseModel):
     authors: list[AuthorOption]
+
+
+class CategoryOption(BaseModel):
+    name: str
+
+
+class CategoriesListResponse(BaseModel):
+    categories: list[CategoryOption]

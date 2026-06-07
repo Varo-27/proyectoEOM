@@ -15,7 +15,7 @@
   }
 
   [data-theme="bloom"] .graph-workspace,
-  [data-theme="bloom"] .graph-favorites {
+  [data-theme="bloom"] .graph-drag-sidebar {
     @apply border-b border-border/60 bg-background;
   }
 
@@ -35,20 +35,20 @@
     box-shadow: var(--shadow-brutal-xs);
   }
 
-  [data-theme="bloom"] .graph-favorites input,
-  [data-theme="bloom"] .graph-favorites .graph-favorites__list .eom-draggable {
+  [data-theme="bloom"] .graph-drag-sidebar input,
+  [data-theme="bloom"] .graph-drag-sidebar .graph-drag-sidebar__list .eom-draggable {
     @apply rounded-xl;
   }
 
-  [data-theme="bloom"] .graph-favorites .graph-favorites__list .eom-draggable span {
+  [data-theme="bloom"] .graph-drag-sidebar .graph-drag-sidebar__list .eom-draggable span {
     @apply font-sans normal-case tracking-normal;
   }
 
-  [data-theme="bloom"] .graph-favorites a {
+  [data-theme="bloom"] .graph-drag-sidebar a {
     @apply font-sans text-xs normal-case tracking-normal;
   }
 
-  [data-theme="bloom"] .graph-palette .eom-draggable {
+  [data-theme="bloom"] .graph-drag-sidebar .eom-draggable {
     @apply rounded-xl font-sans normal-case tracking-normal;
   }
 

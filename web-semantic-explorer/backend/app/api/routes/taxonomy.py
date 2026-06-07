@@ -2,9 +2,14 @@ from fastapi import APIRouter
 from sqlmodel import select
 
 from app.api.deps import SessionDep
-from app.models.relations import ArticleAuthor
-from app.models.taxonomy import Author
-from app.schemas.taxonomy import AuthorOption, AuthorsListResponse
+from app.models.relations import ArticleAuthor, ArticleCategory
+from app.models.taxonomy import Author, Category
+from app.schemas.taxonomy import (
+    AuthorOption,
+    AuthorsListResponse,
+    CategoriesListResponse,
+    CategoryOption,
+)
 
 router = APIRouter(prefix="/taxonomy", tags=["taxonomy"])
 
@@ -21,4 +26,19 @@ def list_authors(session: SessionDep) -> AuthorsListResponse:
 
     return AuthorsListResponse(
         authors=[AuthorOption(name=name) for name in rows if name]
+    )
+
+
+@router.get("/categories", response_model=CategoriesListResponse)
+def list_categories(session: SessionDep) -> CategoriesListResponse:
+    """Categorías con al menos un artículo, ordenadas por nombre (para filtros exactos)."""
+    rows = session.exec(
+        select(Category.name)
+        .join(ArticleCategory, ArticleCategory.category_id == Category.id)
+        .distinct()
+        .order_by(Category.name)
+    ).all()
+
+    return CategoriesListResponse(
+        categories=[CategoryOption(name=name) for name in rows if name]
     )

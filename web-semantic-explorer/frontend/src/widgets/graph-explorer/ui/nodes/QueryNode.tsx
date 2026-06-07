@@ -31,11 +31,11 @@ function QueryNodeComponent({ id, data }: NodeProps<AppNode>) {
       return
     }
     const trimmed = query.trim()
-    const searchFromInput = useGraphStore.getState().searchFromInput
-    if (!trimmed || !searchFromInput) {
+    const searchFromQuery = useGraphStore.getState().searchFromInput
+    if (!trimmed || !searchFromQuery) {
       return
     }
-    searchFromInput(id, trimmed)
+    searchFromQuery(id, trimmed)
   }
 
   return (
@@ -59,7 +59,7 @@ function QueryNodeComponent({ id, data }: NodeProps<AppNode>) {
               </span>
             </div>
           </div>
-          <NodeDeleteButton nodeId={id} ariaLabel="Eliminar consulta" />
+          <NodeDeleteButton nodeId={id} ariaLabel="Eliminar búsqueda" />
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-2">
@@ -94,9 +94,6 @@ function QueryNodeComponent({ id, data }: NodeProps<AppNode>) {
 }
 
 export const QueryNode = memo(QueryNodeComponent)
-
-/** @deprecated Usar `QueryNode`. */
-export const InputNode = QueryNode
 
 function readQueryFromTitle(title: string): string {
   const prefix = "Búsqueda: "
