@@ -16,7 +16,7 @@ type CommentsSectionProps = {
 }
 
 export function CommentsSection({ articleId, comments }: CommentsSectionProps) {
-  const [commentsOpen, setCommentsOpen] = useState(true)
+  const [commentsOpen, setCommentsOpen] = useState(false)
   const [commentDraft, setCommentDraft] = useState("")
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null)
   const [editDraft, setEditDraft] = useState("")

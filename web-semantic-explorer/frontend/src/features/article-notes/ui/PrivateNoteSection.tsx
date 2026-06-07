@@ -18,7 +18,7 @@ export function PrivateNoteSection({
   userNote,
   userNoteUpdatedAt,
 }: PrivateNoteSectionProps) {
-  const [noteOpen, setNoteOpen] = useState(true)
+  const [noteOpen, setNoteOpen] = useState(false)
   const [noteDraft, setNoteDraft] = useState("")
   const loggedIn = isLoggedIn()
   const { mutate, isPending } = useArticleNote(articleId)

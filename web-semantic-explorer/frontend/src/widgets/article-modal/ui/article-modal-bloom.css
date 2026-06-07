@@ -20,6 +20,10 @@
     @apply rounded-none;
   }
 
+  [data-theme="bloom"] .graph-article-modal__secondary {
+    @apply border-t border-border/60 md:border-t-0 md:border-l;
+  }
+
   [data-theme="bloom"] .graph-article-modal__header {
     @apply border-b border-border/50;
   }
