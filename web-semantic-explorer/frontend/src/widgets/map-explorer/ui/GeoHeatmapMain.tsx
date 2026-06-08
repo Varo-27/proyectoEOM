@@ -220,7 +220,7 @@ export const GeoHeatmapMain = memo(function GeoHeatmapMain({
               Panel del mapa
             </SheetTitle>
             <SheetDescription className="sr-only">
-              Leyenda, países y macro-regiones del mapa de cobertura.
+              Leyenda, países y macro-regiones del mapa de calor.
             </SheetDescription>
           </SheetHeader>
           <div className="map-sidebar-sheet__body">

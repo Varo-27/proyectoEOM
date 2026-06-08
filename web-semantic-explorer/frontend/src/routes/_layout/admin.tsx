@@ -35,7 +35,7 @@ export const Route = createFileRoute("/_layout/admin")({
   head: () => ({
     meta: [
       {
-        title: "Admin · Semantic Explorer",
+        title: "Usuarios · Semantic Explorer",
       },
     ],
   }),
@@ -66,9 +66,9 @@ function Admin() {
     <div className="flex flex-col gap-6 p-6 md:p-8 max-w-7xl mx-auto w-full">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Users</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Usuarios</h1>
           <p className="text-muted-foreground">
-            Manage user accounts and permissions
+            Gestiona cuentas de usuario y permisos
           </p>
         </div>
         <AddUser />

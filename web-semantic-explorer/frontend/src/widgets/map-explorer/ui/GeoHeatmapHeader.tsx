@@ -28,10 +28,7 @@ export const GeoHeatmapHeader = memo(function GeoHeatmapHeader({
   return (
     <header className="grid gap-4 border-b-2 border-foreground bg-background px-4 py-4 shadow-[0_4px_0_0_var(--color-foreground)] sm:px-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start lg:gap-6">
       <div className="min-w-0 space-y-1">
-        <p className="text-[10px] font-mono uppercase tracking-widest text-primary">
-          Fase 3 · visión geoespacial
-        </p>
-        <h1 className="font-sans text-2xl font-bold">Mapa de cobertura</h1>
+        <h1 className="font-sans text-2xl font-bold">Mapa de calor</h1>
         <p className="max-w-xl text-sm text-muted-foreground">
           Intensidad por volumen de artículos. Rueda del ratón para zoom,
           arrastra para mover. Clic en un país hace zoom y te permite añadirlo

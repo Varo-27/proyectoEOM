@@ -15,7 +15,7 @@ export const BASE_NAV_ITEMS: NavItem[] = [
 
 export const ADMIN_NAV_ITEM: NavItem = {
   icon: Users,
-  title: "Admin",
+  title: "Usuarios",
   path: "/admin",
 }
 

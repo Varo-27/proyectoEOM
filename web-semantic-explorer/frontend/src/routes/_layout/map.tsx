@@ -5,6 +5,6 @@ import { MapPage } from "@/pages/map"
 export const Route = createFileRoute("/_layout/map")({
   component: MapPage,
   head: () => ({
-    meta: [{ title: "Mapa de cobertura · Semantic Explorer" }],
+    meta: [{ title: "Mapa de calor · Semantic Explorer" }],
   }),
 })

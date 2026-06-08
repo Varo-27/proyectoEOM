@@ -1,0 +1,212 @@
+// Semantic Explorer — backend (PostgreSQL)
+// Colores: headercolor #497d0c (verde EOM). ChartDB local (8080) compilado con defaultTableColor #497d0c.
+// Importar en ChartDB: New diagram → PostgreSQL → pegar este DBML → Import
+
+Project semantic_explorer {
+  database_type: 'PostgreSQL'
+  Note: 'Modelo usado por web-semantic-explorer/backend (SQLModel). embedding y follow tienen relaciones lógicas, no siempre FK en BD.'
+}
+
+Table "user" [headercolor: #497d0c] {
+  id uuid [pk, not null]
+  email varchar(255) [unique, not null]
+  hashed_password varchar [not null]
+  is_active boolean [not null, default: true]
+  is_superuser boolean [not null, default: false]
+  full_name varchar(255)
+  color_theme varchar(32) [not null, default: 'eom']
+  appearance_mode varchar(16) [not null, default: 'system']
+  created_at timestamptz
+}
+
+Table article [headercolor: #497d0c] {
+  id int [pk, increment]
+  url varchar [unique, not null]
+  title varchar
+  excerpt text
+  content text
+  image_url varchar
+  date timestamp
+  paywalled boolean [default: false]
+}
+
+Table embedding [headercolor: #497d0c] {
+  id int [pk, increment]
+  entity_type varchar(50) [not null, note: 'p. ej. article']
+  entity_id int [not null]
+  vector varchar [note: 'pgvector vector(1024) en Postgres']
+}
+
+Table author [headercolor: #497d0c] {
+  id int [pk, increment]
+  name varchar [unique, not null]
+  profile_url varchar
+  bio varchar
+}
+
+Table category [headercolor: #497d0c] {
+  id int [pk, increment]
+  name varchar [not null]
+  slug varchar
+  url varchar
+  type varchar
+}
+
+Table place [headercolor: #497d0c] {
+  id int [pk, increment]
+  name varchar [not null]
+  slug varchar
+  url varchar
+}
+
+Table tag [headercolor: #497d0c] {
+  id int [pk, increment]
+  name varchar [not null]
+  slug varchar
+  url varchar
+}
+
+Table topic [headercolor: #497d0c] {
+  id int [pk, increment]
+  name varchar [not null]
+  description text
+  keywords text
+  size int
+}
+
+Table article_author [headercolor: #497d0c] {
+  article_id int [pk, not null]
+  author_id int [pk, not null]
+}
+
+Table article_category [headercolor: #497d0c] {
+  article_id int [pk, not null]
+  category_id int [pk, not null]
+}
+
+Table article_place [headercolor: #497d0c] {
+  article_id int [pk, not null]
+  place_id int [pk, not null]
+}
+
+Table article_tag [headercolor: #497d0c] {
+  article_id int [pk, not null]
+  tag_id int [pk, not null]
+}
+
+Table article_topic [headercolor: #497d0c] {
+  article_id int [pk, not null]
+  topic_id int [pk, not null]
+}
+
+Table topic_hierarchy [headercolor: #497d0c] {
+  parent_topic_id int [pk, not null]
+  child_topic_id int [pk, not null]
+  level int
+}
+
+Table favorite [headercolor: #497d0c] {
+  id int [pk, increment]
+  user_id uuid [not null]
+  article_id int [not null]
+  created_at timestamptz [not null]
+  Note: 'UNIQUE (user_id, article_id)'
+}
+
+Table rating [headercolor: #497d0c] {
+  id int [pk, increment]
+  user_id uuid
+  article_id int [not null]
+  value int [not null, note: '1..10']
+  created_at timestamptz [not null]
+  updated_at timestamptz
+  Note: 'UNIQUE (user_id, article_id)'
+}
+
+Table comment [headercolor: #497d0c] {
+  id int [pk, increment]
+  user_id uuid [not null]
+  article_id int [not null]
+  content text [not null]
+  status varchar(20) [not null, default: 'active']
+  created_at timestamptz [not null]
+  updated_at timestamptz
+}
+
+Table comment_report [headercolor: #497d0c] {
+  id int [pk, increment]
+  comment_id int [not null]
+  reporter_user_id uuid [not null]
+  reason text [not null]
+  status varchar(20) [not null, default: 'open']
+  created_at timestamptz [not null]
+  Note: 'UNIQUE (comment_id, reporter_user_id)'
+}
+
+Table note [headercolor: #497d0c] {
+  id int [pk, increment]
+  user_id uuid [not null]
+  article_id int [not null]
+  content text [not null]
+  created_at timestamptz [not null]
+  updated_at timestamptz
+  Note: 'UNIQUE (user_id, article_id)'
+}
+
+Table follow [headercolor: #497d0c] {
+  id int [pk, increment]
+  user_id uuid [not null]
+  target_type varchar(20) [not null, note: 'author | category | place']
+  target_id int [not null]
+  created_at timestamptz [not null]
+  Note: 'UNIQUE (user_id, target_type, target_id); sin FK polimórfica'
+}
+
+Table workspace [headercolor: #497d0c] {
+  id uuid [pk, not null]
+  user_id uuid [not null]
+  name varchar(255) [not null]
+  graph json [not null]
+  schema_version int [not null, default: 1]
+  server_revision uuid [not null]
+  created_at timestamptz [not null]
+  updated_at timestamptz [not null]
+}
+
+Table user_workspace_state [headercolor: #497d0c] {
+  user_id uuid [pk, not null]
+  active_workspace_id uuid
+  updated_at timestamptz [not null]
+}
+
+// ── Usuario ──
+Ref: favorite.user_id > "user".id
+Ref: rating.user_id > "user".id
+Ref: comment.user_id > "user".id
+Ref: comment_report.reporter_user_id > "user".id
+Ref: note.user_id > "user".id
+Ref: follow.user_id > "user".id
+Ref: workspace.user_id > "user".id
+Ref: user_workspace_state.user_id - "user".id
+
+// ── Artículo ──
+Ref: favorite.article_id > article.id
+Ref: rating.article_id > article.id
+Ref: comment.article_id > article.id
+Ref: note.article_id > article.id
+
+Ref: comment_report.comment_id > comment.id
+
+// ── Taxonomía M:N ──
+Ref: article_author.article_id > article.id
+Ref: article_author.author_id > author.id
+Ref: article_category.article_id > article.id
+Ref: article_category.category_id > category.id
+Ref: article_place.article_id > article.id
+Ref: article_place.place_id > place.id
+Ref: article_tag.article_id > article.id
+Ref: article_tag.tag_id > tag.id
+Ref: article_topic.article_id > article.id
+Ref: article_topic.topic_id > topic.id
+Ref: topic_hierarchy.parent_topic_id > topic.id
+Ref: topic_hierarchy.child_topic_id > topic.id

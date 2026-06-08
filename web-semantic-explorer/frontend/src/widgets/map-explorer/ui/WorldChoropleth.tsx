@@ -209,7 +209,7 @@ export const WorldChoropleth = memo(function WorldChoropleth({
         preserveAspectRatio="xMidYMid meet"
         className="world-choropleth h-full w-full cursor-grab touch-none active:cursor-grabbing"
         role="img"
-        aria-label="Mapa mundial de cobertura"
+        aria-label="Mapa mundial de calor"
       >
         <g transform={transform.toString()}>
           <rect
