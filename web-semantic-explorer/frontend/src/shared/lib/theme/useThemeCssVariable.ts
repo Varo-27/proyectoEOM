@@ -9,7 +9,7 @@ export function useThemeCssVariable(name: string, fallback: string): string {
 
   useEffect(() => {
     setValue(readCssVariable(name) || fallback)
-  }, [name, fallback])
+  }, [name, fallback, resolvedTheme, colorTheme])
 
   return value
 }
