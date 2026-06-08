@@ -24,6 +24,10 @@ services:
       context: .
       dockerfile: web-semantic-explorer/backend/Dockerfile
     restart: always
+    command:
+      - bash
+      - "-c"
+      - "bash ./scripts/prestart.sh && fastapi run --workers 1 app/main.py"
     depends_on:
       db:
         condition: service_healthy
